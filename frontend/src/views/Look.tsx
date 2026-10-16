@@ -35,7 +35,9 @@ export function Look({ sid, version, onChanged }: { sid: string; version: number
   const virt = useVirtualizer({
     count: msgs.length,
     getScrollElement: () => docRef.current,
-    estimateSize: (i) => 40 + msgs[i].blocks.length * 60,
+    // Estimate from the real line counts (collapsed bodies included): a poor estimate makes the list
+    // jump when rows are measured while scrolling.
+    estimateSize: (i) => estimateMessageHeight(msgs[i]),
     overscan: 6,
   });
 
@@ -99,6 +101,18 @@ export function Look({ sid, version, onChanged }: { sid: string; version: number
   );
 }
 
+const LINE_PX = 17;
+function estimateMessageHeight(msg: MessageView): number {
+  let h = 34;
+  for (const b of msg.blocks) {
+    const lines = b.text ? b.text.split("\n").length : 0;
+    const shown = lines > HEAD_LINES + TAIL_LINES + 4 ? HEAD_LINES + TAIL_LINES + 2 : lines;
+    const wrapped = b.text ? Math.ceil(b.text.length / 140) : 0; // long lines wrap
+    h += 26 + LINE_PX * Math.min(Math.max(shown, Math.min(wrapped, HEAD_LINES + TAIL_LINES + 2)), 40);
+  }
+  return h;
+}
+
 function Outline({ msgs, sel, onPick }: { msgs: MessageView[]; sel: Flat | null; onPick: (m: number) => void }) {
   return (
     <div className="outline scroll">
@@ -152,8 +166,8 @@ function Block({ eid, b, on, onPick }: { eid: string; b: BlockView; on: boolean;
       {b.type === "thinking" || b.type === "redacted_thinking" ? (
         !b.text && <div className="gap-note">reasoning not visible (display "omitted"); ~{fmt(b.tokens)} tokens</div>
       ) : null}
-      {b.text && b.type !== "tool_use" && (
-        <div className="body" data-key={key}>
+      {b.text && (
+        <div className={`body ${b.type === "tool_use" ? "secondary" : ""}`} data-key={key}>
           <pre data-offset={0}>{head}</pre>
           {long && (
             <>
@@ -166,7 +180,6 @@ function Block({ eid, b, on, onPick }: { eid: string; b: BlockView; on: boolean;
           )}
         </div>
       )}
-      {b.type === "tool_use" && <pre className="secondary">{b.text}</pre>}
     </div>
   );
 }
