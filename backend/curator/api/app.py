@@ -21,7 +21,7 @@ from ..core.segment import segments, text_of
 from ..core.tokens import estimate_raw
 from ..core.validate import validate
 from ..core.wire import dumps, request_hash
-from ..services import experiments, loop, staging
+from ..services import experiments, export, loop, staging
 from ..services import sessions as S
 from . import schemas as A
 
@@ -290,6 +290,27 @@ def live_apply(sid: str):
 @app.post("/api/sessions/{sid}/live/settings")
 def live_settings(sid: str, body: A.LiveSettings):
     return _loop(loop.set_auto_continue, store, sid, body.auto_continue)
+
+
+@app.get("/api/sessions/{sid}/calls/{call_id}")
+def call_detail(sid: str, call_id: str):
+    """The exact request body sent for this call ("latest" for the last one) and the raw response."""
+    try:
+        return export.call_detail(store, sid, None if call_id == "latest" else call_id)
+    except KeyError as e:
+        raise HTTPException(404, str(e)) from None
+
+
+@app.get("/api/sessions/{sid}/live/pending-request")
+def pending_request(sid: str):
+    return _loop(export.pending_request, store, sid)
+
+
+@app.get("/api/sessions/{sid}/export.jsonl", response_class=PlainTextResponse)
+def export_session(sid: str):
+    _view(sid)
+    return PlainTextResponse(export.export_jsonl(store, sid), headers={
+        "content-disposition": f'attachment; filename="curator-session-{sid}.jsonl"'})
 
 
 @app.get("/api/sessions/{sid}/calls", response_model=list[A.CallSummary])

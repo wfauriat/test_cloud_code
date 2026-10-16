@@ -115,6 +115,12 @@ export const api = {
   liveReset: (sid: string) => call<LiveView>("POST", `/sessions/${sid}/live/reset`),
   liveApply: (sid: string) => call<LiveView>("POST", `/sessions/${sid}/live/apply-edits`),
   liveSettings: (sid: string, auto_continue: boolean) => call<LiveView>("POST", `/sessions/${sid}/live/settings`, { auto_continue }),
+  callDetail: (sid: string, cid: string) =>
+    call<{ id: string; n: number; request: Record<string, unknown>; response: Record<string, unknown> | null; error: string | null }>(
+      "GET", `/sessions/${sid}/calls/${cid}`),
+  pendingRequest: (sid: string) =>
+    call<{ hash: string; request: Record<string, unknown>; validation: Diag[] }>("GET", `/sessions/${sid}/live/pending-request`),
+  exportUrl: (sid: string) => `/api/sessions/${sid}/export.jsonl`,
   calls: (sid: string) => call<CallSummary[]>("GET", `/sessions/${sid}/calls`),
   abPreview: (sid: string, spec: Record<string, unknown>) => call<ABPreview>("POST", `/sessions/${sid}/ab/preview`, spec),
   abRun: (sid: string, spec: Record<string, unknown>) => call<ABRun>("POST", `/sessions/${sid}/ab/run`, spec),
