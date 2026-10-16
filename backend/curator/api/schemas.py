@@ -215,3 +215,29 @@ class CallSummary(BaseModel):
     latency_ms: int | None
     error: str | None
     created_at: str
+
+
+class ABSpec(BaseModel):
+    call_n: int | None = None
+    arms: list[str] = ["as_is", "curated", "server_clear", "curated_brief"]
+    keep_n: int = 3
+    model: str = "claude-opus-5-5"
+    effort: str = "medium"
+    max_tokens: int = 4096
+    system_text: str | None = None
+
+
+class ABVerdict(BaseModel):
+    preferred: str | None = None
+    notes: str = ""
+
+
+class SummaryRequest(BaseModel):
+    targets: list[dict[str, Any]]
+    model: str = "claude-haiku-5-5"
+
+
+class SummaryAccept(BaseModel):
+    targets: list[dict[str, Any]]
+    text: str
+    call_id: str

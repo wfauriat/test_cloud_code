@@ -31,3 +31,10 @@ API and format behaviour met while building. Each entry: what we saw, where it i
     - Implemented in `loop._invalid_thinking`. `prefix.diff` stays conservative: any replayed thinking after the divergence counts as at risk.
     - For the spec: the wire log must link every thinking block to its producing call.
 11. **Free edits must become "applied" once sent.** An op on not-yet-sent content goes out with the next call. If it stayed "staged", it would drop out of the next request (staged ops on sent content wait for a rebuild), and the verifier would see a divergence. Handled: free ops switch to applied after the send.
+
+## Experiments
+
+12. **The server baseline breaks the cache too.** `clear_tool_uses` invalidates the cached prefix from where it clears. Its only advantage over a client edit is that thinking stays valid. The A/B cost preview therefore gives the server arm no shared-prefix discount.
+    - `clear_tool_uses` selects only by age, threshold and tool-name exclusion, so it is a blunt baseline. That makes it a useful one: client-side rules have to beat it.
+13. **Cut points in imports can fall mid tool round.** A log copied while a call was running ends with a tool call without its result. Arms built at "end of session" then fail the validator (V07) and the run skips them. Cut before the last call instead.
+14. **Imported tool definitions are mostly unknown.** A/B arms on imports declare stand-in tools (open schema) for every tool name in the history; only deferred tools have logged definitions. Proposed tool calls in those arms are indicative, not faithful.

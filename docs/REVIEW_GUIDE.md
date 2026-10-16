@@ -28,6 +28,7 @@ No I/O. Every function can be called from a notebook: `from curator.core.render 
 - `cli.py`: everything above from the command line.
 - `adapters/provider.py`: the provider port. Real Anthropic client (fields newer than the SDK go via `extra_body`), a scripted fake for tests, an echo fake for the UI.
 - `adapters/executor.py`: workspace-confined tools, input checks, effect analysis for the tool gate.
+- `services/experiments.py`: next-step A/B (arms, stand-in preamble for imports, cost preview) and the draft summary (side call → accepted ops).
 - `services/loop.py`: the live state machine. Read the module docstring first: the three checks before a send, free edits vs. rebuild, and `_invalid_thinking` (the exact per-producer thinking check).
 
 ## 3. API and UI
@@ -37,7 +38,16 @@ No I/O. Every function can be called from a notebook: `from curator.core.render 
 - `frontend/src/views/Look.tsx`: outline, context map, document (virtualized), inspector, keyboard.
 - `frontend/src/views/Timeline.tsx`: per-call usage chart and table.
 - `frontend/src/views/Curate.tsx`: proposals, ops, brief, preview, request view.
+- `frontend/src/views/Live.tsx`: live session creation, prompt gate, tool gate, wire-log table.
+- `frontend/src/views/Experiments.tsx`: A/B setup, cost preview, side-by-side results, verdict.
 - The UI never computes anything the backend owns (PLAN D4): every preview is a backend call.
 
 ## 4. Tests
-`backend/tests/`: `test_render.py` (one test per render, repair or validator rule), `test_core.py` (ops, prefix, costs with the spec's worked example, rules, calibration, policy), `test_import.py` (a synthetic log reproducing the format's quirks), `test_live.py` (gates, hash-tied approval, modify, workspace confinement, ingestion bound, rebuild with thinking strip), `test_api.py` (route smoke test).
+`backend/tests/`: `test_render.py` (one test per render, repair or validator rule), `test_core.py` (ops, prefix, costs with the spec's worked example, rules, calibration, policy), `test_import.py` (a synthetic log reproducing the format's quirks), `test_live.py` (gates, hash-tied approval, modify, workspace confinement, ingestion bound, rebuild with thinking strip), `test_api.py` (route smoke test), `test_experiments.py` (arms, run without executing tools, summary accepted only on request).
+
+## 5. First live run: what to watch
+The live path was tested against fakes only. On the first real calls, check:
+- the per-call verifier stays "append-only" (if not, the stored reply does not round-trip: `provider.py` QUESTION);
+- `cache_read_input_tokens` grows call after call (Calls table in the Live tab);
+- every 400 body in the observations (`api_error`) becomes a validator rule;
+- `fallbacks: "default"` and the top-level `cache_control` are accepted together.

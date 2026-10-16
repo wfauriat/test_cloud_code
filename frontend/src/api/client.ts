@@ -53,6 +53,18 @@ export interface LiveView {
   };
 }
 
+export interface ABPreview {
+  arms: { arm: string; messages: number; tokens_est: number; tokens_exact: number | null; shared_with_first: number;
+    validation: Diag[]; cost_est: number; betas: string[] }[];
+  total_cost_est: number; brief: boolean;
+}
+export interface ABRun {
+  id: string; total_cost: number;
+  arms: { arm: string; error?: string; stop_reason?: string; model?: string; usage?: Record<string, unknown>; cost?: number;
+    text?: string; tool_calls?: { name: string; input: unknown }[]; thinking_summary?: string; applied_edits?: unknown }[];
+}
+export interface RunRecord { id: string; created_at: string; spec: unknown; result: Omit<ABRun, "id"> | null; verdict: Record<string, unknown> | null }
+
 async function call<T>(method: string, path: string, body?: unknown): Promise<T> {
   const res = await fetch(`/api${path}`, {
     method,
@@ -103,6 +115,15 @@ export const api = {
   liveApply: (sid: string) => call<LiveView>("POST", `/sessions/${sid}/live/apply-edits`),
   liveSettings: (sid: string, auto_continue: boolean) => call<LiveView>("POST", `/sessions/${sid}/live/settings`, { auto_continue }),
   calls: (sid: string) => call<CallSummary[]>("GET", `/sessions/${sid}/calls`),
+  abPreview: (sid: string, spec: Record<string, unknown>) => call<ABPreview>("POST", `/sessions/${sid}/ab/preview`, spec),
+  abRun: (sid: string, spec: Record<string, unknown>) => call<ABRun>("POST", `/sessions/${sid}/ab/run`, spec),
+  abRuns: (sid: string) => call<RunRecord[]>("GET", `/sessions/${sid}/ab/runs`),
+  abVerdict: (sid: string, rid: string, v: { preferred: string; notes: string }) =>
+    call<{ ok: boolean }>("POST", `/sessions/${sid}/ab/runs/${rid}/verdict`, v),
+  summarize: (sid: string, targets: Span[]) =>
+    call<{ draft: string; call: string; model: string; cost: number }>("POST", `/sessions/${sid}/summarize`, { targets }),
+  acceptSummary: (sid: string, targets: Span[], text: string, call_id: string) =>
+    call<OpView[]>("POST", `/sessions/${sid}/summarize/accept`, { targets, text, call_id }),
   brief: (sid: string) => call<BriefItemView[]>("GET", `/sessions/${sid}/brief`),
   addBrief: (sid: string, type: string, text: string) => call<BriefItemView>("POST", `/sessions/${sid}/brief`, { type, text }),
   updateBrief: (sid: string, bid: string, body: { text?: string; status?: string }) =>
