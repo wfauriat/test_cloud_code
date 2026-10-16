@@ -62,4 +62,27 @@ Live calls use your key: run the backend with `ANTHROPIC_API_KEY` set. To try th
 cd backend && CURATOR_PROVIDER=echo uv run uvicorn curator.api.app:app --port 8765   # "ls" in a message triggers a list_dir call
 ```
 
+## Try it (step B5: experiments)
+
+- **A/B tab (next-step A/B, Q5, Q8):**
+  - Pick a cut point (before call N) and the arms: as is, curated (your staged ops), the server's `clear_tool_uses` with keep N (the baseline the curator must beat), and curated + brief.
+  - **Preview cost** gives tokens and an estimate per arm. **Run** sends each arm once (tools declared, never executed; thinking stripped in all arms) and shows the proposed next steps side by side. Record a verdict.
+  - Real calls on your key: preview first.
+- **LLM draft summary (inspector, Look tab):**
+  - A side call (Haiku 5.5) drafts a summary of a block or a message. You can edit it.
+  - **Accept** freezes it into staged ops (replace + drop, author `llm:<call>`); nothing changes before that.
+- **Observations:** `curator export` or `GET /api/observations.jsonl` give every logged measurement for your analysis.
+
+## Build status
+
+| Step | Status |
+|---|---|
+| B1 core + import + CLI | done, tested |
+| B2 Look + Timeline | done |
+| B3 Curate (ops, staging, preview, brief, request view) | done |
+| B4 Live loop (gates, executor, verifier, rebuild) | thin: tested with fakes only; not yet run against the real API |
+| B5 Experiments (A/B, draft summary) | thin: tested with fakes only |
+
+Not built (PLAN §0, §1 "Deferred"): SSE streaming, semantic KR, collateral checks, retention probes, sandbox, keep-alive, an API-log importer.
+
 After changing `backend/curator/api/schemas.py`, run `npm run gen:api` in `frontend/` to regenerate the TS types.

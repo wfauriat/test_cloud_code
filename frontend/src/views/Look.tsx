@@ -5,7 +5,8 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { api, type BlockDetail, type BlockView, type MessageView, type Span } from "../api/client";
 import { CATEGORY_ORDER, LABEL, catColor, fmt, kfmt } from "../format";
 
-type Flat = { m: number; b: number; key: string; eid: string; block: BlockView; start: number };
+type Flat = { m: number; b: number; key: string; eid: string; block: BlockView; start: number; siblings: number[] };
+const msgBlocks = (f: Flat): Span[] => f.siblings.map((index) => ({ event_id: f.eid, index }));
 const keyOf = (eid: string, index: number) => `${eid}#${index}`;
 const HEAD_LINES = 12;
 const TAIL_LINES = 6;
@@ -22,7 +23,8 @@ export function Look({ sid, version, onChanged }: { sid: string; version: number
     const out: Flat[] = [];
     let start = 0;
     msgs.forEach((msg, m) => msg.blocks.forEach((block, b) => {
-      out.push({ m, b, key: keyOf(msg.event_id, block.index), eid: msg.event_id, block, start });
+      out.push({ m, b, key: keyOf(msg.event_id, block.index), eid: msg.event_id, block, start,
+        siblings: msg.blocks.map((x) => x.index) });
       start += block.tokens;
     }));
     return out;
@@ -193,6 +195,7 @@ function Inspector({ sid, f, version, act, revokeAll, onChanged }: {
   revokeAll: (f: Flat) => Promise<void>;
 }) {
   const [detail, setDetail] = useState<BlockDetail | null>(null);
+  const [summary, setSummary] = useState<{ draft: string; call: string; model: string; cost: number; targets: Span[] } | null>(null);
   useEffect(() => {
     setDetail(null);
     if (f) api.block(sid, f.eid, f.block.index).then(setDetail).catch(() => setDetail(null));
@@ -207,6 +210,11 @@ function Inspector({ sid, f, version, act, revokeAll, onChanged }: {
     act(verb, [{ ...target, ...span }], payload);
   };
   const editable = b.type === "text" || b.type === "tool_result";
+  const draft = async (whole: boolean) => {
+    const targets = whole && f ? msgBlocks(f) : [target];
+    try { const d = await api.summarize(sid, targets); setSummary({ ...d, targets }); }
+    catch (e) { window.alert(String(e)); }
+  };
   return (
     <div className="inspector scroll pad stack">
       <div className="kv">
@@ -229,6 +237,22 @@ function Inspector({ sid, f, version, act, revokeAll, onChanged }: {
           <span className="muted">Selection:</span>
           <button onClick={() => withSelection("drop")}>Drop selection</button>
           <button onClick={() => withSelection("replace")}>Replace selection…</button>
+        </div>
+      )}
+      <div className="row">
+        <span className="muted">LLM draft summary:</span>
+        <button onClick={() => draft(false)}>this block</button>
+        <button onClick={() => draft(true)}>this message</button>
+      </div>
+      {summary && (
+        <div className="panel stack">
+          <h3>Draft from {summary.model} ({summary.cost.toFixed(4)} $), not applied yet</h3>
+          <textarea rows={6} value={summary.draft} onChange={(e) => setSummary({ ...summary, draft: e.target.value })} />
+          <div className="row">
+            <button className="primary" onClick={() => api.acceptSummary(sid, summary.targets, summary.draft, summary.call)
+              .then(() => { setSummary(null); onChanged(); }).catch((e) => window.alert(String(e)))}>Accept as staged edit</button>
+            <button onClick={() => setSummary(null)}>Discard</button>
+          </div>
         </div>
       )}
       {detail && detail.proposals.length > 0 && (

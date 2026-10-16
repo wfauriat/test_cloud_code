@@ -21,7 +21,7 @@ from ..core.segment import segments, text_of
 from ..core.tokens import estimate_raw
 from ..core.validate import validate
 from ..core.wire import dumps, request_hash
-from ..services import loop, staging
+from ..services import experiments, loop, staging
 from ..services import sessions as S
 from . import schemas as A
 
@@ -290,6 +290,48 @@ def live_settings(sid: str, body: A.LiveSettings):
 @app.get("/api/sessions/{sid}/calls", response_model=list[A.CallSummary])
 def calls(sid: str):
     return [{k: c[k] for k in A.CallSummary.model_fields} for c in store.calls(sid)]
+
+
+# -- experiments (B5) ---------------------------------------------------------------------------
+def _provider_or_none():
+    try:
+        return provider()
+    except HTTPException:
+        return None
+
+
+@app.post("/api/sessions/{sid}/ab/preview")
+def ab_preview(sid: str, body: A.ABSpec):
+    return experiments.preview_ab(store, _provider_or_none(), sid, body.model_dump())
+
+
+@app.post("/api/sessions/{sid}/ab/run")
+def ab_run(sid: str, body: A.ABSpec):
+    return experiments.run_ab(store, provider(), sid, body.model_dump())
+
+
+@app.get("/api/sessions/{sid}/ab/runs")
+def ab_runs(sid: str):
+    return store.runs(sid)
+
+
+@app.post("/api/sessions/{sid}/ab/runs/{rid}/verdict")
+def ab_verdict(sid: str, rid: str, body: A.ABVerdict):
+    experiments.record_verdict(store, sid, rid, body.model_dump())
+    return {"ok": True}
+
+
+@app.post("/api/sessions/{sid}/summarize")
+def summarize(sid: str, body: A.SummaryRequest):
+    return experiments.draft_summary(store, provider(), sid, body.targets, body.model)
+
+
+@app.post("/api/sessions/{sid}/summarize/accept", response_model=list[A.OpView])
+def summarize_accept(sid: str, body: A.SummaryAccept):
+    try:
+        return [_op_view(o) for o in experiments.accept_summary(store, sid, body.targets, body.text, body.call_id)]
+    except staging.OpRejected as e:
+        raise HTTPException(400, str(e)) from None
 
 
 # -- helpers --------------------------------------------------------------------------------------

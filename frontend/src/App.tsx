@@ -2,11 +2,12 @@ import { useCallback, useEffect, useState } from "react";
 import { api, type SessionDetail, type SessionSummary } from "./api/client";
 import { fmt } from "./format";
 import { Curate } from "./views/Curate";
+import { Experiments } from "./views/Experiments";
 import { Live } from "./views/Live";
 import { CategoryLegend, Look } from "./views/Look";
 import { Timeline } from "./views/Timeline";
 
-const TABS = ["Look", "Timeline", "Curate", "Live"] as const;
+const TABS = ["Look", "Timeline", "Curate", "A/B", "Live"] as const;
 type Tab = (typeof TABS)[number];
 
 export function App() {
@@ -59,6 +60,7 @@ export function App() {
           {sid && tab === "Look" && <Look sid={sid} version={version} onChanged={changed} />}
           {sid && tab === "Timeline" && <Timeline sid={sid} />}
           {sid && tab === "Curate" && <Curate sid={sid} version={version} onChanged={changed} />}
+          {sid && tab === "A/B" && <Experiments sid={sid} />}
         </div>
       </div>
     </div>

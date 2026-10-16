@@ -74,9 +74,11 @@ class ScriptedProvider:
     def __init__(self, replies: list[dict[str, Any]]):
         self.replies = list(replies)
         self.requests: list[dict[str, Any]] = []
+        self.betas: list[list[str]] = []
 
     def send(self, body: dict[str, Any], *, betas: list[str] = ()) -> Reply:
         self.requests.append(body)
+        self.betas.append(list(betas))
         r = self.replies.pop(0)
         usage = r.get("usage") or {"input_tokens": 10, "output_tokens": 5, "cache_read_input_tokens": 0,
                                    "cache_creation_input_tokens": 0}
