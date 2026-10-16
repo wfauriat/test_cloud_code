@@ -24,3 +24,10 @@ API and format behaviour met while building. Each entry: what we saw, where it i
    - Rules skip proposals that save nothing.
    - For the spec: the stub convention needs a minimum size.
 9. **First real number (Q4).** On this planning session, staging the 3 rule proposals (~19k tokens/call) gave: warm cache, costs $0.56 more on the next call and pays back after ~125 calls; cold cache, saves $0.11 right away. This matches the critique's point that pruning a warm cache rarely pays in dollars.
+
+## Live loop
+
+10. **Comparing consecutive requests is not enough to check thinking validity.** The latest response's thinking block is not in the request that produced it, so a request-to-request diff never sees it. After an edit, though, it sits after the change and is invalid. The exact rule needs the producer of each block: the call whose request it was produced on (assistant events store `call_id`, calls store their request). Then that request must still be a prefix of the new one.
+    - Implemented in `loop._invalid_thinking`. `prefix.diff` stays conservative: any replayed thinking after the divergence counts as at risk.
+    - For the spec: the wire log must link every thinking block to its producing call.
+11. **Free edits must become "applied" once sent.** An op on not-yet-sent content goes out with the next call. If it stayed "staged", it would drop out of the next request (staged ops on sent content wait for a rebuild), and the verifier would see a divergence. Handled: free ops switch to applied after the send.

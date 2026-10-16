@@ -2,10 +2,11 @@ import { useCallback, useEffect, useState } from "react";
 import { api, type SessionDetail, type SessionSummary } from "./api/client";
 import { fmt } from "./format";
 import { Curate } from "./views/Curate";
+import { Live } from "./views/Live";
 import { CategoryLegend, Look } from "./views/Look";
 import { Timeline } from "./views/Timeline";
 
-const TABS = ["Look", "Timeline", "Curate"] as const;
+const TABS = ["Look", "Timeline", "Curate", "Live"] as const;
 type Tab = (typeof TABS)[number];
 
 export function App() {
@@ -52,7 +53,9 @@ export function App() {
           {detail && <CategoryLegend composition={detail.composition} />}
         </div>
         <div className="content">
-          {!sid && <div className="pad muted">Import a Claude Code session to start (path to a .jsonl under ~/.claude/projects).</div>}
+          {tab === "Live" && <Live sid={sid} source={detail?.source ?? null} version={version} onChanged={changed}
+            onCreated={(s) => { setSid(s); changed(); }} />}
+          {!sid && tab !== "Live" && <div className="pad muted">Import a Claude Code session to start (path to a .jsonl under ~/.claude/projects).</div>}
           {sid && tab === "Look" && <Look sid={sid} version={version} onChanged={changed} />}
           {sid && tab === "Timeline" && <Timeline sid={sid} />}
           {sid && tab === "Curate" && <Curate sid={sid} version={version} onChanged={changed} />}

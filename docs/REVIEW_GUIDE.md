@@ -26,6 +26,9 @@ No I/O. Every function can be called from a notebook: `from curator.core.render 
 - `services/sessions.py`: import, composition, usage timeline, calibration.
 - `services/staging.py`: op creation (checked) and the staged preview (diff + economics).
 - `cli.py`: everything above from the command line.
+- `adapters/provider.py`: the provider port. Real Anthropic client (fields newer than the SDK go via `extra_body`), a scripted fake for tests, an echo fake for the UI.
+- `adapters/executor.py`: workspace-confined tools, input checks, effect analysis for the tool gate.
+- `services/loop.py`: the live state machine. Read the module docstring first: the three checks before a send, free edits vs. rebuild, and `_invalid_thinking` (the exact per-producer thinking check).
 
 ## 3. API and UI
 - `backend/curator/api/schemas.py`: the API contract. TS types are generated from it (`frontend/src/api/schema.d.ts`).
@@ -37,4 +40,4 @@ No I/O. Every function can be called from a notebook: `from curator.core.render 
 - The UI never computes anything the backend owns (PLAN D4): every preview is a backend call.
 
 ## 4. Tests
-`backend/tests/`: `test_render.py` (one test per render, repair or validator rule), `test_core.py` (ops, prefix, costs with the spec's worked example, rules, calibration, policy), `test_import.py` (a synthetic log reproducing the format's quirks).
+`backend/tests/`: `test_render.py` (one test per render, repair or validator rule), `test_core.py` (ops, prefix, costs with the spec's worked example, rules, calibration, policy), `test_import.py` (a synthetic log reproducing the format's quirks), `test_live.py` (gates, hash-tied approval, modify, workspace confinement, ingestion bound, rebuild with thinking strip), `test_api.py` (route smoke test).

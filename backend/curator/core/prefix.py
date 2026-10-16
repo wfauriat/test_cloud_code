@@ -66,7 +66,9 @@ def diff_positions(pa: list[Position], pb: list[Position]) -> PrefixDiff:
         verdict = "rewind"
     else:
         verdict = "diverge"
-    a_thinking = {p.key for p in pa if p.kind in THINKING_TYPES}
+    # Conservative: in a linear history every replayed thinking block after the divergence was
+    # produced on a prefix that went through the changed position. (A branch can carry thinking
+    # produced on its own prefix; the exact per-producer check is services/loop._invalid_thinking.)
     b_thinking = {p.key for p in pb if p.kind in THINKING_TYPES}
     return PrefixDiff(
         verdict=verdict,
@@ -76,6 +78,6 @@ def diff_positions(pa: list[Position], pb: list[Position]) -> PrefixDiff:
         common_tokens=sum(p.tokens for p in pa[:d]),
         a_after_tokens=sum(p.tokens for p in pa[d:]),
         b_after_tokens=sum(p.tokens for p in pb[d:]),
-        thinking_at_risk=[p.path for p in pb[d:] if p.kind in THINKING_TYPES and p.key in a_thinking],
+        thinking_at_risk=[p.path for p in pb[d:] if p.kind in THINKING_TYPES],
         thinking_lost=[p.path for p in pa[d:] if p.kind in THINKING_TYPES and p.key not in b_thinking],
     )
