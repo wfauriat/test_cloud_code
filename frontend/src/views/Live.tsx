@@ -7,11 +7,14 @@ import { fmt, usd } from "../format";
 export function Live({ sid, source, version, onChanged, onCreated }: {
   sid: string | null; source: string | null; version: number; onChanged: () => void; onCreated: (sid: string) => void;
 }) {
-  if (!sid || source !== "live") return <CreateLive onCreated={onCreated} />;
-  return <LivePanel sid={sid} version={version} onChanged={onChanged} />;
+  const [creating, setCreating] = useState(false);
+  if (!sid || source !== "live" || creating) {
+    return <CreateLive onCreated={(s) => { setCreating(false); onCreated(s); }} onCancel={creating ? () => setCreating(false) : undefined} />;
+  }
+  return <LivePanel sid={sid} version={version} onChanged={onChanged} onNew={() => setCreating(true)} />;
 }
 
-function CreateLive({ onCreated }: { onCreated: (sid: string) => void }) {
+function CreateLive({ onCreated, onCancel }: { onCreated: (sid: string) => void; onCancel?: () => void }) {
   const [f, setF] = useState({ title: "live session", workspace: "~/curator-sandbox", model: "claude-opus-5-5",
     effort: "medium", ttl: "5m", allow_commands: false, fallbacks: true });
   const [err, setErr] = useState<string | null>(null);
@@ -32,12 +35,13 @@ function CreateLive({ onCreated }: { onCreated: (sid: string) => void }) {
       <label><input type="checkbox" checked={f.allow_commands} onChange={(e) => set("allow_commands", e.target.checked)} /> declare run_command (always reviewed; runs on this machine)</label>
       <label><input type="checkbox" checked={f.fallbacks} onChange={(e) => set("fallbacks", e.target.checked)} /> server-side refusal fallback (the UI says when another model answered)</label>
       {err && <div className="error">{err}</div>}
-      <div><button className="primary" onClick={() => api.createLive(f).then((s) => onCreated(s.id)).catch((e) => setErr(String(e)))}>Create</button></div>
+      <div className="row"><button className="primary" onClick={() => api.createLive(f).then((s) => onCreated(s.id)).catch((e) => setErr(String(e)))}>Create</button>
+        {onCancel && <button onClick={onCancel}>Cancel</button>}</div>
     </div></div>
   );
 }
 
-function LivePanel({ sid, version, onChanged }: { sid: string; version: number; onChanged: () => void }) {
+function LivePanel({ sid, version, onChanged, onNew }: { sid: string; version: number; onChanged: () => void; onNew: () => void }) {
   const [v, setV] = useState<LiveView | null>(null);
   const [calls, setCalls] = useState<CallSummary[]>([]);
   const [msgs, setMsgs] = useState<MessageView[]>([]);
@@ -64,6 +68,9 @@ function LivePanel({ sid, version, onChanged }: { sid: string; version: number; 
           <span className="muted">epoch {v.epoch} · {v.calls} calls · {v.model} · {v.workspace}</span>
           <span className="grow" />
           <label><input type="checkbox" checked={v.auto_continue} onChange={(e) => run(api.liveSettings(sid, e.target.checked))} /> auto-send after tool results</label>
+          <button disabled={busy || v.state === "idle"} onClick={() => run(api.liveReset(sid))}
+            title="Back to idle, keeping the history (calls waiting at the tool gate are marked cancelled)">Reset gate</button>
+          <button onClick={onNew}>New live session</button>
           <button disabled={!v.staged_ops || busy} onClick={() => run(api.liveApply(sid))}
             title="Apply staged edits to sent history (rebuild): costs a cache rewrite and the thinking after the first change">
             Apply {v.staged_ops} staged edit{v.staged_ops === 1 ? "" : "s"} to history</button>

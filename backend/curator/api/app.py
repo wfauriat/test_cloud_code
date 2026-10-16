@@ -267,6 +267,11 @@ def live_approve(sid: str, body: A.LiveApprove):
     return _loop(loop.approve_prompt, store, provider(), sid, body.hash)
 
 
+@app.post("/api/sessions/{sid}/live/reset")
+def live_reset(sid: str):
+    return _loop(loop.reset, store, sid)
+
+
 @app.post("/api/sessions/{sid}/live/reject")
 def live_reject(sid: str, body: A.LiveReject):
     return _loop(loop.reject_prompt, store, sid, body.reason)

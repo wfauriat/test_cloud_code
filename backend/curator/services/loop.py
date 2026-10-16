@@ -112,6 +112,21 @@ def send_user_message(store: Store, provider: Provider, sid: str, text: str) -> 
     return _open_prompt_gate(store, provider, sid, live)
 
 
+def reset(store: Store, sid: str) -> dict[str, Any]:
+    """Back to idle, keeping the history valid. Calls waiting at the tool gate get a "cancelled"
+    result, so the model's tool_use is never left without its tool_result (validator V07)."""
+    live = _live(store, sid)
+    if live["state"] == "tool_gate" and live["tool_cards"]:
+        results = [Block({"type": "tool_result", "tool_use_id": c["id"], "is_error": True,
+                          "content": "Cancelled by the user (session reset); the call did not run."}, "tool")
+                   for c in live["tool_cards"]]
+        _append(store, sid, "user", results, {"timestamp": now(), "reset": True})
+    store.observe(sid, "reset", {"from_state": live["state"]})
+    live.update(state="idle", pending=None, tool_cards=[], note="reset: send a new message to continue")
+    _save(store, sid, live)
+    return live_view(store, sid)
+
+
 def reject_prompt(store: Store, sid: str, reason: str = "") -> dict[str, Any]:
     live = _live(store, sid)
     _gate_observation(store, sid, live, "prompt", "reject", reason=reason)
