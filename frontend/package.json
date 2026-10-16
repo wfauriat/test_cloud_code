@@ -1,0 +1,25 @@
+{
+  "name": "curator-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "gen:api": "cd ../backend && uv run python -c \"import json; from curator.api.app import app; print(json.dumps(app.openapi()))\" > ../frontend/src/api/openapi.json && cd ../frontend && openapi-typescript src/api/openapi.json -o src/api/schema.d.ts"
+  },
+  "dependencies": {
+    "@tanstack/react-virtual": "3.10.8",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@vitejs/plugin-react": "4.3.3",
+    "openapi-typescript": "7.4.2",
+    "typescript": "5.6.3",
+    "vite": "5.4.10"
+  }
+}

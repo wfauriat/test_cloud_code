@@ -27,5 +27,14 @@ No I/O. Every function can be called from a notebook: `from curator.core.render 
 - `services/staging.py`: op creation (checked) and the staged preview (diff + economics).
 - `cli.py`: everything above from the command line.
 
-## 3. Tests
+## 3. API and UI
+- `backend/curator/api/schemas.py`: the API contract. TS types are generated from it (`frontend/src/api/schema.d.ts`).
+- `backend/curator/api/app.py`: routes only.
+- `frontend/src/api/client.ts`: the typed client. `Preview` is hand-typed (marked QUESTION).
+- `frontend/src/views/Look.tsx`: outline, context map, document (virtualized), inspector, keyboard.
+- `frontend/src/views/Timeline.tsx`: per-call usage chart and table.
+- `frontend/src/views/Curate.tsx`: proposals, ops, brief, preview, request view.
+- The UI never computes anything the backend owns (PLAN D4): every preview is a backend call.
+
+## 4. Tests
 `backend/tests/`: `test_render.py` (one test per render, repair or validator rule), `test_core.py` (ops, prefix, costs with the spec's worked example, rules, calibration, policy), `test_import.py` (a synthetic log reproducing the format's quirks).

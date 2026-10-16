@@ -176,7 +176,10 @@ def calibration(view: SessionView) -> Calibration | None:
 
 
 def proposals(view: SessionView) -> list[rules.Proposal]:
-    return rules.propose(view.messages, toolset=view.toolset, pinned=pinned_addresses(view.ops))
+    """Rule proposals for blocks that no active op already targets."""
+    taken = {t.address for o in view.ops if o.state != "revoked" and o.verb != "pin" for t in o.targets}
+    props = rules.propose(view.messages, toolset=view.toolset, pinned=pinned_addresses(view.ops))
+    return [p for p in props if p.op.targets[0].address not in taken]
 
 
 def rules_summary(view: SessionView) -> dict[str, Any]:
