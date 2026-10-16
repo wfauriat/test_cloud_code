@@ -1,0 +1,9 @@
+# Local material: DB, imported transcripts, live-session workspaces. The repo is public.
+workspace/
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+node_modules/
+frontend/dist/
