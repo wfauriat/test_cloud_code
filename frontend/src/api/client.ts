@@ -112,6 +112,7 @@ export const api = {
   liveReject: (sid: string, reason: string) => call<LiveView>("POST", `/sessions/${sid}/live/reject`, { reason }),
   liveTools: (sid: string, decisions: Record<string, Record<string, unknown>>) =>
     call<LiveView>("POST", `/sessions/${sid}/live/tools`, { decisions }),
+  liveReset: (sid: string) => call<LiveView>("POST", `/sessions/${sid}/live/reset`),
   liveApply: (sid: string) => call<LiveView>("POST", `/sessions/${sid}/live/apply-edits`),
   liveSettings: (sid: string, auto_continue: boolean) => call<LiveView>("POST", `/sessions/${sid}/live/settings`, { auto_continue }),
   calls: (sid: string) => call<CallSummary[]>("GET", `/sessions/${sid}/calls`),

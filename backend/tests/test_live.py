@@ -126,3 +126,19 @@ def test_editing_sent_history_needs_a_rebuild_which_strips_later_thinking(env):
     # the stripped block came from call 2's response, not its request: the strip is a recorded op
     assert [o.author for o in store.ops(sid) if o.verb == "drop"] == ["human", "assembler"]
     assert r2["messages"][:2] == r3["messages"][:2]
+
+
+def test_reset_from_the_tool_gate_keeps_the_history_valid(env):
+    store, sid, _ = env
+    p = ScriptedProvider([
+        {"content": [{"type": "tool_use", "id": "t1", "name": "write_file", "input": {"path": "b.py", "content": "x"}}],
+         "stop_reason": "tool_use"},
+        {"content": [{"type": "text", "text": "ok"}], "stop_reason": "end_turn"},
+    ])
+    v = loop.send_user_message(store, p, sid, "write b.py")
+    v = loop.approve_prompt(store, p, sid, v["pending"]["hash"])
+    assert v["state"] == "tool_gate"
+    v = loop.reset(store, sid)
+    assert v["state"] == "idle"
+    v = loop.send_user_message(store, p, sid, "never mind")
+    assert v["state"] == "prompt_gate" and v["pending"]["validation"] == []
