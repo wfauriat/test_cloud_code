@@ -5,11 +5,11 @@ from __future__ import annotations
 import json
 from itertools import count
 
+from curator.core.model import Block, Event
+
 SRC_V1 = "def f():\n" + "    x = 1  # padding so the output is worth stubbing\n" * 40 + "    return 1\n"
 SRC_V2 = SRC_V1.replace("return 1", "return 2")
 LS = "".join(f"file_{i}.py\n" for i in range(60))
-
-from curator.core.model import Block, Event
 
 
 def ev(eid: str, role: str, *raws: dict, origin: str | None = None, seq: int = 0, **meta) -> Event:
@@ -39,7 +39,8 @@ def coding_session() -> list[Event]:
     lists again (same command); answers."""
     return [
         ev("u1", "user", text("Fix the bug in a.py")),
-        ev("a1", "assistant", thinking("sig-a1"), call("t1", "Read", file_path="a.py"), call("t2", "Bash", command="ls")),
+        ev("a1", "assistant", thinking("sig-a1"), call("t1", "Read", file_path="a.py"),
+           call("t2", "Bash", command="ls")),
         ev("u2", "user", result("t1", SRC_V1), result("t2", LS)),
         ev("a2", "assistant", thinking("sig-a2"), call("t3", "Edit", file_path="a.py", old="1", new="2")),
         ev("u3", "user", result("t3", "ok")),

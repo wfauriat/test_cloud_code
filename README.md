@@ -28,3 +28,24 @@ uv run curator export <sid>        # observations as JSONL, for your analysis
 ```
 
 The database defaults to `workspace/curator.db` (`--db` or `CURATOR_DB` to change it).
+
+## Try it (steps B2–B3: UI)
+
+Two terminals:
+
+```bash
+cd backend && uv run uvicorn curator.api.app:app --host 127.0.0.1 --port 8765
+cd frontend && npm install && npm run dev     # http://127.0.0.1:5173
+```
+
+- **Look**:
+  - outline (left) and context map (thin strip, height ∝ tokens, colored by kind; hatched = dropped or edited, bar at right = pinned);
+  - document (center) and inspector (right).
+  - Keys: `j`/`k` move, `d` drop, `p` pin, `r` replace, `i` note after, `u` revoke. Select text inside a block, then "Drop selection" or "Replace selection" targets a span.
+- **Timeline**: input per call split into cache read / write / uncached, with cache breaks marked (Q2).
+- **Curate**:
+  - rule proposals, ops, and the brief;
+  - the preview of what staged edits change and cost, warm or cold, with or without the brief (Q3, Q4, Q8);
+  - "Render" shows the exact request that would be sent.
+
+After changing `backend/curator/api/schemas.py`, run `npm run gen:api` in `frontend/` to regenerate the TS types.
