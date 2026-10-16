@@ -46,6 +46,7 @@ function LivePanel({ sid, version, onChanged, onNew }: { sid: string; version: n
   const [calls, setCalls] = useState<CallSummary[]>([]);
   const [msgs, setMsgs] = useState<MessageView[]>([]);
   const [text, setText] = useState("");
+  const [wire, setWire] = useState<{ title: string; body: unknown } | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   useEffect(() => {
@@ -71,6 +72,7 @@ function LivePanel({ sid, version, onChanged, onNew }: { sid: string; version: n
           <button disabled={busy || v.state === "idle"} onClick={() => run(api.liveReset(sid))}
             title="Back to idle, keeping the history (calls waiting at the tool gate are marked cancelled)">Reset gate</button>
           <button onClick={onNew}>New live session</button>
+          <a href={api.exportUrl(sid)} download><button>Export session</button></a>
           <button disabled={!v.staged_ops || busy} onClick={() => run(api.liveApply(sid))}
             title="Apply staged edits to sent history (rebuild): costs a cache rewrite and the thinking after the first change">
             Apply {v.staged_ops} staged edit{v.staged_ops === 1 ? "" : "s"} to history</button>
@@ -78,7 +80,8 @@ function LivePanel({ sid, version, onChanged, onNew }: { sid: string; version: n
         {v.note && <div className="panel secondary">{v.note}</div>}
         {err && <div className="panel error">{err}</div>}
         {(v.state === "prompt_gate" || v.state === "blocked") && v.pending && <PromptGate v={v} busy={busy}
-          approve={() => run(api.liveApprove(sid, v.pending!.hash))} reject={() => run(api.liveReject(sid, ""))} />}
+          approve={() => run(api.liveApprove(sid, v.pending!.hash))} reject={() => run(api.liveReject(sid, ""))}
+          view={() => api.pendingRequest(sid).then((r) => setWire({ title: "Waiting request (exactly what Approve would send)", body: r.request }))} />}
         {v.state === "tool_gate" && <ToolGate cards={v.tool_cards} busy={busy} submit={(d) => run(api.liveTools(sid, d))} />}
         <div className="panel stack">
           <textarea rows={3} value={text} onChange={(e) => setText(e.target.value)} disabled={!canSend}
@@ -105,7 +108,8 @@ function LivePanel({ sid, version, onChanged, onNew }: { sid: string; version: n
               {calls.map((c, i) => {
                 const u = (c.usage ?? {}) as Record<string, number>;
                 return (
-                  <tr key={c.id}>
+                  <tr key={c.id} style={{ cursor: "pointer" }} title="show the exact request and the raw response"
+                    onClick={() => api.callDetail(sid, c.id).then((d) => setWire({ title: `Call ${i}: exact request and raw response`, body: { request: d.request, response: d.response, error: d.error } }))}>
                     <td>{i}</td><td>{c.epoch}</td><td className="l">{c.model}</td>
                     <td className="l">{c.error ? <span className="error" title={c.error}>error</span> : c.stop_reason}</td>
                     <td>{fmt(u.cache_read_input_tokens ?? 0)}</td><td>{fmt(u.cache_creation_input_tokens ?? 0)}</td>
@@ -116,13 +120,22 @@ function LivePanel({ sid, version, onChanged, onNew }: { sid: string; version: n
               })}
             </tbody>
           </table>
+          <div className="muted">Click a row for the exact request sent and the raw response.</div>
         </div>
+        {wire && (
+          <div className="panel stack">
+            <div className="row"><h3 className="grow">{wire.title}</h3>
+              <button onClick={() => navigator.clipboard?.writeText(JSON.stringify(wire.body, null, 1))}>Copy</button>
+              <button onClick={() => setWire(null)}>Close</button></div>
+            <pre className="mono">{JSON.stringify(wire.body, null, 1)}</pre>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-function PromptGate({ v, busy, approve, reject }: { v: LiveView; busy: boolean; approve: () => void; reject: () => void }) {
+function PromptGate({ v, busy, approve, reject, view }: { v: LiveView; busy: boolean; approve: () => void; reject: () => void; view: () => void }) {
   const p = v.pending!;
   const [left, setLeft] = useState<number | null>(p.cache_expires_in);
   useEffect(() => {
@@ -151,6 +164,7 @@ function PromptGate({ v, busy, approve, reject }: { v: LiveView; busy: boolean; 
       <div className="row">
         <button className="primary" disabled={busy || v.state !== "prompt_gate"} onClick={approve} title="a">{busy ? "Sending…" : "Approve and send"}</button>
         <button disabled={busy} onClick={reject}>Reject</button>
+        <button onClick={view}>View request JSON</button>
       </div>
     </div>
   );

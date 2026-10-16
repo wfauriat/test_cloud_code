@@ -73,6 +73,14 @@ cd backend && CURATOR_PROVIDER=echo uv run uvicorn curator.api.app:app --port 87
   - **Accept** freezes it into staged ops (replace + drop, author `llm:<call>`); nothing changes before that.
 - **Observations:** `curator export` or `GET /api/observations.jsonl` give every logged measurement for your analysis.
 
+## Exporting a session and seeing the exact wire
+
+- **Full export** (one JSONL file: session + frozen preamble, events, ops, calls with the exact request and raw response, brief, runs, observations): **Export session** in the Live tab, `GET /api/sessions/<sid>/export.jsonl`, or `uv run curator export-session <sid> --out session.jsonl`.
+- **The exact request sent to the API:**
+  - for a past call, click its row in the Live tab's Calls table, or run `uv run curator wire <sid> --call N [--response] [--out req.json]` (default: the last call);
+  - for the request waiting at the prompt gate, **View request JSON**.
+  - Imported sessions have no wire log; `curator render` reconstructs their requests (approximate).
+
 ## Build status
 
 | Step | Status |

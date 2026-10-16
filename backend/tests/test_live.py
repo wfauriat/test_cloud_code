@@ -142,3 +142,19 @@ def test_reset_from_the_tool_gate_keeps_the_history_valid(env):
     assert v["state"] == "idle"
     v = loop.send_user_message(store, p, sid, "never mind")
     assert v["state"] == "prompt_gate" and v["pending"]["validation"] == []
+
+
+def test_export_carries_the_exact_wire_requests(env):
+    import json
+
+    from curator.services import export
+    store, sid, _ = env
+    p = ScriptedProvider([{"content": [{"type": "text", "text": "hi"}], "stop_reason": "end_turn"}])
+    v = loop.send_user_message(store, p, sid, "hello")
+    assert export.pending_request(store, sid)["hash"] == v["pending"]["hash"]
+    loop.approve_prompt(store, p, sid, v["pending"]["hash"])
+    assert export.call_detail(store, sid)["request"] == p.requests[0]  # byte-for-byte what was sent
+    rows = [json.loads(x) for x in export.export_jsonl(store, sid).splitlines()]
+    kinds = {r["kind"] for r in rows}
+    assert {"session", "event", "call", "observation"} <= kinds
+    assert next(r for r in rows if r["kind"] == "call")["request"] == p.requests[0]
