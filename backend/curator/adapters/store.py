@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import threading
 import uuid
 from datetime import UTC, datetime
 from pathlib import Path
@@ -67,12 +68,33 @@ def new_id() -> str:
 
 
 class Store:
+    """One connection per thread (the API serves sync routes from a thread pool, and a sqlite
+    connection must not be shared across threads). In-memory stores keep a single connection."""
+
     def __init__(self, path: str | Path = ":memory:"):
-        if path != ":memory:":
+        self.path = str(path)
+        self._local = threading.local()
+        self._shared = None
+        if self.path == ":memory:":
+            self._shared = self._connect()
+        else:
             Path(path).parent.mkdir(parents=True, exist_ok=True)
-        self.db = sqlite3.connect(str(path), check_same_thread=False)
-        self.db.row_factory = sqlite3.Row
-        self.db.executescript(SCHEMA)
+            self.db.execute("PRAGMA journal_mode=WAL")
+
+    def _connect(self) -> sqlite3.Connection:
+        con = sqlite3.connect(self.path, check_same_thread=False, timeout=10)
+        con.row_factory = sqlite3.Row
+        con.executescript(SCHEMA)
+        return con
+
+    @property
+    def db(self) -> sqlite3.Connection:
+        if self._shared is not None:
+            return self._shared
+        con = getattr(self._local, "con", None)
+        if con is None:
+            con = self._local.con = self._connect()
+        return con
 
     # -- sessions -------------------------------------------------------------------------
     def create_session(self, title: str, source: str, *, config: dict | None = None,
@@ -159,6 +181,19 @@ class Store:
             out.append(by_id[cur])
             cur = by_id[cur].parent_id
         return list(reversed(out))
+
+    def put_block(self, raw: dict) -> str:
+        h = block_hash(raw)
+        self.db.execute("INSERT OR IGNORE INTO blocks (hash, json) VALUES (?, ?)", (h, dumps(raw)))
+        return h
+
+    def get_blocks(self, hashes: list[str]) -> dict[str, dict]:
+        out: dict[str, dict] = {}
+        for i in range(0, len(hashes), 500):
+            chunk = hashes[i:i + 500]
+            q = f"SELECT hash, json FROM blocks WHERE hash IN ({','.join('?' * len(chunk))})"
+            out.update({r[0]: json.loads(r[1]) for r in self.db.execute(q, chunk)})
+        return out
 
     def known_block_hashes(self, sid: str) -> set[str]:
         rows = self.db.execute("SELECT eb.hash FROM event_blocks eb JOIN events e ON e.id = eb.event_id "

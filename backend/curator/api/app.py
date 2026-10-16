@@ -13,6 +13,7 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import PlainTextResponse
 
+from ..adapters.provider import default_provider
 from ..adapters.store import Store
 from ..core import costs
 from ..core.ops import active_ops, fold
@@ -20,8 +21,8 @@ from ..core.segment import segments, text_of
 from ..core.tokens import estimate_raw
 from ..core.validate import validate
 from ..core.wire import dumps, request_hash
+from ..services import loop, staging
 from ..services import sessions as S
-from ..services import staging
 from . import schemas as A
 
 DB = os.environ.get("CURATOR_DB", str(Path(__file__).resolve().parents[3] / "workspace" / "curator.db"))
@@ -220,6 +221,75 @@ def update_brief_item(sid: str, bid: str, body: A.BriefItemUpdate):
 @app.get("/api/sessions/{sid}/brief/text", response_class=PlainTextResponse)
 def brief_text(sid: str):
     return _brief_text(sid) or ""
+
+
+# -- live loop (B4) ------------------------------------------------------------------------------
+_provider = None
+
+
+def provider():
+    global _provider
+    if _provider is None:
+        try:
+            _provider = default_provider()
+        except Exception as e:  # noqa: BLE001
+            raise HTTPException(503, f"no model provider ({e}). Set ANTHROPIC_API_KEY, or run the backend with "
+                                     "CURATOR_PROVIDER=echo to try the loop without a model.") from None
+    return _provider
+
+
+def _loop(fn, *args):
+    try:
+        return fn(*args)
+    except loop.LoopError as e:
+        raise HTTPException(409, str(e)) from None
+
+
+@app.post("/api/live", response_model=A.SessionSummary)
+def create_live(body: A.LiveCreate):
+    sid = loop.create_live(store, title=body.title, workspace=body.workspace, model=body.model, effort=body.effort,
+                           allow_commands=body.allow_commands, ttl=body.ttl, fallbacks=body.fallbacks)
+    return next(s for s in store.sessions() if s["id"] == sid)
+
+
+@app.get("/api/sessions/{sid}/live")
+def live_state(sid: str):
+    return _loop(loop.live_view, store, sid)
+
+
+@app.post("/api/sessions/{sid}/live/message")
+def live_message(sid: str, body: A.LiveMessage):
+    return _loop(loop.send_user_message, store, provider(), sid, body.text)
+
+
+@app.post("/api/sessions/{sid}/live/approve")
+def live_approve(sid: str, body: A.LiveApprove):
+    return _loop(loop.approve_prompt, store, provider(), sid, body.hash)
+
+
+@app.post("/api/sessions/{sid}/live/reject")
+def live_reject(sid: str, body: A.LiveReject):
+    return _loop(loop.reject_prompt, store, sid, body.reason)
+
+
+@app.post("/api/sessions/{sid}/live/tools")
+def live_tools(sid: str, body: A.LiveTools):
+    return _loop(loop.decide_tools, store, provider(), sid, body.decisions)
+
+
+@app.post("/api/sessions/{sid}/live/apply-edits")
+def live_apply(sid: str):
+    return _loop(loop.apply_edits, store, provider(), sid)
+
+
+@app.post("/api/sessions/{sid}/live/settings")
+def live_settings(sid: str, body: A.LiveSettings):
+    return _loop(loop.set_auto_continue, store, sid, body.auto_continue)
+
+
+@app.get("/api/sessions/{sid}/calls", response_model=list[A.CallSummary])
+def calls(sid: str):
+    return [{k: c[k] for k in A.CallSummary.model_fields} for c in store.calls(sid)]
 
 
 # -- helpers --------------------------------------------------------------------------------------

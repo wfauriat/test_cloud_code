@@ -48,4 +48,18 @@ cd frontend && npm install && npm run dev     # http://127.0.0.1:5173
   - the preview of what staged edits change and cost, warm or cold, with or without the brief (Q3, Q4, Q8);
   - "Render" shows the exact request that would be sent.
 
+## Try it (step B4: live loop)
+
+The **Live** tab creates a live session: a workspace folder, a model, and an effort. The system prompt and tool list are frozen at creation.
+
+- **Calls:** each call stops at the prompt gate (approve with `a`). Write tools stop at the tool gate (approve / deny with a reason / modify the input). Read-only tools in the workspace run without a stop.
+- **Checks:** every request is checked append-only against the previous one. Staged edits on already-sent content wait for **Apply staged edits to history**, which strips the thinking produced on the old prefix and starts a new epoch.
+- **Logging:** gate timings, calls, verifier blocks and API errors go to the observations log.
+
+Live calls use your key: run the backend with `ANTHROPIC_API_KEY` set. To try the gates without a model or a key:
+
+```bash
+cd backend && CURATOR_PROVIDER=echo uv run uvicorn curator.api.app:app --port 8765   # "ls" in a message triggers a list_dir call
+```
+
 After changing `backend/curator/api/schemas.py`, run `npm run gen:api` in `frontend/` to regenerate the TS types.

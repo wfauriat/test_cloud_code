@@ -13,6 +13,7 @@ export type ProposalView = S["ProposalView"];
 export type OpView = S["OpView"];
 export type BriefItemView = S["BriefItemView"];
 export type RenderedRequest = S["RenderedRequest"];
+export type CallSummary = S["CallSummary"];
 export type Span = { event_id: string; index: number; start?: number | null; end?: number | null };
 
 // QUESTION: hand-typed because /preview returns a plain dict (dataclasses.asdict of PrefixDiff
@@ -35,6 +36,21 @@ export interface Preview {
   diagnostics: Diag[];
   messages_base: number;
   messages_staged: number;
+}
+
+// QUESTION: hand-typed; the live view is a plain dict built in services/loop.py.
+export interface ToolCard {
+  id: string; name: string; input: Record<string, unknown>; policy: string; reason: string;
+  input_error: string | null; effects: Record<string, unknown>;
+}
+export interface LiveView {
+  state: string; epoch: number; frontier_seq: number; auto_continue: boolean; rebuild_pending: boolean;
+  note: string | null; staged_ops: number; calls: number; model: string; workspace: string; tool_cards: ToolCard[];
+  pending: null | {
+    hash: string; tokens_est: number; tokens_exact: number | null; verdict: string; summary: string; new_blocks: number;
+    validation: Diag[]; diagnostics: Diag[]; cost: { read_cost: number; write_cost: number; total: number };
+    warm: boolean; cache_expires_in: number | null; free_ops: string[]; rebuild_pending: boolean;
+  };
 }
 
 async function call<T>(method: string, path: string, body?: unknown): Promise<T> {
@@ -77,6 +93,16 @@ export const api = {
     call<Preview>("GET", `/sessions/${sid}/preview${q(p)}`),
   request: (sid: string, p: { call?: number | null; staged?: boolean; brief?: boolean }) =>
     call<RenderedRequest>("GET", `/sessions/${sid}/request${q(p)}`),
+  createLive: (body: Record<string, unknown>) => call<SessionSummary>("POST", "/live", body),
+  live: (sid: string) => call<LiveView>("GET", `/sessions/${sid}/live`),
+  liveMessage: (sid: string, text: string) => call<LiveView>("POST", `/sessions/${sid}/live/message`, { text }),
+  liveApprove: (sid: string, hash: string) => call<LiveView>("POST", `/sessions/${sid}/live/approve`, { hash }),
+  liveReject: (sid: string, reason: string) => call<LiveView>("POST", `/sessions/${sid}/live/reject`, { reason }),
+  liveTools: (sid: string, decisions: Record<string, Record<string, unknown>>) =>
+    call<LiveView>("POST", `/sessions/${sid}/live/tools`, { decisions }),
+  liveApply: (sid: string) => call<LiveView>("POST", `/sessions/${sid}/live/apply-edits`),
+  liveSettings: (sid: string, auto_continue: boolean) => call<LiveView>("POST", `/sessions/${sid}/live/settings`, { auto_continue }),
+  calls: (sid: string) => call<CallSummary[]>("GET", `/sessions/${sid}/calls`),
   brief: (sid: string) => call<BriefItemView[]>("GET", `/sessions/${sid}/brief`),
   addBrief: (sid: string, type: string, text: string) => call<BriefItemView>("POST", `/sessions/${sid}/brief`, { type, text }),
   updateBrief: (sid: string, bid: string, body: { text?: string; status?: string }) =>

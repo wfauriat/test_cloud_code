@@ -173,3 +173,45 @@ class Observation(BaseModel):
     session_id: str | None
     kind: str
     payload: dict[str, Any]
+
+
+class LiveCreate(BaseModel):
+    title: str
+    workspace: str
+    model: str = "claude-opus-5-5"
+    effort: str = "medium"
+    allow_commands: bool = False
+    ttl: str = "5m"
+    fallbacks: bool = True
+
+
+class LiveMessage(BaseModel):
+    text: str
+
+
+class LiveApprove(BaseModel):
+    hash: str
+
+
+class LiveReject(BaseModel):
+    reason: str = ""
+
+
+class LiveTools(BaseModel):
+    decisions: dict[str, dict[str, Any]]
+
+
+class LiveSettings(BaseModel):
+    auto_continue: bool
+
+
+class CallSummary(BaseModel):
+    id: str
+    epoch: int
+    model: str | None
+    stop_reason: str | None
+    usage: dict[str, Any] | None
+    cost: float | None
+    latency_ms: int | None
+    error: str | None
+    created_at: str
