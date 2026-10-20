@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "uq-demo"
+version = "0.1.0"
+description = "Interactive uncertainty-quantification teaching app on a ballistic model"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.11",
+    "scikit-learn>=1.3",
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "httpx>=0.27"]
+
+[tool.setuptools.packages.find]
+include = ["uq_core*", "api*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
