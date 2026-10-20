@@ -19,7 +19,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from uq_core import doe, params, propagation, robust, sensitivity, surrogate
+from uq_core import calibration, doe, params, propagation, robust, sensitivity, surrogate
 from uq_core.ballistics import simulate, vacuum_trajectory
 
 
@@ -175,6 +175,34 @@ class ToleranceReq(Base):
     seed: int = 0
 
 
+class ExperimentReq(Base):
+    names: list[str]
+    truth: dict[str, float]
+    n_obs: int = Field(8, ge=1, le=60)
+    theta_range: tuple[float, float] = (15.0, 65.0)
+    noise: float = Field(1.0, gt=0)
+    gust_std: float = Field(0.0, ge=0)
+    qois: list[Qoi] = ["range"]
+    seed: int = 0
+
+
+class CalibrateReq(Base):
+    names: list[str]
+    theta: list[float]
+    obs: dict[Qoi, list[float]]
+    sigma: float = Field(1.0, gt=0)
+    method: Literal["grid", "mcmc"] = "grid"
+    use_emulator: bool = True
+    n_walkers: int = Field(32, ge=4, le=256)
+    n_iter: int = Field(300, ge=20, le=5000)
+    burn: int = Field(100, ge=0)
+    theta_range: tuple[float, float] = (15.0, 65.0)
+    theta_new: float = Field(45.0, ge=1, le=89)
+    pred_qoi: Qoi = "range"
+    truth: dict[str, float] | None = None
+    seed: int = 0
+
+
 def _check_names(names: list[str]):
     bad = [n for n in names if n not in params.PARAMS]
     if bad or not names:
@@ -193,6 +221,7 @@ def meta():
         "doe_methods": doe.METHODS,
         "surrogates": surrogate.KINDS,
         "objectives": robust.OBJECTIVES,
+        "calibratable": calibration.CALIBRATABLE,
         "default_spec": params.default_spec(),
     }
 
@@ -344,6 +373,29 @@ def api_tolerance(req: ToleranceReq):
         raise ValueError("std_max must give one value per design variable")
     return robust.tolerance_study(req.full_spec(), req.design, req.qoi, req.target, req.tol, req.std_max,
                                   req.grid, req.n_mc, req.dt, req.seed)
+
+
+@app.post("/api/calibration/experiment")
+@safe_json
+def api_experiment(req: ExperimentReq):
+    missing = [n for n in req.names if n not in req.truth]
+    if missing:
+        raise ValueError(f"missing true value for {missing}")
+    lo, hi = req.theta_range
+    if not 1 <= lo <= hi <= 89:
+        raise ValueError("launch angles must satisfy 1 <= low <= high <= 89")
+    return calibration.make_experiment(req.full_spec(), req.names, req.truth, req.n_obs, req.theta_range,
+                                       req.noise, req.gust_std, req.qois, req.seed, req.dt)
+
+
+@app.post("/api/calibration/run")
+@safe_json
+def api_calibrate(req: CalibrateReq):
+    if req.method == "mcmc" and req.burn >= req.n_iter:
+        raise ValueError("burn-in must be shorter than the number of iterations")
+    return calibration.calibrate(req.full_spec(), req.names, req.theta, req.obs, req.sigma, req.method,
+                                 req.use_emulator, req.n_walkers, req.n_iter, req.burn, req.theta_range,
+                                 req.theta_new, req.pred_qoi, req.truth, req.seed, req.dt)
 
 
 _DIST = Path(__file__).resolve().parent.parent / "frontend" / "dist"

@@ -126,12 +126,11 @@ def simulate(
             v_imp[hit] = np.hypot(vxi, vyi)
             active &= ~hit
 
-        x = np.where(active, xn, x)
-        y = np.where(active, yn, y)
-        vx = np.where(active, vxn, vx)
-        vy = np.where(active, vyn, vy)
-        t = np.where(active, t + dt, t)
-        ymax = np.maximum(ymax, np.where(active, y, 0.0))
+        # Landed trajectories keep being integrated (below ground) rather than
+        # frozen: it is cheaper, and their outputs were recorded at impact.
+        x, y, vx, vy = xn, yn, vxn, vyn
+        t = t + dt
+        ymax = np.maximum(ymax, y * active)
         nsteps += active
         if record:
             hist_x.append(x[:record].copy())

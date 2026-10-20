@@ -8,6 +8,7 @@ import { DoeTab, type Design } from "./tabs/DoeTab";
 import { SurrogateTab, type TrainedModel } from "./tabs/SurrogateTab";
 import { SensitivityTab } from "./tabs/SensitivityTab";
 import { RobustTab } from "./tabs/RobustTab";
+import { CalibrationTab } from "./tabs/CalibrationTab";
 
 export interface Common {
   meta: Meta;
@@ -23,6 +24,7 @@ const TABS = [
   ["sur", "Surrogate model"],
   ["sa", "Sensitivity analysis"],
   ["rob", "Robust design"],
+  ["cal", "Bayesian calibration"],
 ] as const;
 type TabId = (typeof TABS)[number][0];
 
@@ -101,6 +103,7 @@ export default function App() {
               onUse={() => setTab("sa")} goDoe={() => setTab("doe")} />}
             {tab === "sa" && <SensitivityTab {...common} model={model} />}
             {tab === "rob" && <RobustTab {...common} />}
+            {tab === "cal" && <CalibrationTab {...common} />}
           </main>
         </div>
       </div>

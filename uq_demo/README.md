@@ -13,7 +13,7 @@ through air with drag, lift and wind, integrated with the explicit Euler scheme.
 cd uq_demo
 python -m venv .venv && source .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
-pytest                                                 # 32 tests, ~15 s
+pytest                                                 # 40 tests, ~25 s
 
 # Option A, one process: build the front-end once; FastAPI serves it
 cd frontend && npm install && npm run build && cd ..
@@ -24,7 +24,7 @@ uvicorn api.main:app --reload                          # terminal 1 (in uq_demo/
 cd frontend && npm install && npm run dev              # terminal 2, open http://localhost:5173
 ```
 
-Requires Python ≥ 3.10 and Node ≥ 18. Each tab can be opened directly with `?tab=sim|mc|doe|sur|sa|rob`.
+Requires Python ≥ 3.10 and Node ≥ 18. Each tab can be opened directly with `?tab=sim|mc|doe|sur|sa|rob|cal`.
 
 ## The model
 
@@ -40,7 +40,7 @@ Every input has a nominal value and can be switched to **uncertain** (normal, un
 given mean and std). Sampling always goes through the unit hypercube and the inverse CDFs, so Monte Carlo,
 DoE and Sobol share one code path.
 
-## The six tabs (lessons)
+## The seven tabs (lessons)
 
 | # | Tab | What it teaches |
 |---|-----|-----------------|
@@ -50,6 +50,7 @@ DoE and Sobol share one code path.
 | 4 | Surrogate model | Polynomial (1–3), Gaussian process, random forest, MLP; test Q²/RMSE, parity plot, 1D slice with the GP ±2σ band, 2D response surface (prediction / truth / error / GP std), learning curves. |
 | 5 | Sensitivity analysis | One-at-a-time tornado, Morris (μ*, σ), Sobol S₁/S_T with bootstrap CIs, on the simulator or on the surrogate, with a cost table ("what if one run took 1 min?"). |
 | 6 | Robust design | Choose the means of 1–2 design variables; wind, Cd… act as nuisance parameters. Compares deterministic, mean–variance and chance-constraint optima on a landscape, re-checks each on the true simulator, and runs a tolerance-allocation study (P(hit) vs the std of the design variables). |
+| 7 | Bayesian calibration | Infer 1–3 parameters (Cd, Cl, mass, v0, wind) from synthetic noisy shots at known angles. Exact grid posterior or ensemble MCMC (stretch move) on the simulator or a GP emulator; prior → posterior marginals, joint posterior (Cd/mass identifiability ridge), traces, posterior predictive bands, prediction of a new shot. Unmodelled wind gusts show the effect of model error. |
 
 With the defaults (target range 55 ± 3 m, wind σ = 2 m/s), the deterministic design (θ ≈ 39°) hits the
 target only about 42% of the time. The robust designs pick flatter, faster shots (θ ≈ 18–20°), which are less
@@ -58,12 +59,13 @@ sensitive to the wind, and reach about 47–48%.
 ## Layout
 
 ```
-uq_core/   ballistics.py  params.py  propagation.py  doe.py  surrogate.py  sensitivity.py  robust.py
+uq_core/   ballistics.py  params.py  propagation.py  doe.py  surrogate.py  sensitivity.py  robust.py  calibration.py
 api/       main.py                      FastAPI endpoints (/api/...)
 frontend/  src/App.tsx, src/tabs/*.tsx, src/components/{TrajectoryView (D3), Plot (Plotly), ParamPanel}
-tests/     test_core.py (numerics), test_api.py (endpoints)
+tests/     test_core.py (numerics), test_api.py (endpoints), test_calibration.py
 ```
 
-## Parked for later
-
-- Bayesian calibration (infer Cd from noisy observed impact points).
+With the defaults in tab 7 (Cd prior 0.25 ± 0.03, true Cd 0.286, 8 shots, 1 m noise), the posterior std of
+Cd shrinks about 6×, and the predicted range of a new 45° shot goes from ±2.7 m to ±0.4 m. With 3 m/s
+unmodelled gusts, the 95% interval covers the truth in only about 4 out of 10 datasets, unless the assumed
+noise is inflated.

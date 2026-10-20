@@ -30,6 +30,7 @@ export interface Meta {
   doe_methods: string[];
   surrogates: Record<string, string>;
   objectives: Record<string, string>;
+  calibratable: string[];
   default_spec: Spec;
 }
 
