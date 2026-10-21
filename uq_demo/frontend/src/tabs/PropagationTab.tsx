@@ -6,6 +6,7 @@ import { Card, Lesson, Status, Tile } from "../components/ui";
 import { Plot } from "../components/Plot";
 import { TrajectoryView, type Path } from "../components/TrajectoryView";
 import { colors, useThemeVersion } from "../theme";
+import { bandFor } from "./SimulatorTab";
 
 interface Stats { mean: number; std: number; min: number; max: number; p05: number; p50: number; p95: number }
 interface McOut {
@@ -170,7 +171,7 @@ export function PropagationTab({ meta, spec, settings }: Common) {
 
       <Card span={7} title="Sampled trajectories" sub={`Colored by ${qInfo.label.toLowerCase()}; ticks on the ground mark impact points.`}>
         <TrajectoryView spaghetti={spaghetti} valueLabel={`${qInfo.label} [${qInfo.unit}]`} impacts={impacts}
-          band={q === "range" ? [settings.target - settings.tol, settings.target + settings.tol] : null}
+          band={bandFor(q, settings.target, settings.tol)} bandAxis={q === "max_height" ? "y" : "x"}
           wind={spec.wind.value} height={340} />
       </Card>
       <Card span={5} title={`Distribution of ${qInfo.label.toLowerCase()}`} sub="Histogram, kernel density and first-order approximation. The shaded band is target ± tol.">

@@ -133,6 +133,12 @@ button, input, select { font: inherit; color: inherit; }
   .span-4, .span-5, .span-6, .span-7, .span-8 { grid-column: span 12; }
 }
 .card h3 { margin: 0 0 2px; font-size: 14px; font-weight: 600; }
+.card h3 button.fold {
+  border: 0; background: transparent; padding: 0; font: inherit; color: inherit; cursor: pointer;
+  display: inline-flex; gap: 6px; align-items: baseline;
+}
+.card h3 button.fold .caret { color: var(--text-muted); font-size: 11px; width: 10px; display: inline-block; }
+.card.folded .sub { margin-bottom: 0; }
 .card .sub { color: var(--text-muted); font-size: 12px; margin: 0 0 8px; }
 .card-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .card-head .spacer { flex: 1; }
@@ -181,6 +187,7 @@ button, input, select { font: inherit; color: inherit; }
   width: 64px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 5px; padding: 2px 4px; font-size: 12px;
 }
 input[type="range"] { width: 100%; accent-color: var(--accent); }
+.law-note { font-size: 11px; color: var(--text-muted); margin: 3px 0 0 40px; font-variant-numeric: tabular-nums; }
 .dist-select { font-size: 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 5px; }
 .toggle-unc { font-size: 11px; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text-muted); }
 .toggle-unc.on { background: var(--accent); color: var(--accent-ink); border-color: transparent; }

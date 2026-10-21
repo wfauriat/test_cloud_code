@@ -33,7 +33,8 @@ interface Props extends Common {
 }
 
 export function DoeTab({ meta, spec, settings, setDesign, onUse }: Props) {
-  const unc = uncertainNames(spec, meta);
+  // Default design inputs: the uncertain ones, except the wind (a nuisance input, opt in with its checkbox).
+  const unc = uncertainNames(spec, meta).filter((nm) => nm !== "wind");
   const [names, setNames] = useState<string[]>(unc.length ? unc : ["v0", "theta"]);
   const [method, setMethod] = useState("lhs");
   const [n, setN] = useState(50);

@@ -38,13 +38,18 @@ KINDS = {
 _MAX_STORE = 30
 
 
-def make_estimator(kind: str, d: int, seed: int = 0):
+def make_estimator(kind: str, d: int, seed: int = 0, nugget: bool = False):
     if kind.startswith("poly"):
         deg = int(kind[4:])
         return make_pipeline(PolynomialFeatures(deg), Ridge(alpha=1e-8))
     if kind == "gp":
-        kernel = ConstantKernel(1.0, (1e-3, 1e3)) * RBF(np.full(d, 0.5), (1e-2, 1e2)) + WhiteKernel(1e-6, (1e-10, 1e-1))
-        return GaussianProcessRegressor(kernel, normalize_y=True, n_restarts_optimizer=2, random_state=seed)
+        # The simulator is deterministic, so the GP interpolates (kriging), with a tiny
+        # jitter for numerical stability. A fitted nugget (WhiteKernel) is only the
+        # fallback when the covariance matrix is too ill-conditioned.
+        kernel = ConstantKernel(1.0, (1e-3, 1e3)) * RBF(np.full(d, 0.5), (1e-2, 1e2))
+        if nugget:
+            kernel = kernel + WhiteKernel(1e-6, (1e-10, 1e-1))
+        return GaussianProcessRegressor(kernel, alpha=1e-8, normalize_y=True, n_restarts_optimizer=2, random_state=seed)
     if kind == "rf":
         return RandomForestRegressor(n_estimators=200, random_state=seed)
     if kind == "mlp":
@@ -71,8 +76,15 @@ class Surrogate:
         t = time.perf_counter()
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", ConvergenceWarning)
+            U = doe.to_unit(self.X, self.box)
             self.estimator = make_estimator(self.kind, len(self.names), seed)
-            self.estimator.fit(doe.to_unit(self.X, self.box), self.y)
+            try:
+                self.estimator.fit(U, self.y)
+            except (np.linalg.LinAlgError, ValueError):
+                if self.kind != "gp":
+                    raise
+                self.estimator = make_estimator(self.kind, len(self.names), seed, nugget=True)
+                self.estimator.fit(U, self.y)
         self.train_time = time.perf_counter() - t
         return self
 
@@ -83,6 +95,9 @@ class Surrogate:
             u = U[i:i + batch]
             if self.kind == "gp" and return_std:
                 m, s = self.estimator.predict(u, return_std=True)
+                # sklearn's std includes the fitted WhiteKernel noise (a floor that never
+                # vanishes, even at the training points); report the latent-function std.
+                s = np.sqrt(np.maximum(s**2 - self._gp_noise_var(), 0.0))
             elif self.kind == "rf" and return_std:
                 per_tree = np.stack([t.predict(u) for t in self.estimator.estimators_])
                 m, s = per_tree.mean(0), per_tree.std(0)
@@ -96,14 +111,32 @@ class Surrogate:
         std = None if stds[0] is None else np.concatenate(stds)
         return mean, std
 
+    def _gp_noise_var(self) -> float:
+        """Variance of the WhiteKernel term, in the units of y (normalize_y=True rescales it)."""
+        white = getattr(self.estimator.kernel_, "k2", None)
+        level = float(white.noise_level) if isinstance(white, WhiteKernel) else 0.0
+        y_std = float(np.atleast_1d(getattr(self.estimator, "_y_train_std", 1.0))[0])
+        return level * y_std**2
+
     @property
     def has_std(self) -> bool:
         return self.kind in ("gp", "rf")
 
-    def anchor(self) -> np.ndarray:
-        """Point where slices are taken: nominal values clipped into the box."""
-        base = nominal(self.spec)
+    def anchor(self, values: dict | None = None) -> np.ndarray:
+        """Point through which slices are taken: `values` where given, else the
+        nominal values, clipped into the box."""
+        base = {**nominal(self.spec), **(values or {})}
         return np.array([np.clip(base[n], lo, hi) for n, (lo, hi) in zip(self.names, self.box)])
+
+    def distance_to_slice(self, a: np.ndarray, free: list[int]) -> np.ndarray:
+        """Distance of each training point to the slice through `a` (free dims ignored),
+        in unit-box coordinates: a projected point is only meaningful when it is small."""
+        fixed = [k for k in range(len(self.names)) if k not in free]
+        if not fixed:
+            return np.zeros(len(self.X))
+        U = doe.to_unit(self.X, self.box)[:, fixed]
+        ua = doe.to_unit(a[None, :], self.box)[0, fixed]
+        return np.sqrt(((U - ua) ** 2).sum(axis=1))
 
     def describe(self) -> dict:
         info = {"id": self.id, "kind": self.kind, "label": KINDS[self.kind], "names": self.names,
@@ -178,25 +211,27 @@ def learning_curve(spec, names, box, kinds, sizes, method, qoi, dt=0.01, n_test=
     return out
 
 
-def slice_1d(s: Surrogate, param: str, n_points: int = 120) -> dict:
+def slice_1d(s: Surrogate, param: str, n_points: int = 120, anchor: dict | None = None) -> dict:
     j = s.names.index(param)
     lo, hi = s.box[j]
     xs = np.linspace(lo, hi, n_points)
-    X = np.repeat(s.anchor()[None, :], n_points, axis=0)
+    a = s.anchor(anchor)
+    X = np.repeat(a[None, :], n_points, axis=0)
     X[:, j] = xs
     mean, std = s.predict(X, return_std=True)
     true = evaluate(s.spec, s.names, X, s.qoi, s.dt)
     return {"x": xs.tolist(), "pred": mean.tolist(), "std": None if std is None else std.tolist(),
             "true": true.tolist(), "train_x": s.X[:, j].tolist(), "train_y": s.y.tolist(),
-            "anchor": dict(zip(s.names, s.anchor().tolist()))}
+            "train_dist": s.distance_to_slice(a, [j]).tolist(), "anchor": dict(zip(s.names, a.tolist()))}
 
 
-def surface_2d(s: Surrogate, px: str, py: str, n_grid: int = 40) -> dict:
+def surface_2d(s: Surrogate, px: str, py: str, n_grid: int = 40, anchor: dict | None = None) -> dict:
     i, j = s.names.index(px), s.names.index(py)
     xs = np.linspace(*s.box[i], n_grid)
     ys = np.linspace(*s.box[j], n_grid)
     gx, gy = np.meshgrid(xs, ys)
-    X = np.repeat(s.anchor()[None, :], gx.size, axis=0)
+    a = s.anchor(anchor)
+    X = np.repeat(a[None, :], gx.size, axis=0)
     X[:, i] = gx.ravel()
     X[:, j] = gy.ravel()
     mean, std = s.predict(X, return_std=True)
@@ -206,4 +241,5 @@ def surface_2d(s: Surrogate, px: str, py: str, n_grid: int = 40) -> dict:
             "true": true.reshape(shape).tolist(),
             "std": None if std is None else std.reshape(shape).tolist(),
             "error": (mean - true).reshape(shape).tolist(),
-            "train_x": s.X[:, i].tolist(), "train_y": s.X[:, j].tolist()}
+            "train_x": s.X[:, i].tolist(), "train_y": s.X[:, j].tolist(),
+            "train_dist": s.distance_to_slice(a, [i, j]).tolist(), "anchor": dict(zip(s.names, a.tolist()))}

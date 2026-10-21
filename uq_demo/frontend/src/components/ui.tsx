@@ -1,15 +1,34 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 
-export function Card({ title, sub, span = 12, right, children }: { title: string; sub?: ReactNode; span?: number; right?: ReactNode; children: ReactNode }) {
+interface CardProps {
+  title: string;
+  sub?: ReactNode;
+  span?: number;
+  right?: ReactNode;
+  children: ReactNode;
+  collapsible?: boolean; // click the title to fold / unfold
+  defaultOpen?: boolean;
+}
+
+export function Card({ title, sub, span = 12, right, children, collapsible = false, defaultOpen = true }: CardProps) {
+  const [open, setOpen] = useState(defaultOpen);
+  const shown = !collapsible || open;
   return (
-    <section className={`card ${span < 12 ? `span-${span}` : ""}`}>
+    <section className={`card ${span < 12 ? `span-${span}` : ""} ${shown ? "" : "folded"}`}>
       <div className="card-head">
-        <h3>{title}</h3>
+        <h3>
+          {collapsible ? (
+            <button className="fold" aria-expanded={open} onClick={() => setOpen(!open)}>
+              <span className="caret">{open ? "▾" : "▸"}</span>{title}
+            </button>
+          ) : title}
+        </h3>
         <span className="spacer" />
-        {right}
+        {shown && right}
       </div>
       {sub && <p className="sub">{sub}</p>}
-      {children}
+      {/* folded content is not rendered at all, so charts are drawn at their real size on opening */}
+      {shown && children}
     </section>
   );
 }

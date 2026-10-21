@@ -39,6 +39,12 @@ impact speed. Integration is vectorised over samples: 10 000 Monte Carlo traject
 Every input has a nominal value and can be switched to **uncertain** (normal, uniform or lognormal law with a
 given mean and std). Sampling always goes through the unit hypercube and the inverse CDFs, so Monte Carlo,
 DoE and Sobol share one code path.
+For every law, "mean" and "std" are the moments of the input itself. For a lognormal, the parameters of
+ln X are derived from them: σ_ln² = ln(1 + (std/mean)²) and μ_ln = ln(mean) − σ_ln²/2. The panel displays them.
+
+The Gaussian-process surrogate interpolates (kriging with a 1e-8 jitter), because the simulator is
+deterministic. Its σ is the latent-function std: zero at the training points. A fitted nugget is used only
+as a fallback when the covariance matrix is ill-conditioned.
 
 ## The seven tabs (lessons)
 

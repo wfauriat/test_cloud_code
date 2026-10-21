@@ -23,8 +23,11 @@ interface TrainOut {
   test: Scores;
   timing: { simulator_per_1000: number; surrogate_per_1000: number; train: number };
 }
-interface SliceOut { x: number[]; pred: number[]; std: number[] | null; true: number[]; train_x: number[]; train_y: number[] }
-interface SurfOut { x: number[]; y: number[]; pred: number[][]; true: number[][]; std: number[][] | null; error: number[][]; train_x: number[]; train_y: number[] }
+interface SliceOut { x: number[]; pred: number[]; std: number[] | null; true: number[]; train_x: number[]; train_y: number[]; train_dist: number[]; anchor: Record<string, number> }
+interface SurfOut { x: number[]; y: number[]; pred: number[][]; true: number[][]; std: number[][] | null; error: number[][]; train_x: number[]; train_y: number[]; train_dist: number[]; anchor: Record<string, number> }
+
+/** Opacity of a projected training point: only points close to the slice really constrain it. */
+const closeness = (dist: number[]) => dist.map((r) => 0.1 + 0.9 * Math.exp(-((r / 0.12) ** 2)));
 interface LcOut { sizes: number[]; curves: Record<string, { label: string; r2: number[]; rmse: number[] }> }
 
 interface Props extends Common {
@@ -41,6 +44,7 @@ export function SurrogateTab({ meta, spec, settings, design, setModel, onUse, go
   const [kind, setKind] = useState("gp");
   const [localDesign, setLocalDesign] = useState<Design | null>(design);
   const [sliceParam, setSliceParam] = useState<string>("");
+  const [through, setThrough] = useState<number | null>(null); // slices pass through this training point (null = nominal)
   const [px, setPx] = useState("");
   const [py, setPy] = useState("");
   const [view, setView] = useState<"pred" | "true" | "error" | "std">("pred");
@@ -78,10 +82,15 @@ export function SurrogateTab({ meta, spec, settings, design, setModel, onUse, go
     if (!d.names.includes(py) || py === d.names[0]) setPy(d.names[Math.min(1, d.names.length - 1)]);
   }, [d]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => { if (m && sliceParam && m.names.includes(sliceParam)) slice.run("surrogate/slice", { model_id: m.id, param: sliceParam }); }, [m, sliceParam, slice.run]);
+  useEffect(() => { setThrough(null); }, [d]);
+  const anchor = d && through !== null && through < d.X.length ? Object.fromEntries(d.names.map((nm, j) => [nm, d.X[through][j]])) : null;
+  const anchorKey = JSON.stringify(anchor);
   useEffect(() => {
-    if (m && px && py && px !== py && m.names.includes(px) && m.names.includes(py)) surf.run("surrogate/surface", { model_id: m.id, px, py, n_grid: 40 });
-  }, [m, px, py, surf.run]);
+    if (m && sliceParam && m.names.includes(sliceParam)) slice.run("surrogate/slice", { model_id: m.id, param: sliceParam, anchor });
+  }, [m, sliceParam, anchorKey, slice.run]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (m && px && py && px !== py && m.names.includes(px) && m.names.includes(py)) surf.run("surrogate/surface", { model_id: m.id, px, py, n_grid: 40, anchor });
+  }, [m, px, py, anchorKey, surf.run]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const parity = useMemo(() => {
     const t = train.data;
@@ -114,8 +123,34 @@ export function SurrogateTab({ meta, spec, settings, design, setModel, onUse, go
     }
     data.push({ x: s.x, y: s.true, mode: "lines", name: "simulator (truth)", line: { color: c.text, width: 2 }, hovertemplate: "%{y:.2f}<extra>truth</extra>" });
     data.push({ x: s.x, y: s.pred, mode: "lines", name: "surrogate", line: { color: c.s1, width: 2, dash: "dash" }, hovertemplate: "%{y:.2f}<extra>surrogate</extra>" });
-    data.push({ x: s.train_x, y: s.train_y, mode: "markers", name: "training points (projected)", marker: { size: 6, color: c.muted, opacity: 0.6 }, hoverinfo: "skip" });
-    return { data, layout: { xaxis: { title: { text: axisTitle(sliceParam) } }, yaxis: { title: { text: `${q.label} [${q.unit}]` } } } };
+    data.push({ x: s.train_x, y: s.train_y, mode: "markers", name: "training points (faded = far from the slice)",
+      marker: { size: 7, color: c.s2, opacity: closeness(s.train_dist), line: { width: 0 } },
+      customdata: s.train_dist, hovertemplate: "distance to the slice %{customdata:.2f}<extra>training point</extra>" });
+    // Fit the y-axis to the curves: projected points far from the slice would otherwise squash them.
+    const band = s.std ? s.std.map((v) => 2 * v) : s.x.map(() => 0);
+    const lo = Math.min(...s.true, ...s.pred.map((v, i) => v - band[i]));
+    const hi = Math.max(...s.true, ...s.pred.map((v, i) => v + band[i]));
+    const pad = 0.12 * (hi - lo || 1);
+    return { data, layout: { xaxis: { title: { text: axisTitle(sliceParam) } },
+      yaxis: { title: { text: `${q.label} [${q.unit}]` }, range: [lo - pad, hi + pad] } } };
+  }, [slice.data, theme]);
+
+  // The ±2σ band is often too thin to see next to the response: plot σ on its own axis.
+  const stdPlot = useMemo(() => {
+    const s = slice.data;
+    if (!s || !s.std) return null;
+    const c = colors();
+    const near = s.train_x.map((x, k) => ({ x, d: s.train_dist[k] })).filter((p) => p.d < 0.1);
+    return {
+      data: [
+        { x: s.x, y: s.std, mode: "lines", name: "σ", line: { color: c.s1, width: 2 }, fill: "tozeroy", fillcolor: c.band,
+          hovertemplate: "σ = %{y:.4f}<extra></extra>" },
+        { x: near.map((p) => p.x), y: near.map(() => 0), mode: "markers", name: "training points on the slice",
+          marker: { size: 8, color: c.s2, symbol: "triangle-up" }, hoverinfo: "skip" },
+      ],
+      layout: { showlegend: false, margin: { t: 6, b: 36 }, xaxis: { title: { text: axisTitle(sliceParam), font: { size: 11 } } },
+        yaxis: { title: { text: `${kind === "gp" ? "GP σ" : "trees σ"} [${q.unit}]`, font: { size: 11 } }, rangemode: "tozero" } },
+    };
   }, [slice.data, theme]);
 
   const surfPlot = useMemo(() => {
@@ -133,7 +168,8 @@ export function SurrogateTab({ meta, spec, settings, design, setModel, onUse, go
           contours: { coloring: "heatmap", showlabels: true, labelfont: { size: 10, color: c.text } }, line: { width: 0.5, color: c.surface },
           colorbar: { title: { text: `${title} [${q.unit}]`, side: "right", font: { size: 11 } }, thickness: 12, outlinewidth: 0, tickfont: { color: c.muted } },
           hovertemplate: `${px} = %{x:.2f}<br>${py} = %{y:.2f}<br>%{z:.3f}<extra></extra>` },
-        { x: s.train_x, y: s.train_y, mode: "markers", name: "training points", marker: { size: 7, color: c.surface, line: { color: c.text, width: 1.5 } }, hoverinfo: "skip" },
+        { x: s.train_x, y: s.train_y, mode: "markers", name: "training points", marker: { size: 8, color: c.surface, opacity: closeness(s.train_dist), line: { color: c.text, width: 1.5 } },
+          customdata: s.train_dist, hovertemplate: "distance to the plane %{customdata:.2f}<extra>training point</extra>" },
       ],
       layout: { xaxis: { title: { text: axisTitle(px) } }, yaxis: { title: { text: axisTitle(py) } }, showlegend: false, margin: { r: 10 } },
     };
@@ -173,7 +209,8 @@ export function SurrogateTab({ meta, spec, settings, design, setModel, onUse, go
         so it can replace the simulator in the tens of thousands of runs that Monte Carlo, Sobol or optimization need.
         <ul>
           <li>Judge it on <b>new</b> points: Q² (R² on a test set) close to 1 and a small RMSE. A perfect fit on the training points proves nothing (random forests overfit).</li>
-          <li>The <b>Gaussian process</b> (kriging) interpolates the data and also returns its own uncertainty (±2σ band), which grows away from the training points.</li>
+          <li>The <b>Gaussian process</b> (kriging) interpolates the data, since the simulator is deterministic, and returns its own uncertainty (±2σ band): zero at the training points, growing between them. How fast it grows depends on the fitted length scales, so a smooth response gives a uniformly small σ.</li>
+          <li>Slices and surfaces fix the other inputs. Training points are drawn <b>projected</b>, and only those close to the slice (opaque) constrain it. Slice <b>through a training point</b> to see the GP band pinch to zero there.</li>
           <li>The <b>learning curve</b> shows how many runs each model needs: compare polynomials, GP and forest.</li>
           <li>Try a small n (10), a wide box (k = 5), or the max height QoI to see models fail.</li>
         </ul>
@@ -210,15 +247,34 @@ export function SurrogateTab({ meta, spec, settings, design, setModel, onUse, go
       <Card span={5} title="Parity plot" sub="Predicted vs true QoI. Points on the diagonal are perfect predictions.">
         {parity && <Plot data={parity.data} layout={parity.layout} height={330} />}
       </Card>
-      <Card span={7} title="1D slice" sub="One input varies; the others stay at their nominal values (clipped into the box)."
+      <section className="card">
+        <div className="toolbar" style={{ alignItems: "center" }}>
+          <span className="muted">Slices and surfaces pass through:</span>
+          <label className="check"><input type="radio" checked={through === null} onChange={() => setThrough(null)} />nominal values</label>
+          <label className="check"><input type="radio" checked={through !== null} onChange={() => setThrough(0)} />training point</label>
+          {through !== null && <>
+            <button className="btn small" onClick={() => setThrough((through - 1 + d.X.length) % d.X.length)}>◀</button>
+            <span>#{through + 1} / {d.X.length}</span>
+            <button className="btn small" onClick={() => setThrough((through + 1) % d.X.length)}>▶</button>
+          </>}
+          <span className="muted" style={{ fontSize: 12 }}>
+            {slice.data && Object.entries(slice.data.anchor).filter(([nm]) => nm !== sliceParam).map(([nm, v]) => `${nm} = ${fmt(v, 3)}`).join(", ")}
+          </span>
+        </div>
+      </section>
+      <Card span={7} title="1D slice" sub={`One input varies; the others are fixed at the point chosen above. Dots are training points projected onto this line, faded with their distance to it.`}
         right={<><Status loading={slice.loading} error={slice.error} />
           <select className="inline" value={sliceParam} onChange={(e) => setSliceParam(e.target.value)}>
             {d.names.map((nm) => <option key={nm} value={nm}>{info(nm).label}</option>)}
           </select></>}>
         {slicePlot && <Plot data={slicePlot.data} layout={slicePlot.layout} height={330} />}
+        {stdPlot && <>
+          <p className="sub" style={{ margin: "6px 0 0" }}>Predicted σ along the slice (▲ = training points within 0.1 of it, in unit-box distance):</p>
+          <Plot data={stdPlot.data} layout={stdPlot.layout} height={150} />
+        </>}
       </Card>
       {d.names.length >= 2 && (
-        <Card span={7} title="2D response surface" sub="Two inputs vary on a grid; the others stay at their nominal values. Circles are the training points."
+        <Card span={7} title="2D response surface" sub="Two inputs vary on a grid; the others are fixed at the point chosen above. Circles are projected training points, faded with their distance to the plane."
           right={<><Status loading={surf.loading} error={surf.error} />
             <select className="inline" value={px} onChange={(e) => setPx(e.target.value)}>{d.names.map((nm) => <option key={nm} value={nm}>x: {nm}</option>)}</select>
             <select className="inline" value={py} onChange={(e) => setPy(e.target.value)}>{d.names.map((nm) => <option key={nm} value={nm}>y: {nm}</option>)}</select>

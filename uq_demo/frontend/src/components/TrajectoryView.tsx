@@ -14,18 +14,28 @@ interface Props {
   spaghetti?: (Path & { value: number })[]; // Monte Carlo sample paths, colored by `value`
   valueLabel?: string;
   impacts?: number[]; // impact positions (rug on the ground)
-  band?: [number, number] | null; // target band on the ground
+  band?: [number, number] | null; // target band: on the ground (bandAxis "x") or in height ("y")
+  bandAxis?: "x" | "y";
+  limits?: Limits; // fixed axis limits; a null/undefined bound is automatic
   wind?: number;
   height?: number;
   equalAspect?: boolean;
   animateKey?: number; // change it to replay the drawing animation of `main`
 }
 
+export interface Limits {
+  xmin?: number | null;
+  xmax?: number | null;
+  ymin?: number | null;
+  ymax?: number | null;
+}
+
 const M = { top: 18, right: 18, bottom: 34, left: 46 };
+const isNum = (v: number | null | undefined): v is number => typeof v === "number" && isFinite(v);
 
 /** D3 view of trajectories in the (x, y) plane. */
 export function TrajectoryView(props: Props) {
-  const { main, vacuum, ghosts = [], spaghetti = [], impacts = [], band, wind = 0, height = 340,
+  const { main, vacuum, ghosts = [], spaghetti = [], impacts = [], band, bandAxis = "x", limits, wind = 0, height = 340,
     equalAspect = false, animateKey = 0, valueLabel = "" } = props;
   const wrap = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -52,17 +62,31 @@ export function TrajectoryView(props: Props) {
     const all: Path[] = [...(main ? [main] : []), ...(vacuum ? [vacuum] : []), ...ghosts, ...spaghetti];
     let xMax = d3.max(all, (p) => d3.max(p.x)) ?? 10;
     let yMax = d3.max(all, (p) => d3.max(p.y)) ?? 5;
-    if (band) xMax = Math.max(xMax, band[1]);
+    if (band && bandAxis === "x") xMax = Math.max(xMax, band[1]);
+    if (band && bandAxis === "y") yMax = Math.max(yMax, band[1]);
     xMax = Math.max(xMax * 1.05, 1);
     yMax = Math.max(yMax * 1.15, 1);
-    if (equalAspect) {
-      const k = Math.max(xMax / W, yMax / H); // metres per pixel, same on both axes
-      xMax = k * W;
-      yMax = k * H;
+    const L = limits ?? {};
+    const xFixed = isNum(L.xmin) || isNum(L.xmax);
+    const yFixed = isNum(L.ymin) || isNum(L.ymax);
+    let x0 = isNum(L.xmin) ? L.xmin : 0;
+    let x1 = isNum(L.xmax) ? L.xmax : xMax;
+    let y0 = isNum(L.ymin) ? L.ymin : 0;
+    let y1 = isNum(L.ymax) ? L.ymax : yMax;
+    if (x1 <= x0) x1 = x0 + 1;
+    if (y1 <= y0) y1 = y0 + 1;
+    const aspect = equalAspect && !xFixed && !yFixed; // fixed limits take precedence
+    if (aspect) {
+      const k = Math.max(x1 / W, y1 / H); // metres per pixel, same on both axes
+      x1 = k * W;
+      y1 = k * H;
     }
-    const x = d3.scaleLinear().domain([0, xMax]).range([0, W]);
-    const y = d3.scaleLinear().domain([0, yMax]).range([H, 0]);
-    if (!equalAspect) { x.nice(); y.nice(); }
+    const x = d3.scaleLinear().domain([x0, x1]).range([0, W]);
+    const y = d3.scaleLinear().domain([y0, y1]).range([H, 0]);
+    if (!aspect && !xFixed) x.nice();
+    if (!aspect && !yFixed) y.nice();
+    [x0, x1] = x.domain();
+    [y0, y1] = y.domain();
 
     const g = svg.append("g").attr("transform", `translate(${M.left},${M.top})`);
     g.append("g").attr("class", "gridline").attr("transform", `translate(0,${H})`)
@@ -73,12 +97,24 @@ export function TrajectoryView(props: Props) {
     g.append("text").attr("class", "label").attr("x", W).attr("y", H + 30).attr("text-anchor", "end").text("distance x [m]");
     g.append("text").attr("class", "label").attr("x", -2).attr("y", -6).text("height y [m]");
 
+    // Everything in data space is drawn in a clipped group, so fixed limits crop it cleanly.
+    const clipId = `clip-${Math.random().toString(36).slice(2)}`;
+    svg.append("defs").append("clipPath").attr("id", clipId).append("rect").attr("width", W).attr("height", H);
+    const pg = g.append("g").attr("clip-path", `url(#${clipId})`);
+
     if (band) {
       const [b0, b1] = band;
-      g.append("rect").attr("class", "band").attr("x", x(b0)).attr("width", Math.max(1, x(b1) - x(b0)))
-        .attr("y", 0).attr("height", H);
-      g.append("text").attr("class", "band-label").attr("x", (x(b0) + x(b1)) / 2).attr("y", 12)
-        .attr("text-anchor", "middle").text("target ± tol");
+      if (bandAxis === "x") {
+        pg.append("rect").attr("class", "band").attr("x", x(b0)).attr("width", Math.max(1, x(b1) - x(b0)))
+          .attr("y", 0).attr("height", H);
+        pg.append("text").attr("class", "band-label").attr("x", (x(b0) + x(b1)) / 2).attr("y", 12)
+          .attr("text-anchor", "middle").text("target ± tol");
+      } else {
+        pg.append("rect").attr("class", "band").attr("x", 0).attr("width", W)
+          .attr("y", y(b1)).attr("height", Math.max(1, y(b0) - y(b1)));
+        pg.append("text").attr("class", "band-label").attr("x", W - 6).attr("y", y(b1) - 4)
+          .attr("text-anchor", "end").text("target max height ± tol");
+      }
     }
 
     const line = d3.line<[number, number]>().x((d) => x(d[0])).y((d) => y(d[1]));
@@ -89,7 +125,7 @@ export function TrajectoryView(props: Props) {
       const [lo, hi] = d3.extent(vals) as [number, number];
       const color = d3.scaleSequential(d3.interpolateRgbBasis(c.seq.slice(1))).domain([lo, hi === lo ? lo + 1 : hi]);
       const alpha = spaghetti.length > 150 ? 0.35 : 0.6;
-      g.append("g").selectAll("path").data(spaghetti).join("path").attr("class", "spag")
+      pg.append("g").selectAll("path").data(spaghetti).join("path").attr("class", "spag")
         .attr("d", (p) => line(pts(p))).attr("stroke", (p) => color(p.value)).attr("opacity", alpha);
       // gradient legend
       const lg = svg.append("g").attr("transform", `translate(${M.left + 14},${M.top + 4})`);
@@ -104,17 +140,17 @@ export function TrajectoryView(props: Props) {
     }
 
     if (impacts.length) {
-      g.append("g").selectAll("rect").data(impacts.slice(0, 3000)).join("rect").attr("class", "impact")
-        .attr("x", (d) => x(d) - 0.5).attr("y", H - 7).attr("width", 1).attr("height", 7);
+      pg.append("g").selectAll("rect").data(impacts.slice(0, 3000)).join("rect").attr("class", "impact")
+        .attr("x", (d) => x(d) - 0.5).attr("y", y(0) - 7).attr("width", 1).attr("height", 7);
     }
 
-    ghosts.forEach((p) => g.append("path").attr("class", "ghost").attr("d", line(pts(p))));
-    if (vacuum) g.append("path").attr("class", "vacuum").attr("d", line(pts(vacuum)));
+    ghosts.forEach((p) => pg.append("path").attr("class", "ghost").attr("d", line(pts(p))));
+    if (vacuum) pg.append("path").attr("class", "vacuum").attr("d", line(pts(vacuum)));
 
-    g.append("line").attr("class", "ground").attr("x1", 0).attr("x2", W).attr("y1", H).attr("y2", H);
+    if (y0 <= 0 && y1 >= 0) pg.append("line").attr("class", "ground").attr("x1", 0).attr("x2", W).attr("y1", y(0)).attr("y2", y(0));
 
     if (main && main.x.length > 1) {
-      const path = g.append("path").attr("class", "main").attr("d", line(pts(main)));
+      const path = pg.append("path").attr("class", "main").attr("d", line(pts(main)));
       if (animateKey !== lastAnim.current) {
         lastAnim.current = animateKey;
         const L = (path.node() as SVGPathElement).getTotalLength();
@@ -123,7 +159,7 @@ export function TrajectoryView(props: Props) {
           .on("end", () => path.attr("stroke-dasharray", null));
       }
       const iApex = d3.maxIndex(main.y);
-      g.append("circle").attr("class", "apex").attr("r", 4).attr("cx", x(main.x[iApex])).attr("cy", y(main.y[iApex]));
+      pg.append("circle").attr("class", "apex").attr("r", 4).attr("cx", x(main.x[iApex])).attr("cy", y(main.y[iApex]));
 
       // hover read-out along the main trajectory
       const cross = g.append("g").style("display", "none");
@@ -156,7 +192,8 @@ export function TrajectoryView(props: Props) {
       wg.append("text").attr("class", "wind-label").attr("x", dir * len / 2).attr("y", -8).attr("text-anchor", "middle")
         .text(`wind ${wind > 0 ? "+" : ""}${wind.toFixed(1)} m/s`);
     }
-  }, [main, vacuum, ghosts, spaghetti, impacts, band, wind, width, height, equalAspect, animateKey, theme, valueLabel]);
+  }, [main, vacuum, ghosts, spaghetti, impacts, band, bandAxis, limits?.xmin, limits?.xmax, limits?.ymin, limits?.ymax,
+    wind, width, height, equalAspect, animateKey, theme, valueLabel]);
 
   return (
     <div ref={wrap} style={{ position: "relative" }}>

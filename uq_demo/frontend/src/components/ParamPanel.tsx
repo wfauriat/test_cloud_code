@@ -1,4 +1,5 @@
-import type { Dist, Meta, ParamInfo, Qoi, Spec } from "../api";
+import { useState } from "react";
+import { post, uncertainNames, type Dist, type Meta, type ParamInfo, type Qoi, type Spec } from "../api";
 
 export interface Settings {
   qoi: Qoi;
@@ -18,6 +19,18 @@ interface Props {
 
 const DTS = [0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1];
 
+/** The mean and std entered are those of X itself; show what that implies for each law. */
+function lawNote(m: number, s: number, dist: Dist): string {
+  if (dist === "uniform") {
+    const h = Math.sqrt(3) * s;
+    return `X ~ U[${(m - h).toPrecision(4)}, ${(m + h).toPrecision(4)}]`;
+  }
+  if (m <= 0) return "lognormal needs a positive mean";
+  const sig = Math.sqrt(Math.log1p((s / m) ** 2));
+  const mu = Math.log(m) - sig ** 2 / 2;
+  return `ln X ~ N(μ = ${mu.toPrecision(4)}, σ = ${sig.toPrecision(3)}); median ${Math.exp(mu).toPrecision(4)}`;
+}
+
 export const stdMax = (p: ParamInfo) => (p.hi - p.lo) / (p.name === "wind" ? 6 : 8);
 
 function Num({ value, onChange, step, min, max }: { value: number; onChange: (v: number) => void; step: number; min?: number; max?: number }) {
@@ -28,6 +41,27 @@ function Num({ value, onChange, step, min, max }: { value: number; onChange: (v:
 }
 
 export function ParamPanel({ meta, spec, setSpec, settings, setSettings, showUncertainty }: Props) {
+  const [centering, setCentering] = useState(false);
+  /** Mean of the QoI under the current inputs: Monte Carlo when some are uncertain, else the nominal run. */
+  const meanQoi = async (qoi: Qoi): Promise<number> => {
+    if (showUncertainty && uncertainNames(spec, meta).length) {
+      const out = await post("propagate", { spec, dt: settings.dt, n: 1024, sampling: "sobol", n_traj: 0, qoi });
+      return out.qoi[qoi].stats.mean;
+    }
+    const out = await post("simulate", { spec, dt: settings.dt });
+    return out.qoi[qoi];
+  };
+  const center = async (qoi: Qoi) => {
+    setCentering(true);
+    try {
+      const m = await meanQoi(qoi);
+      setSettings({ ...settings, qoi, target: Math.round(m * 10) / 10 });
+    } catch {
+      setSettings({ ...settings, qoi });
+    } finally {
+      setCentering(false);
+    }
+  };
   const update = (name: string, patch: Partial<Spec[string]>) => setSpec({ ...spec, [name]: { ...spec[name], ...patch } });
   const q = meta.qois[settings.qoi];
 
@@ -36,14 +70,20 @@ export function ParamPanel({ meta, spec, setSpec, settings, setSettings, showUnc
       <div className="panel-title">Quantity of interest</div>
       <div className="toolbar">
         <label className="field">QoI
-          <select value={settings.qoi} onChange={(e) => setSettings({ ...settings, qoi: e.target.value as Qoi })}>
+          <select value={settings.qoi} onChange={(e) => center(e.target.value as Qoi)}>
             {Object.entries(meta.qois).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
           </select>
         </label>
-        <label className="field">Target [{q.unit}]
-          <input type="number" value={settings.target} step={1}
-            onChange={(e) => setSettings({ ...settings, target: parseFloat(e.target.value) || 0 })} />
-        </label>
+        <div className="field">Target [{q.unit}]
+          <div style={{ display: "flex", gap: 4 }}>
+            <input type="number" value={settings.target} step={1} aria-label="Target" style={{ width: 70 }}
+              onChange={(e) => setSettings({ ...settings, target: parseFloat(e.target.value) || 0 })} />
+            <button className="btn small" disabled={centering} onClick={() => center(settings.qoi)}
+              title="Set the target to the mean of the QoI under the current inputs (Monte Carlo if some are uncertain)">
+              {centering ? "…" : "Center"}
+            </button>
+          </div>
+        </div>
         <label className="field">± tol
           <input type="number" value={settings.tol} step={0.5} min={0.1} style={{ width: 60 }}
             onChange={(e) => setSettings({ ...settings, tol: Math.max(0.1, parseFloat(e.target.value) || 0.1) })} />
@@ -97,6 +137,7 @@ export function ParamPanel({ meta, spec, setSpec, settings, setSettings, showUnc
                     cv {e.value !== 0 ? `${((100 * e.std) / Math.abs(e.value)).toFixed(0)}%` : "–"}
                   </span>
                 </div>
+                {e.dist !== "normal" && <div className="law-note">{lawNote(e.value, e.std, e.dist)}</div>}
               </>
             )}
           </div>
@@ -104,7 +145,8 @@ export function ParamPanel({ meta, spec, setSpec, settings, setSettings, showUnc
       })}
       <p className="muted" style={{ fontSize: 12, marginTop: 10 }}>
         Ball: diameter 0.22 m, air density 1.225 kg/m³. Drag and lift act through Cd/m and Cl/m, so a heavier ball
-        is less affected by the air. Wind is horizontal (positive = tailwind).
+        is less affected by the air. Wind is horizontal (positive = tailwind). For every law, “mean” and “std” are the
+        moments of the input itself (for a lognormal, μ and σ of ln X are derived from them).
       </p>
     </aside>
   );

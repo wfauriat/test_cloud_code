@@ -4,7 +4,7 @@ import { fmt } from "../api";
 import { useApi, useDebounced } from "../hooks";
 import { Card, Lesson, Status, Tile } from "../components/ui";
 import { Plot } from "../components/Plot";
-import { TrajectoryView, type Path } from "../components/TrajectoryView";
+import { TrajectoryView, type Limits, type Path } from "../components/TrajectoryView";
 import { colors, useThemeVersion } from "../theme";
 
 interface SimOut {
@@ -18,7 +18,8 @@ interface ConvOut { dt: number[]; range_error: number[]; height_error: number[];
 
 export function SimulatorTab({ spec, settings }: Common) {
   const [scheme, setScheme] = useState<"euler" | "rk4">("euler");
-  const [showVacuum, setShowVacuum] = useState(true);
+  const [showVacuum, setShowVacuum] = useState(false);
+  const [limits, setLimits] = useState<Limits>({});
   const [equal, setEqual] = useState(false);
   const [pins, setPins] = useState<Path[]>([]);
   const [anim, setAnim] = useState(1);
@@ -114,12 +115,14 @@ export function SimulatorTab({ spec, settings }: Common) {
         </>}>
         <TrajectoryView main={d?.trajectory} vacuum={showVacuum ? vac : null} ghosts={pins} wind={spec.wind.value}
           equalAspect={equal} animateKey={anim} height={360}
-          band={settings.qoi === "range" ? [settings.target - settings.tol, settings.target + settings.tol] : null} />
+          band={bandFor(settings.qoi, settings.target, settings.tol)} bandAxis={settings.qoi === "max_height" ? "y" : "x"}
+          limits={limits} />
+        <AxisLimits limits={limits} setLimits={setLimits} />
         <div className="legend">
           <span><span className="line" style={{ borderColor: "var(--series-1)" }} />current trajectory</span>
           {showVacuum && <span><span className="line" style={{ borderColor: "var(--text-muted)", borderTopStyle: "dashed" }} />vacuum parabola</span>}
           {pins.length > 0 && <span><span className="line" style={{ borderColor: "var(--text-muted)", opacity: 0.55 }} />pinned</span>}
-          {settings.qoi === "range" && <span><span className="swatch" style={{ background: "var(--band)" }} />target ± tol</span>}
+          {bandFor(settings.qoi, settings.target, settings.tol) && <span><span className="swatch" style={{ background: "var(--band)" }} />target ± tol</span>}
         </div>
       </Card>
 
@@ -137,13 +140,35 @@ export function SimulatorTab({ spec, settings }: Common) {
         </div>
       </section>
 
-      <Card span={6} title={`${sweepQoi === "range" ? "Range" : "Max height"} vs launch angle`} sub="All other inputs at their current values.">
+      <Card span={6} collapsible defaultOpen={false} title={`${sweepQoi === "range" ? "Range" : "Max height"} vs launch angle`} sub="All other inputs at their current values.">
         {sweepPlot && <Plot data={sweepPlot.data} layout={sweepPlot.layout} height={300} />}
       </Card>
-      <Card span={6} title="Euler convergence" sub={`Error of the range against a fine RK4 reference (${fmt(conv.data?.reference_range, 2)} m). The dotted line is the dt used everywhere in the app.`}
+      <Card span={6} collapsible defaultOpen={false} title="Euler convergence" sub={`Error of the range against a fine RK4 reference (${fmt(conv.data?.reference_range, 2)} m). The dotted line is the dt used everywhere in the app.`}
         right={<Status loading={conv.loading} error={conv.error} />}>
         {convPlot && <Plot data={convPlot.data} layout={convPlot.layout} height={300} />}
       </Card>
+    </div>
+  );
+}
+
+/** Target band shown on the trajectory: on the ground for the range, in height for the max height. */
+export function bandFor(qoi: string, target: number, tol: number): [number, number] | null {
+  return qoi === "range" || qoi === "max_height" ? [target - tol, target + tol] : null;
+}
+
+/** Optional fixed axis limits for the trajectory view; an empty box means automatic. */
+export function AxisLimits({ limits, setLimits }: { limits: Limits; setLimits: (l: Limits) => void }) {
+  const box = (key: keyof Limits, placeholder: string) => (
+    <input type="number" style={{ width: 64 }} placeholder={placeholder} value={limits[key] ?? ""}
+      onChange={(e) => { const v = parseFloat(e.target.value); setLimits({ ...limits, [key]: isFinite(v) ? v : null }); }} />
+  );
+  const any = Object.values(limits).some((v) => typeof v === "number");
+  return (
+    <div className="toolbar" style={{ marginTop: 6, alignItems: "center", fontSize: 12 }}>
+      <span className="muted">Axis limits (empty = auto):</span>
+      <span>x {box("xmin", "0")} – {box("xmax", "auto")}</span>
+      <span>y {box("ymin", "0")} – {box("ymax", "auto")}</span>
+      {any && <button className="btn small" onClick={() => setLimits({})}>Auto</button>}
     </div>
   );
 }

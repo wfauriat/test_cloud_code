@@ -130,6 +130,7 @@ class LearningReq(Base):
 class SliceReq(BaseModel):
     model_id: str
     param: str
+    anchor: dict[str, float] | None = None  # values of the other inputs (default: nominal)
 
 
 class SurfaceReq(BaseModel):
@@ -137,6 +138,7 @@ class SurfaceReq(BaseModel):
     px: str
     py: str
     n_grid: int = Field(40, ge=5, le=80)
+    anchor: dict[str, float] | None = None
 
 
 class SensitivityReq(Base):
@@ -309,13 +311,13 @@ def api_learning(req: LearningReq):
 @app.post("/api/surrogate/slice")
 @safe_json
 def api_slice(req: SliceReq):
-    return surrogate.slice_1d(surrogate.get(req.model_id), req.param)
+    return surrogate.slice_1d(surrogate.get(req.model_id), req.param, anchor=req.anchor)
 
 
 @app.post("/api/surrogate/surface")
 @safe_json
 def api_surface(req: SurfaceReq):
-    return surrogate.surface_2d(surrogate.get(req.model_id), req.px, req.py, req.n_grid)
+    return surrogate.surface_2d(surrogate.get(req.model_id), req.px, req.py, req.n_grid, anchor=req.anchor)
 
 
 @app.post("/api/sensitivity")

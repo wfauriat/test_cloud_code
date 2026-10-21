@@ -124,3 +124,21 @@ def test_tolerance_study_probability_decreases_with_spread():
     out = robust.tolerance_study(spec, ["v0"], "range", 52.3, 2, [4.0], grid=6, n_mc=200)
     p = np.array(out["p_hit"])
     assert p[0] == pytest.approx(1.0) and p[-1] < p[0]
+
+
+def test_gp_std_vanishes_at_training_points_and_slices_through_them():
+    spec = params.normalize_spec(None)
+    names = params.uncertain_names(spec)
+    box = params.box_from_spec(spec, names)
+    X = doe.scale(doe.unit_design("lhs_opt", 40, len(names)), box)
+    s = surrogate.get(surrogate.train(spec, names, box, X, "gp", "range")["model"]["id"])
+    _, sd = s.predict(s.X, return_std=True)
+    assert sd.max() < 2e-3  # deterministic simulator: the GP interpolates the training points
+    # a slice through training point 0 passes through it: distance 0 and minimal std there
+    p0 = dict(zip(names, s.X[0]))
+    sl = surrogate.slice_1d(s, names[0], anchor=p0)
+    assert sl["train_dist"][0] == pytest.approx(0.0, abs=1e-12)
+    k = int(np.argmin(np.abs(np.array(sl["x"]) - s.X[0, 0])))
+    assert sl["std"][k] < 0.5 * max(sl["std"])
+    sf = surrogate.surface_2d(s, names[0], names[1], 10, anchor=p0)
+    assert len(sf["train_dist"]) == len(s.X)
