@@ -17,9 +17,12 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=7", "httpx>=0.27"]
+notebook = ["jupyter", "matplotlib>=3.7", "nbclient>=0.9", "nbformat>=5.9", "ipykernel>=6"]
 
 [tool.setuptools.packages.find]
 include = ["uq_core*", "api*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = ["slow: long-running tests (the notebook execution); run them with `pytest -m slow`"]
+addopts = "-m 'not slow'"
