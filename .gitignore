@@ -1,0 +1,3 @@
+manim_build/media/
+__pycache__/
+*.pyc
