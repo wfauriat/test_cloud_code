@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tomography Lab</title>
+<style>
+  :root {
+    --ink: #222; --muted: #6b6b6b; --line: #d9d9d9; --panel: #fff; --bg: #f5f5f2;
+    --casing: #0070C0; --source: #FFC000; --source-txt: #9a7000; --ray: #F08C00;
+    --obj: #3B5E2B; --accent: #C00000; --grad: #2E7D32; --walk: #B8860B;
+    --a-lo: #C0272D; --a-hi: #2C6FB7;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 14px/1.4 Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { padding: 14px 20px 6px; }
+  header h1 { margin: 0; font-size: 20px; font-weight: 650; }
+  header p { margin: 4px 0 0; color: var(--muted); max-width: 980px; }
+  main { display: grid; gap: 14px; padding: 12px 20px 24px;
+         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  @media (max-width: 1050px) { main { grid-template-columns: minmax(0, 1fr); } }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+  section h2 { margin: 0 0 2px; font-size: 15px; font-weight: 650; }
+  section h2 small { font-weight: 400; color: var(--muted); }
+  .sub { margin: 0 0 8px; color: var(--muted); font-size: 12.5px; }
+  svg { width: 100%; height: auto; display: block; user-select: none; }
+  svg text { font-family: Inter, system-ui, sans-serif; }
+  .controls { display: grid; grid-template-columns: auto 1fr auto; gap: 6px 10px; align-items: center; margin-top: 8px; }
+  .controls label { color: var(--ink); white-space: nowrap; }
+  .controls output { font-variant-numeric: tabular-nums; min-width: 52px; text-align: right; color: var(--muted); }
+  input[type=range] { width: 100%; accent-color: var(--obj); }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+  button { font: inherit; padding: 5px 11px; border: 1px solid #bdbdbd; border-radius: 7px; background: #fff; cursor: pointer; }
+  button:hover { background: #f0f0f0; }
+  button.primary { border-color: var(--grad); color: var(--grad); }
+  button.walk { border-color: var(--walk); color: var(--walk); }
+  button:disabled { opacity: .45; cursor: default; }
+  .seg { display: inline-flex; border: 1px solid #bdbdbd; border-radius: 7px; overflow: hidden; }
+  .seg button { border: 0; border-radius: 0; padding: 3px 9px; }
+  .seg button.on { background: var(--ink); color: #fff; }
+  table.shells { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 13px; }
+  table.shells td { padding: 3px 4px; border-top: 1px solid #eee; vertical-align: middle; }
+  table.shells tr.sel td { background: #fff7e0; }
+  .chip { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 4px; }
+  .num { font-variant-numeric: tabular-nums; text-align: right; width: 48px; color: var(--muted); }
+  details { margin-top: 10px; }
+  details summary { cursor: pointer; color: var(--muted); }
+  .big { font-size: 22px; font-weight: 650; font-variant-numeric: tabular-nums; }
+  .note { color: var(--muted); font-size: 12px; margin-top: 6px; }
+  .warn { color: var(--accent); }
+  .kpi { display: flex; gap: 22px; align-items: baseline; flex-wrap: wrap; }
+  .full { grid-column: 1 / -1; }
+  kbd { font: 11px/1 ui-monospace, monospace; border: 1px solid #ccc; border-bottom-width: 2px; border-radius: 4px; padding: 1px 4px; background: #fafafa; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Uniaxial tomography – hands-on</h1>
+  <p>Phase 1 (accounting) turns the measured dose into the object's own absorption A<sub>obs</sub> = D<sub>mes</sub> / D<sub>void</sub>.
+     Phase 2 (inverting) looks for shell densities whose candidate absorption A<sub>cand</sub> = exp(−L μ ρ) matches it.
+     Same model as the video: shells and rows indexed from the outside, μ<sub>1</sub> = 1, μ<sub>2</sub> = μ<sub>1</sub>/2, one brick = 0.2.</p>
+</header>
+
+<main>
+  <!-- ======================= Phase 1 ======================= -->
+  <section id="phase1">
+    <h2>Phase 1 – measurement and accounting <small>(the true object is hidden)</small></h2>
+    <p class="sub">Source → casing → object → screen. Each screen pixel row i is one horizontal ray.</p>
+    <svg id="svgScene" viewBox="0 0 600 300" aria-label="Experiment"></svg>
+    <div class="controls">
+      <label for="noise">Measurement noise</label><input id="noise" type="range" min="0" max="10" step="0.5" value="0"><output id="noiseOut"></output>
+      <label for="casing">True casing density</label><input id="casing" type="range" min="0" max="5" step="0.1" value="2"><output id="casingOut"></output>
+    </div>
+    <div class="row">
+      <button id="redraw" title="Draw a new noise realisation">New noise draw</button>
+      <span style="margin-left:auto">Blank D<sub>void</sub> from</span>
+      <span class="seg" id="blankMode"><button data-v="cal" class="on">calibration shot</button><button data-v="sim">simulation</button></span>
+    </div>
+    <div class="controls" id="simControls">
+      <label for="casingA">Assumed casing density</label><input id="casingA" type="range" min="0" max="5" step="0.1" value="2"><output id="casingAOut"></output>
+      <label for="srcErr">Source estimate error</label><input id="srcErr" type="range" min="-15" max="15" step="0.5" value="0"><output id="srcErrOut"></output>
+    </div>
+    <svg id="svgAccount" viewBox="0 0 600 200" aria-label="Accounting"></svg>
+    <details id="truthBox">
+      <summary>Show / edit the true object</summary>
+      <div class="row"><label><input type="checkbox" id="showTruth"> show the truth (object drawing, dashed lines on the stacks)</label></div>
+      <table class="shells" id="truthTable"></table>
+    </details>
+  </section>
+
+  <!-- ======================= Phase 2 ======================= -->
+  <section id="phase2">
+    <h2>Phase 2 – your candidate object</h2>
+    <p class="sub">Click a shell to add a brick, <kbd>Shift</kbd>+click or right-click to remove one, scroll for fine steps.
+       Drag the stacks, or use the sliders. Switch each shell between material 1 (plain) and material 2 (hatched).</p>
+    <div style="display:grid;grid-template-columns:minmax(0,0.85fr) minmax(0,1.15fr);gap:10px;align-items:end">
+      <svg id="svgCand" viewBox="0 0 300 175" aria-label="Candidate object"></svg>
+      <svg id="svgStacks" viewBox="0 0 380 230" aria-label="Density stacks"></svg>
+    </div>
+    <table class="shells" id="candTable"></table>
+    <div class="row">
+      <span>Shells</span><span class="seg" id="nShells"><button data-v="5" class="on">5</button><button data-v="10">10</button></span>
+      <label style="margin-left:10px"><input type="checkbox" id="snap"> snap to bricks (0.2)</label>
+      <button id="clearCand" style="margin-left:auto">Empty candidate</button>
+    </div>
+  </section>
+
+  <!-- ======================= Comparison ======================= -->
+  <section class="full" id="compare">
+    <h2>Does the candidate explain the measurement?</h2>
+    <div style="display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px" id="cmpGrid">
+      <div>
+        <svg id="svgCmp" viewBox="0 0 640 260" aria-label="Comparison per row"></svg>
+      </div>
+      <div>
+        <div class="kpi">
+          <div><div class="note" style="margin:0">mismatch Σ<sub>i</sub> Δ<sub>i</sub><sup>2</sup></div><div class="big" id="misOut">–</div></div>
+          <div><div class="note" style="margin:0">candidate moves</div><div class="big" id="movesOut">0</div></div>
+        </div>
+        <svg id="svgHist" viewBox="0 0 360 130" aria-label="Mismatch history"></svg>
+        <div class="row">
+          <button class="primary" id="gnStep">Gradient step</button>
+          <button class="primary" id="gnRun">Run gradient</button>
+          <button class="walk" id="brickStep">Brick step</button>
+          <button class="walk" id="brickRun">Run brick walk</button>
+          <button id="solve">Exact inversion</button>
+          <button id="stop" disabled>Stop</button>
+        </div>
+        <p class="note" id="solverNote">Gradient step: Gauss–Newton with ∂A<sub>i</sub>/∂ρ<sub>k</sub> = −μ<sub>k</sub> L<sub>ik</sub> A<sub>i</sub>. Brick step: try every ±1 brick, keep the best. Exact inversion: solve the triangular system for the chosen materials.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+"use strict";
+// =====================================================================================
+// Model (same as manim_build/model.py)
+// =====================================================================================
+const R = 1, BRICK = 0.2, WALL = 0.08;
+const MU = { 1: 1.0, 2: 0.5 };
+const RHO5 = [0.4, 1.0, 1.4, 0.8, 0.6];          // outer -> inner
+const HUES5 = ["#17A2B8", "#9467BD", "#1F77B4", "#E377C2", "#D62728"];
+
+const S = {
+  N: 5,
+  rhoTrue: RHO5.slice(), matTrue: [1, 1, 1, 1, 1],
+  rho: [0, 0, 0, 0, 0], mat: [1, 1, 1, 1, 1],
+  noise: 0, seed: 7, gauss: [],
+  casingTrue: 2.0, blank: "cal", casingAssumed: 2.0, srcErr: 0,
+  snap: false, showTruth: false, selected: -1,
+  history: [], moves: 0, timer: null,
+};
+
+const halfChord = (r, y) => Math.sqrt(Math.max(r * r - y * y, 0));
+let G = null;                                     // geometry cache
+function geometry(N) {
+  const out = [], inn = [], y = [], L = [];
+  for (let k = 0; k < N; k++) { out.push(R * (N - k) / N); inn.push(R * (N - k - 1) / N); }
+  for (let i = 0; i < N; i++) y.push(R - (i + 0.5) * R / N);
+  for (let i = 0; i < N; i++) L.push(out.map((o, k) => 2 * (halfChord(o, y[i]) - halfChord(inn[k], y[i]))));
+  const hue = Array.from({ length: N }, (_, k) => HUES5[Math.floor(k * 5 / N)]);
+  return { N, out, inn, y, L, hue };
+}
+const sourceDose = y => 1 - 0.15 * y * y;
+const casingFactor = rho => Math.exp(-rho * 2 * WALL);
+
+function forward(rho, mat) {                       // A_i = exp(-sum_k L_ik mu_k rho_k)
+  return G.L.map(row => Math.exp(-row.reduce((s, l, k) => s + l * MU[mat[k]] * rho[k], 0)));
+}
+
+// seeded gaussian noise (mulberry32 + Box-Muller)
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+  t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function drawGauss() { const r = rng(S.seed); S.gauss = Array.from({ length: S.N }, () => {
+  const u = Math.max(r(), 1e-12), v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }); }
+
+function compute() {
+  const D0 = G.y.map(sourceDose);
+  const Atrue = forward(S.rhoTrue, S.matTrue);
+  const Dmes = D0.map((d, i) => Math.max(d * casingFactor(S.casingTrue) * Atrue[i] * (1 + S.noise / 100 * S.gauss[i]), 1e-6));
+  const Dvoid = S.blank === "cal" ? D0.map(d => d * casingFactor(S.casingTrue))
+                                  : D0.map(d => d * (1 + S.srcErr / 100) * casingFactor(S.casingAssumed));
+  const Aobs = Dmes.map((d, i) => d / Dvoid[i]);
+  const Acand = forward(S.rho, S.mat);
+  const Dcand = Acand.map((a, i) => a * Dvoid[i]);
+  const delta = Acand.map((a, i) => a - Aobs[i]);
+  const mis = delta.reduce((s, d) => s + d * d, 0);
+  return { D0, Atrue, Dmes, Dvoid, Aobs, Acand, Dcand, delta, mis };
+}
+
+// ---- solvers
+function solveLinear(A, b) {                       // Gaussian elimination with partial pivoting
+  const n = b.length, M = A.map((r, i) => [...r, b[i]]);
+  for (let c = 0; c < n; c++) {
+    let p = c; for (let r = c + 1; r < n; r++) if (Math.abs(M[r][c]) > Math.abs(M[p][c])) p = r;
+    [M[c], M[p]] = [M[p], M[c]];
+    if (Math.abs(M[c][c]) < 1e-14) M[c][c] = 1e-14;
+    for (let r = c + 1; r < n; r++) { const f = M[r][c] / M[c][c]; for (let k = c; k <= n; k++) M[r][k] -= f * M[c][k]; }
+  }
+  const x = new Array(n).fill(0);
+  for (let r = n - 1; r >= 0; r--) { let s = M[r][n]; for (let k = r + 1; k < n; k++) s -= M[r][k] * x[k]; x[r] = s / M[r][r]; }
+  return x;
+}
+function exactInversion() {                         // L mu rho = -ln A_obs  (lower triangular)
+  const { Aobs } = compute(), N = G.N, rho = new Array(N).fill(0);
+  for (let i = 0; i < N; i++) {
+    let p = -Math.log(Math.max(Aobs[i], 1e-9));
+    for (let k = 0; k < i; k++) p -= G.L[i][k] * MU[S.mat[k]] * rho[k];
+    rho[i] = p / (G.L[i][i] * MU[S.mat[i]]);
+  }
+  return rho;
+}
+function gaussNewtonStep() {
+  const { Aobs } = compute(), N = G.N, A = forward(S.rho, S.mat);
+  const J = G.L.map((row, i) => row.map((l, k) => -A[i] * l * MU[S.mat[k]]));
+  const r = A.map((a, i) => a - Aobs[i]);
+  const JTJ = Array.from({ length: N }, (_, a) => Array.from({ length: N }, (_, b) =>
+    J.reduce((s, row) => s + row[a] * row[b], 0) + (a === b ? 1e-10 : 0)));
+  const JTr = Array.from({ length: N }, (_, a) => J.reduce((s, row, i) => s + row[a] * r[i], 0));
+  const d = solveLinear(JTJ, JTr.map(v => -v));
+  return S.rho.map((v, k) => v + d[k]);
+}
+function misfitOf(rho) { const Ao = compute().Aobs, A = forward(rho, S.mat); return A.reduce((s, a, i) => s + (a - Ao[i]) ** 2, 0); }
+function brickStep() {
+  let best = null, bestV = misfitOf(S.rho);
+  for (let k = 0; k < G.N; k++) for (const d of [BRICK, -BRICK]) {
+    const c = S.rho.slice(); c[k] = Math.round((c[k] + d) / BRICK * 1000) / 1000 * BRICK;
+    if (c[k] < -1e-9) continue;
+    const v = misfitOf(c); if (v < bestV - 1e-14) { best = c; bestV = v; }
+  }
+  return best;
+}
+
+// =====================================================================================
+// Drawing helpers
+// =====================================================================================
+const NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs = {}, parent = null, text = null) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (text !== null) e.textContent = text;
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+function mix(c1, c2, t) {
+  t = Math.min(Math.max(t, 0), 1);
+  const a = [1, 3, 5].map(i => parseInt(c1.substr(i, 2), 16)), b = [1, 3, 5].map(i => parseInt(c2.substr(i, 2), 16));
+  return "#" + a.map((v, i) => Math.round(v + (b[i] - v) * t).toString(16).padStart(2, "0")).join("");
+}
+const shellColor = rho => mix("#E2F0D9", "#1E3B12", rho / 1.6);
+const doseColor = d => mix("#000000", "#ffffff", d);
+const aColor = a => mix("#C0272D", "#2C6FB7", a);
+const fmt = (v, n = 2) => (Math.abs(v) < 5e-13 ? 0 : v).toFixed(n);
+
+function hatchDefs(svg) {
+  const defs = el("defs", {}, svg);
+  G.hue.forEach((h, k) => {
+    const p = el("pattern", { id: `${svg.id}-hatch${k}`, width: 7, height: 7, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" }, defs);
+    el("rect", { width: 7, height: 7, fill: h, "fill-opacity": 0.22 }, p);
+    el("line", { x1: 0, y1: 0, x2: 0, y2: 7, stroke: h, "stroke-width": 2.2 }, p);
+  });
+}
+function annularPath(cx, cy, r0, r1, a0, a1) {     // angles in radians, SVG y down
+  const p = (r, a) => [cx + r * Math.cos(a), cy - r * Math.sin(a)];
+  const [x1, y1] = p(r1, a0), [x2, y2] = p(r1, a1), [x3, y3] = p(r0, a1), [x4, y4] = p(r0, a0);
+  const large = a1 - a0 > Math.PI ? 1 : 0;
+  if (r0 <= 1e-6) return `M${cx},${cy} L${x1},${y1} A${r1},${r1} 0 ${large} 0 ${x2},${y2} Z`;
+  return `M${x1},${y1} A${r1},${r1} 0 ${large} 0 ${x2},${y2} L${x3},${y3} A${r0},${r0} 0 ${large} 1 ${x4},${y4} Z`;
+}
+
+// =====================================================================================
+// Phase 1: scene + accounting
+// =====================================================================================
+function drawScene(C) {
+  const svg = document.getElementById("svgScene"); clear(svg);
+  const cx = 250, cy = 230, Rp = 150, xs = 28, xc0 = 70, xc1 = 430, xscr = 520, wallPx = 10;
+  const casingOpacity = Math.min(0.15 + S.casingTrue / 5 * 0.85, 1);
+  // object (true) – hidden unless "show truth"
+  [0, 1].forEach(half => G.out.forEach((o, k) => {
+    const fill = S.showTruth ? shellColor(S.rhoTrue[k] * MU[S.matTrue[k]]) : "#e9e9e9";
+    el("path", { d: annularPath(cx, cy, G.inn[k] * Rp, o * Rp, half ? Math.PI : 0, half ? 2 * Math.PI : Math.PI),
+                 fill, stroke: S.showTruth ? "#3B5E2B" : "#c8c8c8", "stroke-width": 1,
+                 "fill-opacity": half ? 0.18 : 1, "stroke-opacity": half ? 0.25 : 1,
+                 "stroke-dasharray": (S.showTruth && S.matTrue[k] === 2 && !half) ? "4 3" : "" }, svg);
+  }));
+  if (!S.showTruth) el("text", { x: cx, y: cy - 0.45 * Rp, "text-anchor": "middle", "font-size": 44, fill: "#b5b5b5", "font-weight": 600 }, svg, "?");
+  el("text", { x: cx, y: cy - Rp - 8, "text-anchor": "middle", "font-size": 12, fill: "#3B5E2B" }, svg,
+     S.showTruth ? "true object" : "object (unknown)");
+  // casing
+  el("rect", { x: xc0, y: 18, width: xc1 - xc0, height: 270, fill: "none", stroke: "#0070C0",
+               "stroke-width": wallPx, "stroke-opacity": casingOpacity }, svg);
+  el("text", { x: (xc0 + xc1) / 2, y: 12, "text-anchor": "middle", "font-size": 12, fill: "#0070C0" }, svg,
+     `casing (density ${S.casingTrue.toFixed(1)})`);
+  // source
+  el("path", { d: `M${xs},${cy - 0.5 * Rp} l26,-16 a30,30 0 0 1 0,32 z`, fill: "#FFC000", stroke: "#7F6000" }, svg);
+  el("text", { x: xs - 6, y: cy + 22, "font-size": 11, fill: "#9a7000" }, svg, "source");
+  // rays: dose along the ray through casing walls and the true object
+  const Ac = casingFactor(S.casingTrue), segs = 90;
+  G.y.forEach((yy, i) => {
+    const ypx = cy - yy * Rp, D0 = sourceDose(yy);
+    let x0 = xs + 26, dose = D0;
+    for (let s = 0; s < segs; s++) {
+      const xa = x0 + (xscr - x0) * s / segs, xb = x0 + (xscr - x0) * (s + 1) / segs, xm = (xa + xb) / 2;
+      el("line", { x1: xa, y1: ypx, x2: xb, y2: ypx, stroke: "#F08C00", "stroke-width": 2.6, "stroke-opacity": Math.max(dose, 0.04) }, svg);
+      let mu = 0;                                                     // attenuation per px
+      for (const xw of [xc0, xc1]) if (Math.abs(xm - xw) <= wallPx / 2) mu += -Math.log(Ac) / 2 / wallPx;
+      const r = Math.hypot((xm - cx) / Rp, yy);
+      if (r < R) { const k = Math.min(G.N - 1, Math.floor((R - r) / (R / G.N))); mu += S.rhoTrue[k] * MU[S.matTrue[k]] / Rp; }
+      dose *= Math.exp(-mu * (xb - xa));
+    }
+  });
+  // screen (measured dose)
+  const ph = Rp / G.N;
+  el("text", { x: xscr + 14, y: cy - Rp - 8, "text-anchor": "middle", "font-size": 12, fill: "#6b6b6b" }, svg, "screen D_mes");
+  C.Dmes.forEach((d, i) => {
+    el("rect", { x: xscr, y: cy - Rp + i * ph, width: 28, height: ph, fill: doseColor(d), stroke: "#7f7f7f" }, svg);
+    if (G.N <= 5 || i % 2 === 0) el("text", { x: xscr + 34, y: cy - Rp + (i + 0.5) * ph + 4, "font-size": 10.5, fill: "#6b6b6b" }, svg, `i=${i + 1}`);
+  });
+}
+
+function drawAccount(C) {
+  const svg = document.getElementById("svgAccount"); clear(svg);
+  const N = G.N, top = 30, rowH = Math.min(30, 160 / N), colX = [70, 210, 350], w = 34;
+  const heads = [["D_mes", "measured dose"], ["D_void", S.blank === "cal" ? "calibration shot" : "simulated blank"], ["A_obs", "= D_mes / D_void"]];
+  heads.forEach(([h, s], c) => {
+    el("text", { x: colX[c], y: 14, "font-size": 13, "font-weight": 600, fill: c === 2 ? "#3B5E2B" : "#222" }, svg, h);
+    el("text", { x: colX[c] + 52, y: 14, "font-size": 11, fill: "#6b6b6b" }, svg, s);
+  });
+  el("text", { x: (colX[0] + colX[1]) / 2 + 30, y: top + N * rowH / 2 + 5, "font-size": 20, "text-anchor": "middle" }, svg, "÷");
+  el("text", { x: (colX[1] + colX[2]) / 2 + 30, y: top + N * rowH / 2 + 5, "font-size": 20, "text-anchor": "middle" }, svg, "=");
+  for (let i = 0; i < N; i++) {
+    const y = top + i * rowH;
+    el("text", { x: 52, y: y + rowH / 2 + 4, "font-size": 11, "text-anchor": "end", fill: "#6b6b6b" }, svg, `${i + 1}`);
+    [[C.Dmes[i], doseColor], [C.Dvoid[i], doseColor], [C.Aobs[i], aColor]].forEach(([v, cm], c) => {
+      el("rect", { x: colX[c], y, width: w, height: rowH, fill: cm(v), stroke: "#7f7f7f" }, svg);
+      el("text", { x: colX[c] + w + 6, y: y + rowH / 2 + 4, "font-size": 11.5, fill: "#222" }, svg, fmt(v, 3));
+    });
+  }
+  // colour key for A
+  const kx = 468, ky = top + 4;
+  el("text", { x: kx, y: ky - 6, "font-size": 11, fill: "#6b6b6b" }, svg, "A scale");
+  for (let j = 0; j < 40; j++) el("rect", { x: kx, y: ky + j * 3, width: 16, height: 3.2, fill: aColor(1 - j / 39) }, svg);
+  el("text", { x: kx + 22, y: ky + 8, "font-size": 10.5, fill: "#2C6FB7" }, svg, "1  low absorption");
+  el("text", { x: kx + 22, y: ky + 120, "font-size": 10.5, fill: "#C0272D" }, svg, "0  high absorption");
+}
+
+// =====================================================================================
+// Phase 2: candidate object + stacks + table
+// =====================================================================================
+function changeShell(k, value, record = true) {
+  let v = Math.max(-0.5, Math.min(2.6, value));
+  if (S.snap) v = Math.round(v / BRICK) * BRICK;
+  S.rho[k] = v; S.selected = k;
+  if (record) bump();
+  render();
+}
+
+function drawCand() {
+  const svg = document.getElementById("svgCand"); clear(svg); hatchDefs(svg);
+  const cx = 150, cy = 160, Rp = 140;
+  G.out.forEach((o, k) => {
+    const path = annularPath(cx, cy, G.inn[k] * Rp, o * Rp, 0, Math.PI);
+    const p = el("path", { d: path, fill: shellColor(Math.max(S.rho[k], 0) * MU[S.mat[k]]),
+                           stroke: k === S.selected ? "#222" : "#3B5E2B", "stroke-width": k === S.selected ? 2.4 : 1,
+                           style: "cursor:pointer" }, svg);
+    if (S.mat[k] === 2) el("path", { d: path, fill: `url(#svgCand-hatch${k})`, "pointer-events": "none" }, svg);
+    p.addEventListener("click", ev => changeShell(k, S.rho[k] + (ev.shiftKey ? -BRICK : BRICK)));
+    p.addEventListener("contextmenu", ev => { ev.preventDefault(); changeShell(k, S.rho[k] - BRICK); });
+    p.addEventListener("wheel", ev => { ev.preventDefault(); changeShell(k, S.rho[k] + (ev.deltaY < 0 ? 0.02 : -0.02)); }, { passive: false });
+    const rm = (o + G.inn[k]) / 2, yl = R - (k + 1) * R / G.N + 0.02, xl = -Math.sqrt(Math.max(rm * rm - yl * yl, 0));
+    if (G.N <= 5 || k % 2 === 0)
+      el("text", { x: cx + xl * Rp, y: cy - yl * Rp, "font-size": 11, "text-anchor": "middle", fill: "#fff",
+                   stroke: "#222", "stroke-width": 2.4, "paint-order": "stroke", "pointer-events": "none" }, svg, `ρ${k + 1}`);
+  });
+  el("text", { x: cx, y: 12, "text-anchor": "middle", "font-size": 12, fill: "#3B5E2B" }, svg, "candidate object (click the shells)");
+}
+
+function drawStacks() {
+  const svg = document.getElementById("svgStacks"); clear(svg); hatchDefs(svg);
+  const N = G.N, base = 200, top = 22, maxRho = 2.4, x0 = 46, x1 = 370, slot = (x1 - x0) / N, bw = slot * 0.66;
+  const yOf = r => base - (r / maxRho) * (base - top);
+  // axis
+  el("line", { x1: x0 - 8, y1: top, x2: x0 - 8, y2: base, stroke: "#222" }, svg);
+  for (let v = 0; v <= maxRho + 1e-9; v += 0.4) {
+    el("line", { x1: x0 - 12, y1: yOf(v), x2: x0 - 8, y2: yOf(v), stroke: "#222" }, svg);
+    el("text", { x: x0 - 15, y: yOf(v) + 4, "font-size": 10, "text-anchor": "end", fill: "#555" }, svg, v.toFixed(1));
+  }
+  el("text", { x: x0 - 8, y: 12, "font-size": 11, "text-anchor": "middle", fill: "#555" }, svg, "density");
+  el("line", { x1: x0 - 8, y1: base, x2: x1, y2: base, stroke: "#222" }, svg);
+  for (let k = 0; k < N; k++) {
+    const xc = x0 + (k + 0.5) * slot, r = S.rho[k], h = r / maxRho * (base - top);
+    const g = el("g", { style: "cursor:ns-resize" }, svg);
+    el("rect", { x: xc - slot / 2, y: top - 6, width: slot, height: base - top + 6, fill: "transparent" }, g);   // hit area
+    if (Math.abs(r) > 1e-9) {
+      const y = r >= 0 ? base - h : base, hh = Math.abs(h);
+      el("rect", { x: xc - bw / 2, y, width: bw, height: hh, fill: S.mat[k] === 2 ? `url(#svgStacks-hatch${k})` : G.hue[k],
+                   "fill-opacity": S.mat[k] === 2 ? 1 : 0.88, stroke: r < 0 ? "#C00000" : G.hue[k], "stroke-width": r < 0 ? 2 : 1 }, g);
+      for (let b = BRICK; b < r - 1e-9; b += BRICK)                                                        // brick joints
+        el("line", { x1: xc - bw / 2, y1: yOf(b), x2: xc + bw / 2, y2: yOf(b), stroke: "#fff", "stroke-width": 1.4 }, g);
+    }
+    if (S.showTruth) el("line", { x1: xc - bw / 2 - 4, y1: yOf(S.rhoTrue[k] * MU[S.matTrue[k]] / MU[S.mat[k]]), x2: xc + bw / 2 + 4,
+                                  y2: yOf(S.rhoTrue[k] * MU[S.matTrue[k]] / MU[S.mat[k]]), stroke: "#777", "stroke-dasharray": "4 3", "stroke-width": 1.5 }, svg);
+    if (k === S.selected) el("rect", { x: xc - slot / 2 + 1, y: base + 3, width: slot - 2, height: 3, fill: "#222" }, svg);
+    if (N <= 5 || k % 2 === 0) el("text", { x: xc, y: base + 18, "font-size": 11, "text-anchor": "middle", fill: G.hue[k] }, svg, `ρ${k + 1}`);
+    const drag = ev => {
+      const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+      const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+      changeShell(k, (base - p.y) / (base - top) * maxRho, false);
+    };
+    g.addEventListener("pointerdown", ev => {
+      ev.preventDefault(); drag(ev);
+      const move = e => drag(e), up = () => { window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); bump(); render(); };
+      window.addEventListener("pointermove", move); window.addEventListener("pointerup", up);
+    });
+  }
+  if (S.showTruth) el("text", { x: x1, y: 12, "font-size": 10.5, "text-anchor": "end", fill: "#777" }, svg,
+                      "dashed: density that matches the truth with this material");
+}
+
+function shellTable(tableId, truth) {
+  const t = document.getElementById(tableId);
+  t.innerHTML = "";
+  const rho = truth ? S.rhoTrue : S.rho, mat = truth ? S.matTrue : S.mat;
+  for (let k = 0; k < G.N; k++) {
+    const tr = t.insertRow(); if (!truth && k === S.selected) tr.className = "sel";
+    tr.insertCell().innerHTML = `<span class="chip" style="background:${G.hue[k]}"></span>ρ<sub>${k + 1}</sub>`;
+    const c2 = tr.insertCell(); c2.style.width = "55%";
+    const sl = Object.assign(document.createElement("input"), { type: "range", min: truth ? 0 : -0.5, max: 2.6, step: 0.01, value: rho[k] });
+    sl.setAttribute("aria-label", `${truth ? "true" : "candidate"} density of shell ${k + 1}`);
+    c2.appendChild(sl);
+    const c3 = tr.insertCell(); c3.className = "num"; c3.textContent = fmt(rho[k]);
+    sl.addEventListener("input", () => {
+      if (truth) { S.rhoTrue[k] = +sl.value; c3.textContent = fmt(S.rhoTrue[k]); renderLight(); }
+      else { let v = +sl.value; if (S.snap) v = Math.round(v / BRICK) * BRICK; S.rho[k] = v; S.selected = k; c3.textContent = fmt(v); renderLight(); }
+    });
+    sl.addEventListener("change", () => { if (!truth) bump(); render(); });
+    const c4 = tr.insertCell(); c4.style.whiteSpace = "nowrap";
+    const seg = document.createElement("span"); seg.className = "seg";
+    [1, 2].forEach(m => {
+      const b = document.createElement("button"); b.textContent = `mat ${m}`; if (mat[k] === m) b.className = "on";
+      b.title = m === 1 ? "material 1 (μ1 = 1)" : "material 2 (μ2 = μ1/2)";
+      b.addEventListener("click", () => { mat[k] = m; if (!truth) { S.selected = k; bump(); } render(); });
+      seg.appendChild(b);
+    });
+    c4.appendChild(seg);
+  }
+}
+
+// =====================================================================================
+// Comparison + history
+// =====================================================================================
+function drawCompare(C) {
+  const svg = document.getElementById("svgCmp"); clear(svg);
+  const N = G.N, top = 46, rowH = Math.min(40, 205 / N);
+  svg.setAttribute("viewBox", `0 0 640 ${top + N * rowH + 10}`);
+  const xD = 40, wD = 300, xA = 392, xDel = 482, wDel = 140;
+  el("text", { x: xD, y: 14, "font-size": 12.5, "font-weight": 600 }, svg, "dose per row");
+  el("rect", { x: xD, y: 23, width: 14, height: 9, fill: "#555" }, svg);
+  el("text", { x: xD + 18, y: 32, "font-size": 11, fill: "#555" }, svg, "measured D_mes");
+  el("rect", { x: xD + 118, y: 23, width: 14, height: 9, fill: "#E8F3E8", stroke: "#2E7D32", "stroke-width": 1.6 }, svg);
+  el("text", { x: xD + 136, y: 32, "font-size": 11, fill: "#2E7D32" }, svg, "candidate D_void · A_cand");
+  el("text", { x: xA, y: 32, "font-size": 11, fill: "#6b6b6b" }, svg, "obs.     cand.");
+  el("text", { x: xA, y: 14, "font-size": 12.5, "font-weight": 600 }, svg, "A");
+  el("text", { x: xDel, y: 14, "font-size": 12.5, "font-weight": 600, fill: "#C00000" }, svg, "|Δi|");
+  el("text", { x: xDel, y: 32, "font-size": 11, fill: "#C00000" }, svg, "A_cand − A_obs");
+  const dMax = Math.max(1, ...C.Dmes, ...C.Dcand);
+  for (let i = 0; i < N; i++) {
+    const y = top + i * rowH, h = rowH * 0.36;
+    el("text", { x: xD - 8, y: y + rowH / 2 + 4, "font-size": 11, "text-anchor": "end", fill: "#6b6b6b" }, svg, `${i + 1}`);
+    el("rect", { x: xD, y: y + rowH * 0.12, width: C.Dmes[i] / dMax * wD, height: h, fill: "#555" }, svg);
+    el("rect", { x: xD, y: y + rowH * 0.52, width: Math.max(C.Dcand[i] / dMax * wD, 0.5), height: h, fill: "#E8F3E8", stroke: "#2E7D32", "stroke-width": 1.6 }, svg);
+    el("text", { x: xD + C.Dmes[i] / dMax * wD + 4, y: y + rowH * 0.12 + h - 1, "font-size": 10, fill: "#555" }, svg, fmt(C.Dmes[i], 3));
+    el("text", { x: xD + C.Dcand[i] / dMax * wD + 4, y: y + rowH * 0.52 + h - 1, "font-size": 10, fill: "#2E7D32" }, svg, fmt(C.Dcand[i], 3));
+    el("rect", { x: xA, y: y + 3, width: 30, height: rowH - 6, fill: aColor(C.Aobs[i]), stroke: "#7f7f7f" }, svg);
+    el("rect", { x: xA + 34, y: y + 3, width: 30, height: rowH - 6, fill: aColor(C.Acand[i]), stroke: "#7f7f7f" }, svg);
+    const dw = Math.min(Math.abs(C.delta[i]) / 0.5, 1) * wDel;
+    el("rect", { x: xDel, y: y + rowH * 0.25, width: Math.max(dw, 0.5), height: rowH * 0.5, fill: "#C00000", "fill-opacity": 0.8 }, svg);
+    el("text", { x: xDel + dw + 4, y: y + rowH / 2 + 4, "font-size": 10.5, fill: "#C00000" }, svg,
+       Math.abs(C.delta[i]) < 5e-4 ? "0.000" : (C.delta[i] > 0 ? "+" : "−") + fmt(Math.abs(C.delta[i]), 3));
+  }
+}
+
+function drawHistory() {
+  const svg = document.getElementById("svgHist"); clear(svg);
+  const x0 = 44, x1 = 352, y0 = 112, y1 = 10, lo = -6, hi = 1;
+  const yOf = m => y0 - (Math.min(Math.max(Math.log10(Math.max(m, 1e-12)), lo), hi) - lo) / (hi - lo) * (y0 - y1);
+  for (let e = lo; e <= hi; e += 1) {
+    el("line", { x1: x0, y1: yOf(10 ** e), x2: x1, y2: yOf(10 ** e), stroke: "#eee" }, svg);
+    if (e % 2 === 0) el("text", { x: x0 - 5, y: yOf(10 ** e) + 3.5, "font-size": 9.5, "text-anchor": "end", fill: "#777" }, svg, `1e${e}`);
+  }
+  el("text", { x: x1, y: 125, "font-size": 10, "text-anchor": "end", fill: "#777" }, svg, "moves →");
+  const h = S.history.slice(-200);
+  if (h.length > 1) {
+    const pts = h.map((m, j) => `${x0 + (x1 - x0) * j / (h.length - 1)},${yOf(m)}`).join(" ");
+    el("polyline", { points: pts, fill: "none", stroke: "#C00000", "stroke-width": 1.8 }, svg);
+  }
+  if (h.length) el("circle", { cx: h.length > 1 ? x1 : x0, cy: yOf(h[h.length - 1]), r: 4, fill: "#C00000" }, svg);
+}
+
+// =====================================================================================
+// Render + events
+// =====================================================================================
+function bump() { S.moves++; S.history.push(compute().mis); }
+
+function renderLight() {                            // everything except the slider tables (keeps drag focus)
+  const C = compute();
+  drawScene(C); drawAccount(C); drawCand(); drawStacks(); drawCompare(C);
+  document.getElementById("misOut").textContent = C.mis < 1e-12 ? "0 (exact)" : C.mis.toExponential(2);
+  document.getElementById("movesOut").textContent = S.moves;
+  drawHistory();
+  document.getElementById("noiseOut").textContent = `${S.noise}%`;
+  document.getElementById("casingOut").textContent = S.casingTrue.toFixed(1);
+  document.getElementById("casingAOut").textContent = S.casingAssumed.toFixed(1);
+  document.getElementById("srcErrOut").textContent = `${S.srcErr > 0 ? "+" : ""}${S.srcErr}%`;
+  document.getElementById("simControls").style.opacity = S.blank === "sim" ? 1 : 0.4;
+  document.querySelectorAll("#simControls input").forEach(i => i.disabled = S.blank !== "sim");
+}
+function render() { shellTable("candTable", false); shellTable("truthTable", true); renderLight(); }
+
+function stopRun() { if (S.timer) clearInterval(S.timer); S.timer = null; document.getElementById("stop").disabled = true; }
+function run(stepFn, delay, maxSteps) {
+  stopRun(); let n = 0; document.getElementById("stop").disabled = false;
+  S.timer = setInterval(() => {
+    const next = stepFn();
+    if (!next || n++ >= maxSteps) { stopRun(); return; }
+    const before = misfitOf(S.rho); S.rho = next; bump(); render();
+    if (misfitOf(S.rho) < 1e-14 || Math.abs(before - misfitOf(S.rho)) < 1e-16) stopRun();
+  }, delay);
+}
+
+function setNShells(N) {
+  stopRun();
+  S.N = N; G = geometry(N);
+  S.rhoTrue = Array.from({ length: N }, (_, k) => RHO5[Math.floor(k * 5 / N)]);
+  S.matTrue = new Array(N).fill(1);
+  S.rho = new Array(N).fill(0); S.mat = new Array(N).fill(1);
+  S.selected = -1; S.history = []; S.moves = 0;
+  drawGauss(); S.history.push(compute().mis); render();
+}
+
+function segInit(id, onPick) {
+  const seg = document.getElementById(id);
+  seg.querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
+    seg.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); onPick(b.dataset.v);
+  }));
+}
+
+function onSlider(id, key, cb) {
+  const inp = document.getElementById(id);
+  inp.addEventListener("input", () => { S[key] = +inp.value; renderLight(); });
+  inp.addEventListener("change", () => { S.history.push(compute().mis); renderLight(); cb && cb(); });
+}
+
+onSlider("noise", "noise"); onSlider("casing", "casingTrue"); onSlider("casingA", "casingAssumed"); onSlider("srcErr", "srcErr");
+document.getElementById("redraw").addEventListener("click", () => { S.seed++; drawGauss(); S.history.push(compute().mis); renderLight(); });
+segInit("blankMode", v => { S.blank = v; S.history.push(compute().mis); renderLight(); });
+segInit("nShells", v => setNShells(+v));
+document.getElementById("snap").addEventListener("change", e => { S.snap = e.target.checked; });
+document.getElementById("showTruth").addEventListener("change", e => { S.showTruth = e.target.checked; renderLight(); });
+document.getElementById("clearCand").addEventListener("click", () => { stopRun(); S.rho = new Array(G.N).fill(0); bump(); render(); });
+document.getElementById("gnStep").addEventListener("click", () => { stopRun(); S.rho = gaussNewtonStep(); bump(); render(); });
+document.getElementById("gnRun").addEventListener("click", () => run(gaussNewtonStep, 450, 12));
+document.getElementById("brickStep").addEventListener("click", () => {
+  stopRun(); const b = brickStep();
+  if (b) { S.rho = b; bump(); render(); }
+  else document.getElementById("solverNote").innerHTML = '<span class="warn">No single brick lowers the mismatch any more (a local minimum on the brick grid).</span>';
+});
+document.getElementById("brickRun").addEventListener("click", () => run(brickStep, 120, 300));
+document.getElementById("solve").addEventListener("click", () => { stopRun(); S.rho = exactInversion(); bump(); render(); });
+document.getElementById("stop").addEventListener("click", stopRun);
+
+setNShells(5);
+</script>
+</body>
+</html>
