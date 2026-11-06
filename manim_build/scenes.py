@@ -171,16 +171,16 @@ class S2_Separate(Scene):
 
 # =====================================================================================
 class S3_ForwardModel(Scene):
-    """Step 2a: each pixel row sees a weighted sum of shell densities (weights = path lengths)."""
+    """Step 2a: the forward model as a matrix system A = exp(-L rho), built one pixel row at a time."""
 
     def construct(self):
         ttl = title("Step 2 - what each pixel row sees")
-        obj = make_object(M.RHO_TRUE)
-        labs = shell_labels()
+        shift = LEFT * 2.8
+        obj = make_object(M.RHO_TRUE).shift(shift)
+        labs = shell_labels().shift(shift)
         self.play(Write(ttl), FadeIn(obj), run_time=1)
-        self.play(FadeIn(labs), run_time=1)
+        self.play(FadeIn(labs), run_time=0.8)
 
-        shift = np.zeros(3)
         x0, x1 = OBJ_C[0] - S - 0.6, OBJ_C[0] + S + 0.3
 
         def ray_state(i):
@@ -189,72 +189,65 @@ class S3_ForwardModel(Scene):
             lab = MathTex(rf"i={i + 1}", font_size=28, color=SCREEN_EDGE).next_to(line, LEFT, buff=0.15)
             return VGroup(line, chord_segments(M.Y_PIX[i]), lab).shift(shift)
 
-        # bar chart of path lengths L_ik for the current row
-        bx = [3.4 + 0.78 * k for k in range(M.N)]
-        base, scale = OBJ_C[1], 1.9
-        axis = Line([bx[0] - 0.5, base, 0], [bx[-1] + 0.5, base, 0], stroke_color=INK, stroke_width=2)
-        names = VGroup(*[MathTex(rf"L_{{i{k + 1}}}", font_size=28, color=SHELL_HUES[k]).move_to([bx[k], base - 0.35, 0])
-                         for k in range(M.N)])
-
-        def bars_state(i):
-            return VGroup(*[Rectangle(width=0.55, height=max(M.L[i, k] * scale, 1e-3), fill_color=SHELL_HUES[k],
-                                      fill_opacity=0.85, stroke_width=0).move_to([bx[k], base, 0], aligned_edge=DOWN)
-                            for k in range(M.N)])
-
-        def bar_values(i):
-            return VGroup(*[DecimalNumber(M.L[i, k], num_decimal_places=2, font_size=20, color=SHELL_HUES[k])
-                            .move_to([bx[k], base + M.L[i, k] * scale + 0.2, 0])
-                            for k in range(M.N) if M.L[i, k] > 0])
-        chart_title = Text("path length in each shell", font_size=22).move_to([(bx[0] + bx[-1]) / 2,
-                                                                                       base + 2.3, 0])
-
-        ray, bars, vals = ray_state(0), bars_state(0), bar_values(0)
-        cap = caption("Row i crosses each shell over a length L_ik, fixed by the geometry.")
-        self.play(FadeIn(ray), FadeIn(cap), run_time=1)
-        self.play(Create(axis), FadeIn(names), FadeIn(bars), FadeIn(vals), FadeIn(chart_title), run_time=1.2)
-        self.wait(1.2)
-        cap = swap_caption(self, cap, "Row i crosses shells 1 to i only: the outer shell is seen by every row.")
-        for i in range(1, M.N):
-            new_ray, new_bars, new_vals = ray_state(i), bars_state(i), bar_values(i)
-            self.play(FadeOut(ray), FadeOut(vals), run_time=0.25)
-            self.play(FadeIn(new_ray), Transform(bars, new_bars), FadeIn(new_vals), run_time=0.5)
-            ray, vals = new_ray, new_vals
-            self.wait(1.0)
-
-        eq = MathTex(r"p_i", "=", r"\sum_k L_{ik}\,\rho_k", font_size=42).move_to([(bx[0] + bx[-1]) / 2, 2.9, 0])
-        cap = swap_caption(self, cap, "What pixel i sees = sum over shells of (path length x density).")
-        self.play(FadeOut(ttl), Write(eq), run_time=1.5)
-        self.wait(1.5)
-
-        # --- build the linear system row by row
-        self.play(FadeOut(VGroup(axis, names, chart_title, bars, vals, eq, cap, ray)), run_time=0.8)
-        shift = LEFT * 2.6
-        self.play(VGroup(obj, labs).animate.shift(shift), run_time=1)
-
+        # ---- the system  A = exp(-L rho)
+        fs = 28
         entries = [[("0" if M.L[i, k] < 1e-9 else f"{M.L[i, k]:.2f}") for k in range(M.N)] for i in range(M.N)]
-        mat = Matrix(entries, h_buff=1.05, element_to_mobject_config={"font_size": 28})
-        pvec = Matrix([[rf"p_{i + 1}"] for i in range(M.N)], element_to_mobject_config={"font_size": 28})
-        rvec = Matrix([[rf"\rho_{k + 1}"] for k in range(M.N)], element_to_mobject_config={"font_size": 28})
+        mat = Matrix(entries, h_buff=0.95, element_to_mobject_config={"font_size": fs})
+        avec = Matrix([[rf"A_{i + 1}"] for i in range(M.N)], element_to_mobject_config={"font_size": fs})
+        rvec = Matrix([[rf"\rho_{k + 1}"] for k in range(M.N)], element_to_mobject_config={"font_size": fs})
         for k, col in enumerate(mat.get_columns()):
             for i, e in enumerate(col):
                 e.set_color(GREY_B if M.L[i, k] < 1e-9 else SHELL_HUES[k])
         for k, e in enumerate(rvec.get_entries()):
             e.set_color(SHELL_HUES[k])
-        system = VGroup(pvec, MathTex("="), mat, rvec).arrange(RIGHT, buff=0.2).scale(0.85).move_to([3.4, 0.0, 0])
-        for m in (pvec, mat):
+        for e in avec.get_entries():
+            e.set_color(OBJ_LINE)
+        eq = MathTex("=", font_size=36)
+        expo = MathTex(r"\exp", font_size=36)
+        ph = mat.height * 1.08
+        lpar = ArcBetweenPoints(UP * ph / 2, DOWN * ph / 2, angle=PI / 3, stroke_color=INK, stroke_width=2.5)
+        rpar = ArcBetweenPoints(UP * ph / 2, DOWN * ph / 2, angle=-PI / 3, stroke_color=INK, stroke_width=2.5)
+        minus = MathTex("-", font_size=36)
+        system = VGroup(avec, eq, expo, lpar, minus, mat, rvec, rpar).arrange(RIGHT, buff=0.14)
+        system.scale_to_fit_width(6.3).move_to([3.6, 0.45, 0])
+        for m in (avec, mat):
             for e in m.get_entries():
                 e.set_opacity(0)
-        cap = caption("One equation per pixel row: a linear system p = L ρ.")
-        self.play(FadeIn(VGroup(pvec.get_brackets(), system[1], mat.get_brackets(), rvec)), FadeIn(cap), run_time=1)
+
+        # ---- meaning, under the brackets
+        tsz = 19
+        u_a = Text("fraction of\nabsorption", font_size=tsz, line_spacing=0.8, color=OBJ_LINE)
+        u_prop = MathTex(r"\propto", font_size=32)
+        u_l = Text("traversed length", font_size=tsz)
+        u_x = MathTex(r"\times", font_size=30)
+        u_r = Text("density", font_size=tsz)
+        yb = system.get_bottom()[1] - 0.45
+        u_a.move_to([avec.get_x(), yb, 0])
+        u_l.move_to([mat.get_x(), yb, 0])
+        u_r.move_to([rvec.get_x(), yb, 0]).align_to(rvec, LEFT)
+        u_prop.move_to([(u_a.get_right()[0] + u_l.get_left()[0]) / 2, yb, 0])
+        u_x.move_to([(u_l.get_right()[0] + u_r.get_left()[0]) / 2, yb, 0])
+        under = VGroup(u_a, u_prop, u_l, u_x, u_r)
+
+        cap = caption("Row i crosses shells 1 to i, over lengths L_ik fixed by the geometry.")
+        self.play(FadeIn(VGroup(avec.get_brackets(), eq, expo, lpar, minus, mat.get_brackets(), rvec, rpar)),
+                  FadeIn(cap), run_time=1.2)
         ray = None
         for i in range(M.N):
             new_ray = ray_state(i)
             if ray is not None:
                 self.play(FadeOut(ray), run_time=0.2)
-            self.play(FadeIn(new_ray), run_time=0.3)
+            self.play(FadeIn(new_ray), run_time=0.35)
             self.play(*[e.animate.set_opacity(1) for e in mat.get_rows()[i]],
-                      pvec.get_entries()[i].animate.set_opacity(1), run_time=0.5)
+                      avec.get_entries()[i].animate.set_opacity(1), run_time=0.6)
+            if i == 0:
+                self.wait(0.8)
             ray = new_ray
+        self.wait(0.6)
+
+        cap = swap_caption(self, cap, "One equation per pixel row: A = exp(-L ρ).")
+        self.play(LaggedStart(*[FadeIn(u, shift=UP * 0.15) for u in under], lag_ratio=0.25), run_time=1.6)
+        self.wait(1.5)
         cap = swap_caption(self, cap, "Triangular structure: row i only depends on shells 1 to i.")
         self.wait(3)
 
@@ -295,6 +288,8 @@ class S4_BrickFit(Scene):
             return VGroup(*[Rectangle(width=max(abs(d[i]) * dscale, 1e-3), height=PIX_H * 0.55, stroke_width=0,
                                       fill_color=ACCENT, fill_opacity=0.8)
                             .move_to([dx0, scr_cand[0][i].get_y(), 0], aligned_edge=LEFT) for i in range(M.N)])
+        cand_eq = MathTex(r"A_{\text{cand}} = \exp\big(-L\,\rho_{\text{cand}}\big)", font_size=30)
+        cand_eq.move_to([-1.25, 2.5, 0])
         dbars = delta_bars(hist[0])
         dlab = MathTex(r"|\Delta_i|", font_size=28, color=ACCENT).move_to([dx0 + 0.9, scr_cand[1].get_y(), 0])
 
@@ -319,7 +314,7 @@ class S4_BrickFit(Scene):
         mis_val.next_to(ylab, RIGHT, buff=0.25)
 
         self.play(FadeIn(cand), FadeIn(cand_lab), Create(floor), FadeIn(col_names),
-                  FadeIn(scr_obs), FadeIn(scr_cand), FadeIn(idx), FadeIn(cbar), FadeIn(dbars), FadeIn(dlab),
+                  FadeIn(scr_obs), FadeIn(scr_cand), FadeIn(idx), FadeIn(cbar), FadeIn(dbars), FadeIn(dlab), FadeIn(cand_eq),
                   Create(ax), FadeIn(ylabels), FadeIn(xlab), FadeIn(ylab), FadeIn(delta_def), run_time=1.5)
         cap = caption("Start empty: the candidate screen lets everything through, far from the observation.")
         self.play(FadeIn(cap), FadeIn(ball, scale=0.5), FadeIn(mis_val))
@@ -366,7 +361,7 @@ class S4_BrickFit(Scene):
 
 
 # =====================================================================================
-WALK = "#B8860B"     # brick-walk colour
+WALK = "#B8860B"     # step-walk colour
 GRAD = "#2E7D32"     # gradient colour
 
 
@@ -384,7 +379,7 @@ def slice_grad(r1, r2):
 
 
 class S5_Gradient(Scene):
-    """Step 2c, in principle: brick walk vs gradient walk, on the mismatch landscape and as brick stacks.
+    """Step 2c, in principle: step walk vs gradient walk, on the mismatch landscape and as brick stacks.
     Only rho_1 and rho_2 vary; shells 3-5 are fixed at their true value (grey)."""
 
     def construct(self):
@@ -393,7 +388,7 @@ class S5_Gradient(Scene):
 
         # ================================================ left: explanation box + landscape
         box_txt = VGroup(
-            VGroup(Text("Brick walk:", font_size=18, color=WALK, weight=BOLD),
+            VGroup(Text("Step walk:", font_size=18, color=WALK, weight=BOLD),
                    Text("knows the mismatch only where it tries;", font_size=18)).arrange(RIGHT, buff=0.12),
             Text("probes the neighbours, one brick at a time.", font_size=18),
             VGroup(Text("Gradient:", font_size=18, color=GRAD, weight=BOLD),
@@ -427,6 +422,19 @@ class S5_Gradient(Scene):
                 if len(line) > 3:
                     contours.add(VMobject(stroke_color=GREY_C, stroke_width=1.2, stroke_opacity=0.8)
                                  .set_points_smoothly([ax.c2p(x, y) for x, y in line[::3]]))
+        zbar_h, zn_cells = size * 0.85, 40
+        zcells = VGroup(*[Rectangle(width=0.2, height=zbar_h / zn_cells * 1.3, stroke_width=0, fill_opacity=1,
+                                    fill_color=rgb_to_color((lo_c + (j + 0.5) / zn_cells * (hi_c - lo_c)) / 255))
+                          for j in range(zn_cells)]).arrange(UP, buff=-zbar_h / zn_cells * 0.3)
+        zcells.next_to(ax, RIGHT, buff=0.55).align_to(ax, DOWN).shift(UP * 0.35)
+        zframe = SurroundingRectangle(zcells, buff=0, stroke_color=SCREEN_EDGE, stroke_width=1.2)
+        zt = VGroup()
+        for e in range(int(np.ceil(Zc.min())), int(np.floor(Zc.max())) + 1):
+            f = (e - Zc.min()) / (Zc.max() - Zc.min())
+            zt.add(MathTex(rf"10^{{{e}}}", font_size=16).next_to(zcells, RIGHT, buff=0.06)
+                   .set_y(zcells.get_bottom()[1] + f * zcells.height))
+        ztitle = MathTex(r"\sum_i \Delta_i^2", font_size=26).next_to(zcells, UP, buff=0.15)
+        zbar = VGroup(zcells, zframe, zt, ztitle)
         target = Star(n=5, outer_radius=0.12, inner_radius=0.055, color=ACCENT, fill_opacity=1).move_to(
             ax.c2p(*M.RHO_TRUE[:2])).set_z_index(9)
 
@@ -436,7 +444,7 @@ class S5_Gradient(Scene):
 
         def panel(x0, name, color):
             bx = [x0 + 0.56 * k for k in range(M.N)]
-            head = Text(name, font_size=26, color=color).move_to([(bx[0] + bx[-1]) / 2, 2.55, 0])
+            head = Text(name, font_size=26, color=color).move_to([(bx[0] + bx[-1]) / 2, 2.45, 0])
             floor = Line([bx[0] - 0.33, base, 0], [bx[-1] + 0.33, base, 0], stroke_color=INK, stroke_width=2)
             names = VGroup(*[MathTex(rf"\rho_{k + 1}", font_size=24, color=SHELL_HUES[k] if k < 2 else GREY_B)
                              .move_to([bx[k], base - 0.27, 0]) for k in range(M.N)])
@@ -449,22 +457,22 @@ class S5_Gradient(Scene):
             targets = VGroup(*[DashedLine([bx[k] - 0.26, base + M.RHO_TRUE[k] / M.BRICK * bh, 0],
                                           [bx[k] + 0.26, base + M.RHO_TRUE[k] / M.BRICK * bh, 0],
                                           dash_length=0.06, stroke_color=GREY_C, stroke_width=2) for k in range(2)])
-            steps_lab = Text("steps:", font_size=20).move_to([bx[1], 2.05, 0])
+            steps_lab = Text("steps:", font_size=20).move_to([bx[1], 1.95, 0])
             steps = Integer(0, font_size=24, color=color).next_to(steps_lab, RIGHT, buff=0.12)
             return bx, VGroup(head, floor, names, fixed, flab, targets, steps_lab, steps), steps
 
-        wbx, wpanel, wsteps = panel(0.55, "Brick walk", WALK)
+        wbx, wpanel, wsteps = panel(0.55, "Step walk", WALK)
         gbx, gpanel, gsteps = panel(4.25, "Gradient walk", GRAD)
-        dash_note = Text("dashed: true density", font_size=15, color=GREY_C).move_to([3.95, 1.55, 0])
+        dash_note = Text("dashed: true density", font_size=15, color=GREY_C).move_to([3.95, 1.45, 0])
 
         self.play(FadeIn(ttl), Create(ax), FadeIn(xl), FadeIn(yl), FadeIn(heat), run_time=1.2)
-        self.play(Create(contours, lag_ratio=0.02), FadeIn(target, scale=0.5), run_time=1.5)
+        self.play(Create(contours, lag_ratio=0.02), FadeIn(target, scale=0.5), FadeIn(zbar), run_time=1.5)
         cap = caption("Mismatch for every (ρ1, ρ2), shells 3 to 5 fixed: a landscape with one valley (light = small).")
         self.play(FadeIn(cap), FadeIn(wpanel), FadeIn(gpanel), FadeIn(dash_note), run_time=1.2)
         self.wait(1.5)
 
-        # ================================================ brick walk: one brick per step
-        cap = swap_caption(self, cap, "Brick walk: try each neighbouring brick, keep the best, repeat.")
+        # ================================================ step walk: one brick per step
+        cap = swap_caption(self, cap, "Step walk: try each neighbouring brick, keep the best, repeat.")
         self.play(FadeIn(box), FadeIn(box_txt[:2]), run_time=0.8)
         step = M.BRICK
         p = np.zeros(2)
@@ -566,6 +574,6 @@ class S5_Gradient(Scene):
                 self.wait(0.6)
 
         self.play(Indicate(target, color=GRAD), Indicate(VGroup(*gcols), color=GRAD, scale_factor=1.04), run_time=0.9)
-        cap = swap_caption(self, cap, f"Same answer: {n_w} single-brick steps vs {n_steps} gradient steps. "
+        cap = swap_caption(self, cap, f"Same answer: {n_w} single-brick steps (step walk) vs {n_steps} gradient steps. "
                                       "With N shells, a brick step means 2N trials.")
         self.wait(3.5)

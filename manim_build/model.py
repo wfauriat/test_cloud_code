@@ -120,7 +120,7 @@ def brick_fit(max_steps=200):
 
 
 def candidates_tested(bricks):
-    """Simulations needed by one brick-walk step from this state: every valid +/-1 brick is tried."""
+    """Simulations needed by one step-walk step from this state: every valid +/-1 brick is tried."""
     return int(N + np.count_nonzero(np.asarray(bricks) > 0))
 
 
