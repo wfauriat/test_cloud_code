@@ -1,8 +1,11 @@
 """Shared look, layout and model->scene helpers. Every drawn quantity is computed from model.py."""
+import os
+
 import numpy as np
 from manim import *
 
 import model as M
+from i18n import FR
 
 # ---------------------------------------------------------------- palette (from the sketch)
 BG = WHITE
@@ -30,6 +33,37 @@ config.tex_template = TEX
 Text.set_default(color=INK, font=FONT)
 for cls in (MathTex, Tex, DecimalNumber, Integer):
     cls.set_default(color=INK)
+
+# ---------------------------------------------------------------- language (TOMO_LANG=fr for French)
+LANG = os.environ.get("TOMO_LANG", "en")
+_FR_VALUES = set(FR.values())
+_DONE = set()
+
+
+def tr(s, **fmt):
+    """Translate a visible string (exact English key, optional {placeholders}). Equations are left alone."""
+    out = s
+    if LANG == "fr":
+        if s in FR:
+            out = FR[s]
+        elif s not in _FR_VALUES and s not in _DONE and sum(c.isalpha() for c in s) >= 2:
+            log = os.environ.get("TOMO_I18N_LOG")
+            if log:
+                with open(log, "a") as fh:
+                    fh.write(repr(s) + "\n")
+    out = out.format(**fmt) if fmt else out
+    _DONE.add(out)
+    return out
+
+
+_text_init = Text.__init__
+
+
+def _text_init_tr(self, text, *args, **kwargs):
+    _text_init(self, tr(text), *args, **kwargs)
+
+
+Text.__init__ = _text_init_tr      # every Text is translated when TOMO_LANG=fr
 
 TITLE_SIZE = 32
 CAPTION_SIZE = 24
@@ -76,7 +110,9 @@ def caption(text, size=CAPTION_SIZE):
 
 def title(text, size=TITLE_SIZE, max_width=None):
     """Scene title: one style everywhere, en dash after the step number, shrunk to fit if long."""
-    t = Text(text.replace(" - ", " – "), font_size=size, weight=SEMIBOLD)
+    s = tr(text).replace(" - ", " – ")
+    _DONE.add(s)
+    t = Text(s, font_size=size, weight=SEMIBOLD)
     mw = max_width or config.frame_width - 1.0
     if t.width > mw:
         t.scale_to_fit_width(mw)
