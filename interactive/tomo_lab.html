@@ -19,7 +19,16 @@
   header p { margin: 4px 0 0; color: var(--muted); max-width: 980px; }
   main { display: grid; gap: 14px; padding: 12px 20px 24px;
          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-  @media (max-width: 1050px) { main { grid-template-columns: minmax(0, 1fr); } }
+  /* candidate and comparison side by side on top; the measurement set-up underneath */
+  #phase2 { grid-column: 1; grid-row: 1; }
+  #compare { grid-column: 2; grid-row: 1; }
+  #phase1 { grid-column: 1 / -1; grid-row: 2; }
+  .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  @media (max-width: 1050px) {
+    main { grid-template-columns: minmax(0, 1fr); }
+    #phase2, #compare, #phase1 { grid-column: 1; grid-row: auto; }
+    .split { grid-template-columns: minmax(0, 1fr); }
+  }
   section { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; min-width: 0; }
   section h2 { margin: 0 0 2px; font-size: 15px; font-weight: 650; }
   section h2 small { font-weight: 400; color: var(--muted); }
@@ -67,6 +76,8 @@
   <section id="phase1">
     <h2>Phase 1 – measurement and accounting <small>(the true object is hidden)</small></h2>
     <p class="sub">Source → casing → object → screen. Each screen pixel row i is one horizontal ray.</p>
+    <div class="split">
+    <div>
     <svg id="svgScene" viewBox="0 0 600 300" aria-label="Experiment"></svg>
     <div class="controls">
       <label for="noise">Measurement noise</label><input id="noise" type="range" min="0" max="10" step="0.5" value="0"><output id="noiseOut"></output>
@@ -81,12 +92,16 @@
       <label for="casingA">Assumed casing density</label><input id="casingA" type="range" min="0" max="5" step="0.1" value="2"><output id="casingAOut"></output>
       <label for="srcErr">Source estimate error</label><input id="srcErr" type="range" min="-15" max="15" step="0.5" value="0"><output id="srcErrOut"></output>
     </div>
+    </div>
+    <div>
     <svg id="svgAccount" viewBox="0 0 600 200" aria-label="Accounting"></svg>
     <details id="truthBox">
       <summary>Show / edit the true object</summary>
       <div class="row"><label><input type="checkbox" id="showTruth"> show the truth (object drawing, dashed lines on the stacks)</label></div>
       <table class="shells" id="truthTable"></table>
     </details>
+    </div>
+    </div>
   </section>
 
   <!-- ======================= Phase 2 ======================= -->
@@ -107,18 +122,15 @@
   </section>
 
   <!-- ======================= Comparison ======================= -->
-  <section class="full" id="compare">
+  <section id="compare">
     <h2>Does the candidate explain the measurement?</h2>
-    <div style="display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px" id="cmpGrid">
-      <div>
-        <svg id="svgCmp" viewBox="0 0 640 260" aria-label="Comparison per row"></svg>
-      </div>
+    <svg id="svgCmp" viewBox="0 0 640 260" aria-label="Comparison per row"></svg>
+    <div class="split" style="margin-top:6px">
       <div>
         <div class="kpi">
           <div><div class="note" style="margin:0">mismatch Σ<sub>i</sub> Δ<sub>i</sub><sup>2</sup></div><div class="big" id="misOut">–</div></div>
           <div><div class="note" style="margin:0">candidate moves</div><div class="big" id="movesOut">0</div></div>
         </div>
-        <svg id="svgHist" viewBox="0 0 360 130" aria-label="Mismatch history"></svg>
         <div class="row">
           <button class="primary" id="gnStep">Gradient step</button>
           <button class="primary" id="gnRun">Run gradient</button>
@@ -128,6 +140,10 @@
           <button id="stop" disabled>Stop</button>
         </div>
         <p class="note" id="solverNote">Gradient step: Gauss–Newton with ∂A<sub>i</sub>/∂ρ<sub>k</sub> = −μ<sub>k</sub> L<sub>ik</sub> A<sub>i</sub>. Brick step: try every ±1 brick, keep the best. Exact inversion: solve the triangular system for the chosen materials.</p>
+      </div>
+      <div>
+        <div class="note" style="margin:0">mismatch history (log scale)</div>
+        <svg id="svgHist" viewBox="0 0 360 130" aria-label="Mismatch history"></svg>
       </div>
     </div>
   </section>
