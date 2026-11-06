@@ -202,3 +202,46 @@ def shell_labels(size=24):
         bg = BackgroundRectangle(lab, color=WHITE, fill_opacity=0.85, buff=0.03)
         out.add(VGroup(bg, lab).set_z_index(10))
     return out
+
+
+
+# ---------------------------------------------------------------- density stacks (bricks, possibly partial)
+def density_stack(x, rho, color, base, bh=0.3, width=0.5, n_max=14, brick=M.BRICK):
+    """A column whose height is rho (in bricks), with brick separators.
+    Fixed structure (rect + n_max separators) so that Transform between two stacks is smooth."""
+    h = rho / brick * bh
+    g = VGroup()
+    rect = Rectangle(width=width, height=max(abs(h), 1e-3), fill_color=color, fill_opacity=0.85, stroke_width=0)
+    rect.move_to([x, base, 0], aligned_edge=DOWN if h >= 0 else UP)
+    g.add(rect)
+    for j in range(1, n_max + 1):
+        yj = base + j * bh
+        vis = (j * bh) < h - 1e-6
+        g.add(Line([x - width / 2, yj, 0], [x + width / 2, yj, 0], stroke_color=WHITE, stroke_width=1.5,
+                   stroke_opacity=1.0 if vis else 0.0))
+    return g
+
+
+def brick_column(x, rho, color, base, bh=0.3, width=0.5, dashed=False, brick=M.BRICK):
+    """Individual bricks (last one partial). Dashed = second material: light fill, dashed outline."""
+    g = VGroup()
+    h_tot, y = rho / brick * bh, base
+    while h_tot > 1e-6:
+        h = min(bh, h_tot)
+        r = Rectangle(width=width, height=h, fill_color=color, fill_opacity=0.3 if dashed else 0.85,
+                      stroke_color=color if dashed else WHITE, stroke_width=2 if dashed else 1.5)
+        r.move_to([x, y, 0], aligned_edge=DOWN)
+        if dashed:
+            outline = DashedVMobject(r.copy().set_fill(opacity=0), num_dashes=14, dashed_ratio=0.55)
+            r.set_stroke(opacity=0)
+            g.add(VGroup(r, outline))
+        else:
+            g.add(r)
+        y += h
+        h_tot -= h
+    return g
+
+
+def truth_marks(xs, rhos, base, bh=0.3, half=0.3):
+    return VGroup(*[DashedLine([x - half, base + r / M.BRICK * bh, 0], [x + half, base + r / M.BRICK * bh, 0],
+                               dash_length=0.06, stroke_color=GREY_C, stroke_width=2) for x, r in zip(xs, rhos)])

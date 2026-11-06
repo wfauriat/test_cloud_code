@@ -147,6 +147,60 @@ def rho_misfit(rho):
     return float(r @ r)
 
 
+
+# ============================================================ going further
+def geometry(n):
+    """Chord matrix and mid radii for the same object split into n regular shells."""
+    out = R * (n - np.arange(n)) / n
+    inn = out - R / n
+    y = R - (np.arange(n) + 0.5) * R / n
+    Lm = np.array([[2 * (half_chord(out[k], yi) - half_chord(inn[k], yi)) for k in range(n)] for yi in y])
+    return Lm, (out + inn) / 2
+
+
+def true_rho(n):
+    """Same physical object on n shells (n a multiple of N): each band of the 5-shell object is split."""
+    return RHO_TRUE[np.arange(n) * N // n]
+
+
+NOISE = 0.03          # relative noise on the measured dose (hence on A_object)
+
+
+def noisy_fits(n=N, draws=6, seed=0, many=3000):
+    """Direct inversion (no regularisation) of noisy screens.
+    Returns true rho, a few (noisy A, estimated rho) draws, and the std of the estimate per shell."""
+    Lm, _ = geometry(n)
+    rho = true_rho(n)
+    A = np.exp(-Lm @ rho)
+    rng = np.random.default_rng(seed)
+
+    def one():
+        a = A * (1 + NOISE * rng.standard_normal(n))
+        return a, np.linalg.solve(Lm, -np.log(a))
+    shows = [one() for _ in range(draws)]
+    spread = np.array([one()[1] for _ in range(many)]).std(axis=0)
+    return rho, A, shows, spread
+
+
+MU = {1: 1.0, 2: 2.0}   # absorption coefficient of material 1 and material 2
+# a few material patterns (shell 1 .. 5) that all give exactly the observed screen
+MATERIAL_SOLUTIONS = [(1, 1, 1, 1, 1), (2, 1, 1, 1, 1), (1, 2, 2, 1, 1), (1, 1, 1, 2, 2), (2, 1, 2, 1, 2), (2, 2, 2, 2, 2)]
+
+
+def densities_for(materials):
+    """Only mu * rho is observable: density needed in each shell for a given material pattern."""
+    return np.array([RHO_TRUE[k] / MU[m] for k, m in enumerate(materials)])
+
+
+def screen_for(materials, rho):
+    mu = np.array([MU[m] for m in materials])
+    return object_factor(mu * rho)
+
+
+def biased_fit(bias):
+    """Inversion with a blank misestimated by a factor (1 + bias): A_est = A_obj / (1 + bias)."""
+    return np.linalg.solve(L, -np.log(A_OBS / (1 + bias)))
+
 if __name__ == "__main__":
     np.set_printoptions(precision=3, suppress=True)
     print("L (rows i = top -> bottom, cols k = outer -> inner):\n", L)
