@@ -612,14 +612,23 @@ class S6_Noise(Scene):
         sx = -6.3
         n = 10
         rho, A, shows, spread = M.noisy_fits(n, draws=8)
-        xs = [-2.3 + 0.88 * k for k in range(n)]
-        width = 0.5
+        xs = [-1.55 + 0.79 * k for k in range(n)]
+        width = 0.46
 
         scr = pixel_column(shows[0][0], sx)
-        scr_lab = Text(f"measured screen\n({M.NOISE:.0%} noise)", font_size=17, line_spacing=0.8,
-                       color=SCREEN_EDGE).next_to(scr, UP, buff=0.15).align_to(scr, LEFT)
-        arrow = Arrow([-5.75, -0.3, 0], [-3.75, -0.3, 0], buff=0, color=INK, stroke_width=3)
-        arrow_lab = Text("invert\n(no regularization)", font_size=17, line_spacing=0.8).next_to(arrow, UP, buff=0.1)
+
+        def screen_values(a_, dx=0.08, color=INK):
+            return VGroup(*[DecimalNumber(a_[i], num_decimal_places=3, font_size=15, color=color)
+                            .next_to(scr[i], RIGHT, buff=dx) for i in range(n)])
+        vals = screen_values(shows[0][0])
+        true_vals = screen_values(A, dx=0.7, color=GREY_B)
+        col_heads = VGroup(Text("noisy", font_size=13), Text("exact", font_size=13, color=GREY_B))
+        col_heads[0].next_to(vals, UP, buff=0.08)
+        col_heads[1].next_to(true_vals, UP, buff=0.08)
+        scr_lab = Text(f"measured absorption A\n({M.NOISE:.0%} noise)", font_size=17, line_spacing=0.8,
+                       color=SCREEN_EDGE).next_to(scr, UP, buff=0.4).align_to(scr, LEFT)
+        arrow = Arrow([-4.55, -0.3, 0], [-2.75, -0.3, 0], buff=0, color=INK, stroke_width=3)
+        arrow_lab = Text("invert\n(no regularization)", font_size=16, line_spacing=0.8).next_to(arrow, DOWN, buff=0.12)
         floor = Line([xs[0] - 0.45, base, 0], [xs[-1] + 0.45, base, 0], stroke_color=INK, stroke_width=2)
         axis = density_axis(xs[0] - 0.65, base, top_rho=1.8, bh=bh, step=0.6)
         names = VGroup(*[MathTex(rf"{k + 1}", font_size=20, color=SCREEN_EDGE).move_to([xs[k], base - 0.25, 0])
@@ -632,14 +641,14 @@ class S6_Noise(Scene):
                        Text("red: spread over many noise draws", font_size=15, color=ACCENT)) \
             .arrange(DOWN, aligned_edge=LEFT, buff=0.08).move_to([4.6, 2.55, 0])
 
-        self.play(FadeIn(scr), FadeIn(scr_lab), GrowArrow(arrow), FadeIn(arrow_lab), Create(floor), FadeIn(axis),
+        self.play(FadeIn(scr), FadeIn(vals), FadeIn(true_vals), FadeIn(col_heads), FadeIn(scr_lab), GrowArrow(arrow), FadeIn(arrow_lab), Create(floor), FadeIn(axis),
                   FadeIn(names), FadeIn(ends), FadeIn(truth), FadeIn(stacks), FadeIn(notes[0]), run_time=1.3)
         cap = caption(f"{M.NOISE:.0%} noise on the measured screen (10 shells): hardly visible on the screen.")
         self.play(FadeIn(cap), run_time=0.6)
 
         def cycle(draws, rt=0.55):
             for a_, r in draws:
-                self.play(Transform(scr, pixel_column(a_, sx)),
+                self.play(Transform(scr, pixel_column(a_, sx)), Transform(vals, screen_values(a_)),
                           Transform(stacks, VGroup(*[density_stack(xs[k], r[k], FINE, base, bh, width)
                                                      for k in range(n)])), run_time=rt)
                 self.wait(0.3)
@@ -657,89 +666,90 @@ class S6_Noise(Scene):
 
 
 class S7_TwoMaterials(Scene):
-    """Two candidate materials for the inner shells: only mu * rho is seen, so several objects give the same screen."""
+    """Two candidate materials for the inner shells: only mu * rho is seen, so several objects give the same screen.
+    The candidates are added side by side (bars and screens) instead of replacing each other."""
 
     def construct(self):
         ttl = title("Going further 2 - two possible materials", size=32)
         self.play(Write(ttl), run_time=1)
-        base, bh = -2.6, 0.3
-
-        # legend
-        lb1 = material_column(0, M.BRICK, GREY_B, 0, bh, 0.5, material=1)
-        lb2 = material_column(0, M.BRICK, GREY_B, 0, bh, 0.5, material=2)
-        l1 = VGroup(lb1, Text("material 1", font_size=19), MathTex(r"\mu_1", font_size=28)).arrange(RIGHT, buff=0.2)
-        l2 = VGroup(lb2, Text("material 2", font_size=19), MathTex(r"\mu_2 = 2\,\mu_1", font_size=28)).arrange(RIGHT, buff=0.2)
-        eq = MathTex(r"A = \exp(-L\,\mu\,\rho)", font_size=30)
-        eq_note = Text("the screen only sees  μ × ρ", font_size=18)
-        known = Text("shells 1-3: material 1 (known)\nshells 4-5: material 1 or 2", font_size=17, line_spacing=0.8)
-        legend = VGroup(l1, l2, eq, eq_note, known).arrange(DOWN, aligned_edge=LEFT, buff=0.14)
-        lbox = SurroundingRectangle(legend, buff=0.15, corner_radius=0.08, stroke_color=SCREEN_EDGE, stroke_width=1.5)
-        VGroup(lbox, legend).to_corner(UL, buff=0.3).shift(DOWN * 0.75)
-
-        oc = np.array([-0.4, 1.35, 0])
-
-        def obj_for(mats, rho):
-            o = make_object(rho, ghost_opacity=0.0).scale(0.36, about_point=OBJ_C).shift(oc - OBJ_C)
-            marks = VGroup(*[DashedVMobject(o[0][k].copy().set_fill(opacity=0).set_stroke(INK, 2), num_dashes=30)
-                             for k, m in enumerate(mats) if m == 2])
-            return VGroup(o, marks)
-
-        xs = [-1.9 + 0.85 * k for k in range(M.N)]
-
-        def stacks_for(mats, rho, xs=xs):
-            return VGroup(*[material_column(xs[k], rho[k], SHELL_HUES[k], base, bh, 0.6, material=m)
-                            for k, m in enumerate(mats)])
-
-        def frame_for(xs=xs):
-            floor = Line([xs[0] - 0.45, base, 0], [xs[-1] + 0.45, base, 0], stroke_color=INK, stroke_width=2)
-            names = VGroup(*[MathTex(rf"\rho_{k + 1}", font_size=26, color=SHELL_HUES[k]).move_to([xs[k], base - 0.27, 0])
-                             for k in range(M.N)])
-            return VGroup(density_axis(xs[0] - 0.65, base, 1.6, bh), floor, names)
-
         sol = M.MATERIAL_SOLUTIONS
-        mats, rho = sol[0], M.densities_for(sol[0])
-        frame = frame_for()
-        obj, stacks = obj_for(mats, rho), stacks_for(mats, rho)
-        scr_obs = make_screen(M.A_OBS, x=3.1, label="observed", label_size=20, cmap=a_color)
-        scr_obs.shift(UP * (-0.4 - scr_obs[0].get_center()[1]))
-        scr_cand = make_screen(M.screen_for(mats, rho), x=4.55, label="candidate", label_size=20, cmap=a_color)
-        scr_cand.shift(UP * (-0.4 - scr_cand[0].get_center()[1]))
-        check = VGroup(MathTex(r"\checkmark", font_size=48, color=GRAD), Text("identical", font_size=20, color=GRAD))
-        check.arrange(DOWN, buff=0.1).next_to(scr_cand, RIGHT, buff=0.3)
-        counter = Text("candidate 1", font_size=22).next_to(scr_obs[1], UP, buff=0.35).set_x(3.83)
+        n_c = len(sol)
+        base, bh = -2.55, 0.27
+
+        # ---- legend
+        lb1 = material_column(0, M.BRICK, GREY_B, 0, bh, 0.45, material=1)
+        lb2 = material_column(0, M.BRICK, GREY_B, 0, bh, 0.45, material=2)
+        l1 = VGroup(lb1, Text("material 1", font_size=18), MathTex(r"\mu_1", font_size=26)).arrange(RIGHT, buff=0.18)
+        l2 = VGroup(lb2, Text("material 2", font_size=18), MathTex(r"\mu_2 = \mu_1 / 2", font_size=26)).arrange(RIGHT, buff=0.18)
+        eq = MathTex(r"A = \exp(-L\,\mu\,\rho)", font_size=28)
+        eq_note = Text("the screen only sees  μ × ρ", font_size=17)
+        known = Text("shells 1-3: material 1 (known)\nshells 4-5: material 1 or 2", font_size=16, line_spacing=0.8)
+        legend = VGroup(l1, l2, eq, eq_note, known).arrange(DOWN, aligned_edge=LEFT, buff=0.12)
+        lbox = SurroundingRectangle(legend, buff=0.14, corner_radius=0.08, stroke_color=SCREEN_EDGE, stroke_width=1.5)
+        VGroup(lbox, legend).to_corner(UL, buff=0.3).shift(DOWN * 0.7)
+
+        # ---- one fixed bar graph: shells 1-3 single (known), shells 4-5 one slot per candidate
+        x_single = [-3.25, -2.55, -1.85]
+        slot = 0.36
+        g4 = [-1.05 + slot * j for j in range(n_c)]
+        g5 = [g4[-1] + 0.75 + slot * j for j in range(n_c)]
+        xs_groups = [g4, g5]
+        axis = density_axis(x_single[0] - 0.55, base, 1.8, bh, step=0.4)
+        floor = Line([x_single[0] - 0.4, base, 0], [g5[-1] + 0.3, base, 0], stroke_color=INK, stroke_width=2)
+        names = VGroup(*[MathTex(rf"\rho_{k + 1}", font_size=26, color=SHELL_HUES[k]).move_to([x, base - 0.5, 0])
+                         for k, x in enumerate(x_single)])
+        names.add(*[MathTex(rf"\rho_{k + 4}", font_size=26, color=SHELL_HUES[k + 3])
+                    .move_to([(g[0] + g[-1]) / 2, base - 0.5, 0]) for k, g in enumerate(xs_groups)])
+        slot_nums = VGroup(*[Text(str(j + 1), font_size=15, color=SCREEN_EDGE).move_to([g[j], base - 0.2, 0])
+                             for g in xs_groups for j in range(n_c)])
+        fixed = VGroup()
+        for k, x in enumerate(x_single):
+            col = material_column(x, M.RHO_TRUE[k], SHELL_HUES[k], base, bh, 0.5, material=1)
+            for brk in col:
+                brk.set_fill(opacity=0).set_stroke(SHELL_HUES[k], 2, opacity=1)
+            fixed.add(col)
+
+        # ---- screens: one observed, then one candidate screen per candidate
+        ph, pw, yc = 0.44, 0.38, -0.55
+
+        def screen_col(values, x):
+            return VGroup(*[Rectangle(width=pw, height=ph, stroke_color=SCREEN_EDGE, stroke_width=1.5, fill_opacity=1,
+                                      fill_color=a_color(values[i])).move_to([x, yc + (M.N / 2 - i - 0.5) * ph, 0])
+                            for i in range(M.N)])
+        x_obs = 2.75
+        x_cand = [3.75 + 0.62 * j for j in range(n_c)]
+        obs = screen_col(M.A_OBS, x_obs)
+        obs_lab = Text("observed", font_size=18, color=SCREEN_EDGE).next_to(obs, UP, buff=0.35)
+        cand_lab = Text("candidates", font_size=18, color=SCREEN_EDGE).move_to([(x_cand[0] + x_cand[-1]) / 2,
+                                                                                obs_lab.get_y(), 0])
 
         self.play(FadeIn(lbox), FadeIn(legend), run_time=1.2)
-        cap = caption("The inner shells may be made of material 1 or of material 2, which absorbs twice as much.")
-        self.play(FadeIn(cap), FadeIn(obj), FadeIn(frame), FadeIn(stacks),
-                  FadeIn(scr_obs), FadeIn(scr_cand), FadeIn(counter), run_time=1.5)
-        self.play(FadeIn(check, scale=0.7), run_time=0.6)
-        self.wait(1.2)
+        cap = caption("Shells 1 to 3 are known to be material 1: their densities are fixed.")
+        self.play(FadeIn(cap), FadeIn(axis), Create(floor), FadeIn(names), FadeIn(fixed), run_time=1.5)
+        self.play(FadeIn(obs), FadeIn(obs_lab), FadeIn(slot_nums), FadeIn(cand_lab), run_time=1)
+        self.wait(1)
+        cap = swap_caption(self, cap, "Shells 4 and 5 may be material 1, or material 2 which absorbs half as much.")
+        self.wait(1)
 
-        cap = swap_caption(self, cap, "Swap a shell to material 2 and halve its density: the screen does not change.")
-        for j, mats in enumerate(sol[1:], start=2):
+        for j, mats in enumerate(sol):
             rho = M.densities_for(mats)
-            new_obj, new_st = obj_for(mats, rho), stacks_for(mats, rho)
-            new_counter = Text(f"candidate {j}", font_size=22).move_to(counter)
-            new_cand = scr_cand.copy()
-            for i, c in enumerate(M.screen_for(mats, rho)):
-                new_cand[0][i].set_fill(a_color(c))
-            self.play(FadeTransform(obj, new_obj), FadeTransform(stacks, new_st), Transform(counter, new_counter),
-                      Transform(scr_cand, new_cand), run_time=1.0)
-            obj, stacks = new_obj, new_st
-            self.play(Indicate(check, color=GRAD, scale_factor=1.15), run_time=0.6)
-            self.wait(0.8)
+            bars = VGroup(*[material_column(xs_groups[g][j], rho[3 + g], SHELL_HUES[3 + g], base, bh, 0.3,
+                                            material=mats[3 + g]) for g in range(2)])
+            scr = screen_col(M.screen_for(mats, rho), x_cand[j])
+            num = Text(str(j + 1), font_size=16, color=SCREEN_EDGE).next_to(scr, UP, buff=0.1)
+            tick = MathTex(r"\checkmark", font_size=34, color=GRAD).next_to(scr, DOWN, buff=0.12)
+            self.play(LaggedStart(*[GrowFromEdge(b_, DOWN) for b_ in bars], lag_ratio=0.3),
+                      FadeIn(scr, shift=LEFT * 0.2), FadeIn(num), run_time=1.1)
+            self.play(FadeIn(tick, scale=0.6), run_time=0.4)
+            if j == 1:
+                cap = swap_caption(self, cap, "Material 2 needs twice the density for the same absorption: "
+                                              "the screen does not change.")
+            self.wait(0.9)
 
-        # ---- all the candidates side by side
-        self.play(*[FadeOut(m) for m in (obj, stacks, frame, scr_obs, scr_cand, check, counter)], run_time=0.8)
-        groups = VGroup()
-        for j, mats in enumerate(sol, start=1):
-            rho = M.densities_for(mats)
-            g = VGroup(frame_for(), stacks_for(mats, rho))
-            g.add(Text(f"candidate {j}", font_size=24).next_to(g, UP, buff=0.2))
-            groups.add(g)
-        groups.arrange(RIGHT, buff=0.6).scale_to_fit_width(12.8).move_to([0, -1.45, 0])
-        cap = swap_caption(self, cap, f"{len(sol)} objects, one screen: the measurement alone cannot tell them apart.")
-        self.play(LaggedStart(*[FadeIn(g, shift=UP * 0.2) for g in groups], lag_ratio=0.25), run_time=2)
+        same = Text("all identical to the observed screen", font_size=17, color=GRAD)
+        same.next_to(VGroup(*[Dot([x, yc - M.N * ph / 2 - 0.45, 0]) for x in x_cand]), DOWN, buff=0.1)
+        cap = swap_caption(self, cap, f"{n_c} objects, one screen: the measurement alone cannot tell them apart.")
+        self.play(FadeIn(same), run_time=0.8)
         self.wait(2.5)
         cap = swap_caption(self, cap, "Extra information is needed: prior knowledge, or another measurement "
                                       "(e.g. a second X-ray energy).")

@@ -182,7 +182,7 @@ def noisy_fits(n=N, draws=6, seed=0, many=3000):
     return rho, A, shows, spread
 
 
-MU = {1: 1.0, 2: 2.0}   # absorption coefficient of material 1 and material 2
+MU = {1: 1.0, 2: 0.5}   # material 1 (outer shells) absorbs more than material 2: mu1 > mu2
 # material patterns (shell 1 .. 5) that all give exactly the observed screen
 # shells 1-3 are known to be material 1; only the two inner shells (4, 5) may be either material
 MATERIAL_SOLUTIONS = [(1, 1, 1, 1, 1), (1, 1, 1, 2, 1), (1, 1, 1, 1, 2), (1, 1, 1, 2, 2)]
