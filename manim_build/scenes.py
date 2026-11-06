@@ -361,3 +361,146 @@ class S4_BrickFit(Scene):
                            run_time=1)
         self.play(FadeIn(vals), FadeIn(match), Indicate(scr_cand[0], color=OBJ_LINE, scale_factor=1.05), run_time=1.5)
         self.wait(3)
+
+
+
+
+# =====================================================================================
+WALK = "#B8860B"     # brick-walk colour
+GRAD = "#2E7D32"     # gradient colour
+
+
+def slice_misfit(r1, r2):
+    """Mismatch as a function of (rho_1, rho_2), other shells at their true value."""
+    rho = M.RHO_TRUE.copy(); rho[0], rho[1] = r1, r2
+    return M.rho_misfit(rho)
+
+
+def slice_grad(r1, r2):
+    """d(mismatch)/d(rho_1, rho_2) = -2 sum_i Delta_i A_i L_ik, from dA_i/drho_k = -L_ik A_i."""
+    rho = M.RHO_TRUE.copy(); rho[0], rho[1] = r1, r2
+    A = M.object_factor(rho)
+    return (-2 * M.L.T @ ((A - M.A_OBS) * A))[:2]
+
+
+class S5_Gradient(Scene):
+    """Step 2c, in principle: a blind brick walk vs following the slope (the gradient)."""
+
+    def construct(self):
+        import contourpy
+        ttl = title("Step 2 - why gradients help", size=34)
+        self.play(Write(ttl), run_time=1)
+
+        # ------------------------------------------------ mismatch landscape over (rho_1, rho_2)
+        lo, hi, n = 0.0, 1.6, 161
+        g = np.linspace(lo, hi, n)
+        Z = np.log10(np.array([[slice_misfit(x, y) for x in g] for y in g]) + 1e-6)
+        ax = Axes(x_range=[lo, hi, 0.4], y_range=[lo, hi, 0.4], x_length=4.6, y_length=4.6, tips=False,
+                  axis_config={"color": INK, "stroke_width": 2, "include_numbers": True, "font_size": 18,
+                               "decimal_number_config": {"num_decimal_places": 1, "color": INK}})
+        ax.move_to([-3.2, -0.25, 0])
+        xl = MathTex(r"\rho_1", font_size=30, color=SHELL_HUES[0]).next_to(ax.x_axis, RIGHT, buff=0.2)
+        yl = MathTex(r"\rho_2", font_size=30, color=SHELL_HUES[1]).next_to(ax.y_axis, LEFT, buff=0.45)
+
+        # heat map (light = small mismatch) + contour lines
+        Zc = np.clip(Z, -3.0, None)
+        zn = (Zc - Zc.min()) / (Zc.max() - Zc.min())
+        lo_c, hi_c = np.array([255, 250, 228]), np.array([150, 178, 212])
+        img = (lo_c + np.clip(zn, 0, 1)[..., None] * (hi_c - lo_c)).astype(np.uint8)[::-1]
+        heat = ImageMobject(img).stretch_to_fit_width(4.6).stretch_to_fit_height(4.6).move_to(ax.c2p(0.8, 0.8))
+        heat.set_z_index(-2)
+        cg = contourpy.contour_generator(g, g, Z)
+        contours = VGroup()
+        for lev in np.arange(-3.0, 0.01, 0.25):
+            for line in cg.lines(lev):
+                if len(line) > 3:
+                    contours.add(VMobject(stroke_color=GREY_C, stroke_width=1.2, stroke_opacity=0.8)
+                                 .set_points_smoothly([ax.c2p(x, y) for x, y in line[::3]]))
+        target = Star(n=5, outer_radius=0.13, inner_radius=0.06, color=ACCENT, fill_opacity=1).move_to(
+            ax.c2p(*M.RHO_TRUE[:2])).set_z_index(4)
+        tlab = Text("true densities", font_size=16, color=ACCENT).next_to(target, UR, buff=0.05).set_z_index(4)
+
+        cap = caption("Mismatch for every candidate (ρ1, ρ2), the other shells fixed: a landscape with one valley.")
+        self.play(Create(ax), FadeIn(xl), FadeIn(yl), FadeIn(heat), run_time=1.2)
+        self.play(Create(contours, lag_ratio=0.02), FadeIn(cap), run_time=1.5)
+        self.play(FadeIn(target, scale=0.5), FadeIn(tlab), run_time=0.8)
+        self.wait(1.5)
+
+        # ------------------------------------------------ right panel text
+        rx = 3.9
+        h1 = Text("Brick walk", font_size=28, color=WALK)
+        t1 = Text("knows the mismatch only where it tries:\nprobe the neighbouring bricks,\nmove one brick at a time",
+                  font_size=19, line_spacing=0.8)
+        b1 = VGroup(h1, t1).arrange(DOWN, aligned_edge=LEFT, buff=0.15).move_to([rx, 1.55, 0])
+        h2 = Text("Gradient", font_size=28, color=GRAD)
+        f2 = MathTex(r"\frac{\partial A_i}{\partial \rho_k} = -L_{ik}\,A_i", font_size=34)
+        t2 = Text("exp(-Lρ) is smooth: its slope is known\nin closed form, everywhere, for all\nshells at once",
+                  font_size=19, line_spacing=0.8)
+        b2 = VGroup(h2, f2, t2).arrange(DOWN, aligned_edge=LEFT, buff=0.15).move_to([rx, -1.35, 0])
+        b2.align_to(b1, LEFT)
+
+        # ------------------------------------------------ brick walk on the grid
+        step = M.BRICK
+        p = np.array([0.0, 0.0])
+        walker = Dot(ax.c2p(*p), radius=0.09, color=WALK).set_z_index(6)
+        cap = swap_caption(self, cap, "Brick walk: try each neighbouring brick, keep the best, repeat.")
+        self.play(FadeIn(b1, shift=LEFT * 0.2), FadeIn(walker, scale=0.5), run_time=1)
+        probes_total, path = 0, VGroup().set_z_index(5)
+        self.add(path)
+        while True:
+            nbrs = [p + d for d in (np.array([step, 0]), np.array([-step, 0]), np.array([0, step]), np.array([0, -step]))
+                    if (p + d).min() >= -1e-9]
+            probes_total += len(nbrs)
+            best = min(nbrs, key=lambda q: slice_misfit(*q))
+            if slice_misfit(*best) >= slice_misfit(*p):
+                break
+            probe = VGroup(*[Cross(scale_factor=0.08, stroke_color=WALK, stroke_width=3).move_to(ax.c2p(*q))
+                             for q in nbrs])
+            seg = Line(ax.c2p(*p), ax.c2p(*best), stroke_color=WALK, stroke_width=4)
+            path.add(seg)
+            self.play(FadeIn(probe, run_time=0.35))
+            self.play(Create(seg), walker.animate.move_to(ax.c2p(*best)), FadeOut(probe), run_time=0.45)
+            p = best
+        self.wait(0.8)
+
+        # ------------------------------------------------ gradient field + following the slope
+        cap = swap_caption(self, cap, "The gradient gives the downhill direction at every point, without trying anything.")
+        self.play(FadeIn(b2, shift=LEFT * 0.2), run_time=1)
+        field = VGroup()
+        for x in np.linspace(0.1, 1.5, 8):
+            for y in np.linspace(0.1, 1.5, 8):
+                d = -slice_grad(x, y)
+                d = d / (np.linalg.norm(d) + 1e-12) * 0.13
+                field.add(Arrow(ax.c2p(x - d[0] / 2, y - d[1] / 2), ax.c2p(x + d[0] / 2, y + d[1] / 2), buff=0,
+                                color=GRAD, stroke_width=2.5, stroke_opacity=0.55, tip_length=0.1,
+                                max_tip_length_to_length_ratio=0.5).set_opacity(0.55))
+        self.play(LaggedStart(*[GrowArrow(a) for a in field], lag_ratio=0.01), run_time=1.5)
+        self.wait(1)
+
+        # steepest-descent path (normalised gradient flow) from the same start
+        q, flow = np.array([0.0, 0.0]), [np.array([0.0, 0.0])]
+        for _ in range(4000):
+            d = -slice_grad(*q)
+            q = q + 0.002 * d / (np.linalg.norm(d) + 1e-12)
+            flow.append(q.copy())
+            if np.linalg.norm(q - M.RHO_TRUE[:2]) < 0.01:
+                break
+        flow = np.array(flow)
+        arc = np.concatenate([[0], np.cumsum(np.linalg.norm(np.diff(flow, axis=0), axis=1))])
+        marks = [int(np.searchsorted(arc, s)) for s in np.linspace(0, arc[-1], 6)]
+        ball = Dot(ax.c2p(0, 0), radius=0.09, color=GRAD).set_z_index(7)
+        cap = swap_caption(self, cap, "Follow the slope: each step changes all densities together, straight downhill.")
+        self.play(FadeIn(ball, scale=0.5), run_time=0.5)
+        for a, b in zip(marks[:-1], marks[1:]):
+            piece = VMobject(stroke_color=GRAD, stroke_width=4.5).set_points_smoothly(
+                [ax.c2p(*v) for v in flow[a:b + 1:max(1, (b - a) // 12)]] + [ax.c2p(*flow[b])]).set_z_index(5)
+            d = -slice_grad(*flow[a]); d = d / np.linalg.norm(d) * 0.35
+            arrow = Arrow(ax.c2p(*flow[a]), ax.c2p(*(flow[a] + d)), buff=0, color=GRAD, stroke_width=5,
+                          tip_length=0.16).set_z_index(8)
+            self.play(GrowArrow(arrow), run_time=0.4)
+            self.play(Create(piece), MoveAlongPath(ball, piece.copy()), FadeOut(arrow), run_time=0.8)
+        self.play(Indicate(target, color=GRAD), run_time=0.8)
+
+        cap = swap_caption(self, cap, f"With N shells a brick step means 2N trials; the gradient covers every shell "
+                                      f"in one computation.")
+        self.wait(3.5)
