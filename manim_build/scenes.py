@@ -79,7 +79,7 @@ class S2_Separate(Scene):
         src, cas, obj, scr = make_source(), make_casing(), make_object(M.RHO_TRUE), make_screen()
         rows = row_labels(scr[0])
         obj_lab = Text("Object: concentric shells", font_size=22, color=OBJ_LINE).next_to(obj[0], UP, buff=0.12)
-        ttl = title("Step 1 - separate the object's contribution from the rest", size=29)
+        ttl = title("Step 1 - separate the object's contribution from the rest")
         self.add(src, cas, obj, obj_lab, scr, rows)
         self.play(Write(ttl), run_time=1.2)
 
@@ -175,9 +175,12 @@ class S3_ForwardModel(Scene):
 
     def construct(self):
         ttl = title("Step 2 - what each pixel row sees")
-        shift = LEFT * 2.8
-        obj = make_object(M.RHO_TRUE).shift(shift)
-        labs = shell_labels().shift(shift)
+        shift = LEFT * 2.9
+
+        def place(m):          # the object side is drawn at 80 % to leave room for the system
+            return m.scale(0.8, about_point=OBJ_C).shift(shift)
+        obj = place(make_object(M.RHO_TRUE))
+        labs = place(shell_labels())
         self.play(Write(ttl), FadeIn(obj), run_time=1)
         self.play(FadeIn(labs), run_time=0.8)
 
@@ -186,13 +189,14 @@ class S3_ForwardModel(Scene):
         def ray_state(i):
             y = y_scene(M.Y_PIX[i])
             line = Line([x0, y, 0], [x1, y, 0], stroke_color=RAY, stroke_width=3)
-            lab = MathTex(rf"i={i + 1}", font_size=28, color=SCREEN_EDGE).next_to(line, LEFT, buff=0.15)
-            return VGroup(line, chord_segments(M.Y_PIX[i]), lab).shift(shift)
+            g = place(VGroup(line, chord_segments(M.Y_PIX[i])))
+            lab = MathTex(rf"i={i + 1}", font_size=28, color=SCREEN_EDGE).next_to(g[0], LEFT, buff=0.15)
+            return VGroup(g[0], g[1], lab)
 
         # ---- the system  A = exp(-L rho)
-        fs = 28
+        fs = 32
         entries = [[("0" if M.L[i, k] < 1e-9 else f"{M.L[i, k]:.2f}") for k in range(M.N)] for i in range(M.N)]
-        mat = Matrix(entries, h_buff=0.95, element_to_mobject_config={"font_size": fs})
+        mat = Matrix(entries, h_buff=0.88, element_to_mobject_config={"font_size": fs})
         avec = Matrix([[rf"A_{i + 1}"] for i in range(M.N)], element_to_mobject_config={"font_size": fs})
         rvec = Matrix([[rf"\rho_{k + 1}"] for k in range(M.N)], element_to_mobject_config={"font_size": fs})
         for k, col in enumerate(mat.get_columns()):
@@ -209,7 +213,7 @@ class S3_ForwardModel(Scene):
         rpar = ArcBetweenPoints(UP * ph / 2, DOWN * ph / 2, angle=-PI / 3, stroke_color=INK, stroke_width=2.5)
         minus = MathTex("-", font_size=36)
         system = VGroup(avec, eq, expo, lpar, minus, mat, rvec, rpar).arrange(RIGHT, buff=0.14)
-        system.scale_to_fit_width(6.3).move_to([3.6, 0.45, 0])
+        system.scale_to_fit_width(7.5).move_to([3.05, 0.45, 0])
         for m in (avec, mat):
             for e in m.get_entries():
                 e.set_opacity(0)
@@ -229,7 +233,7 @@ class S3_ForwardModel(Scene):
         u_x.move_to([(u_l.get_right()[0] + u_r.get_left()[0]) / 2, yb, 0])
         under = VGroup(u_a, u_prop, u_l, u_x, u_r)
 
-        cap = caption("Row i crosses shells 1 to i, over lengths L_ik fixed by the geometry.")
+        cap = caption("Row i crosses shells 1 to i, over path lengths fixed by the geometry.")
         self.play(FadeIn(VGroup(avec.get_brackets(), eq, expo, lpar, minus, mat.get_brackets(), rvec, rpar)),
                   FadeIn(cap), run_time=1.2)
         ray = None
@@ -351,7 +355,7 @@ class S4_BrickFit(Scene):
         rho_hat = hist[-1] * M.BRICK
         vals = VGroup(*[DecimalNumber(rho_hat[k], num_decimal_places=1, font_size=24, color=SHELL_HUES[k])
                         .move_to([bx[k], base + counts[k] * bh + 0.25, 0]) for k in range(M.N)])
-        match = Text("exact match", font_size=20, color=ACCENT).next_to(ball, UP + LEFT * 0.3, buff=0.1)
+        match = Text("exact match", font_size=20, color=ACCENT).next_to(ball, LEFT, buff=0.2).shift(UP * 0.4)
         cap = swap_caption(self, cap, "Screens match pixel by pixel: densities recovered (true: 0.4, 1.0, 1.4, 0.8, 0.6).",
                            run_time=1)
         self.play(FadeIn(vals), FadeIn(match), Indicate(scr_cand[0], color=OBJ_LINE, scale_factor=1.05), run_time=1.5)
@@ -388,10 +392,10 @@ class S5_Gradient(Scene):
 
         # ================================================ left: explanation box + landscape
         box_txt = VGroup(
-            VGroup(Text("Step walk:", font_size=18, color=WALK, weight=BOLD),
+            VGroup(Text("Step walk:", font_size=18, color=WALK, weight=SEMIBOLD),
                    Text("knows the mismatch only where it tries;", font_size=18)).arrange(RIGHT, buff=0.12),
             Text("probes the neighbours, one brick at a time.", font_size=18),
-            VGroup(Text("Gradient:", font_size=18, color=GRAD, weight=BOLD),
+            VGroup(Text("Gradient:", font_size=18, color=GRAD, weight=SEMIBOLD),
                    MathTex(r"\frac{\partial A}{\partial \rho} = -L\,e^{-L\rho}", font_size=30)).arrange(RIGHT, buff=0.15),
             Text("slope known everywhere, all shells at once.", font_size=18),
         ).arrange(DOWN, aligned_edge=LEFT, buff=0.1)
@@ -439,7 +443,7 @@ class S5_Gradient(Scene):
             ax.c2p(*M.RHO_TRUE[:2])).set_z_index(9)
 
         # ================================================ right: two brick panels (walk | gradient)
-        ttl = Text("Step 2 - why gradients help", font_size=28, weight=BOLD).move_to([3.95, 3.5, 0])
+        ttl = title("Step 2 - why gradients help", size=28).move_to([3.95, 3.5, 0])
         bh, base = 0.3, -2.7
 
         def panel(x0, name, color):
@@ -606,7 +610,7 @@ class S6_Noise(Scene):
     """Noise on the screen, amplified by the (triangular, poorly conditioned) inversion; no regularisation."""
 
     def construct(self):
-        ttl = title("Going further 1 - noise in the measurement", size=32)
+        ttl = title("Going further 1 - noise in the measurement")
         self.play(Write(ttl), run_time=1)
         base, bh = -2.6, 0.3
         sx = -6.3
@@ -618,7 +622,7 @@ class S6_Noise(Scene):
         scr = pixel_column(shows[0][0], sx)
 
         def screen_values(a_, dx=0.08, color=INK):
-            return VGroup(*[DecimalNumber(a_[i], num_decimal_places=3, font_size=15, color=color)
+            return VGroup(*[DecimalNumber(a_[i], num_decimal_places=3, font_size=17, color=color)
                             .next_to(scr[i], RIGHT, buff=dx) for i in range(n)])
         vals = screen_values(shows[0][0])
         true_vals = screen_values(A, dx=0.7, color=GREY_B)
@@ -670,7 +674,7 @@ class S7_TwoMaterials(Scene):
     The candidates are added side by side (bars and screens) instead of replacing each other."""
 
     def construct(self):
-        ttl = title("Going further 2 - two possible materials", size=32)
+        ttl = title("Going further 2 - two possible materials")
         self.play(Write(ttl), run_time=1)
         sol = M.MATERIAL_SOLUTIONS
         n_c = len(sol)
@@ -760,7 +764,7 @@ class S8_BlankBias(Scene):
     """A biased blank (source or casing misestimated) shifts every row, and mostly the outer shell."""
 
     def construct(self):
-        ttl = title("Going further 3 - a biased blank", size=32)
+        ttl = title("Going further 3 - a biased blank")
         self.play(Write(ttl), run_time=1)
         b = ValueTracker(0.0)          # blank error in %
         base, bh = -2.6, 0.3

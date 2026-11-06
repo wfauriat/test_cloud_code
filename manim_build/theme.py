@@ -22,8 +22,17 @@ SHELL_HUES = ["#17A2B8", "#9467BD", "#1F77B4", "#E377C2", "#D62728"]
 # unitless attenuation factor A in [0, 1], two colours: red (high absorption) -> blue (low absorption)
 A_STOPS = ["#C0272D", "#2C6FB7"]
 
-for cls in (Text, MathTex, Tex, DecimalNumber, Integer):
+# ---------------------------------------------------------------- typography
+FONT = "Inter"                      # all plain text
+TEX = TexTemplate()                 # matching sans-serif maths (and sans \text{...})
+TEX.add_to_preamble(r"\usepackage[eulergreek]{sansmath}\sansmath\renewcommand{\familydefault}{\sfdefault}")
+config.tex_template = TEX
+Text.set_default(color=INK, font=FONT)
+for cls in (MathTex, Tex, DecimalNumber, Integer):
     cls.set_default(color=INK)
+
+TITLE_SIZE = 32
+CAPTION_SIZE = 24
 
 # ---------------------------------------------------------------- layout (scene units)
 OBJ_C = np.array([-0.6, -0.65, 0.0])  # object centre
@@ -58,15 +67,20 @@ def a_color(a):
 
 
 # ---------------------------------------------------------------- text helpers
-def caption(text, size=26):
+def caption(text, size=CAPTION_SIZE):
     c = Text(text, font_size=size)
-    if c.width > config.frame_width - 0.6:
-        c.scale_to_fit_width(config.frame_width - 0.6)
-    return c.to_edge(DOWN, buff=0.25)
+    if c.width > config.frame_width - 0.8:
+        c.scale_to_fit_width(config.frame_width - 0.8)
+    return c.to_edge(DOWN, buff=0.28)
 
 
-def title(text, size=34):
-    return Text(text, font_size=size, weight=BOLD).to_edge(UP, buff=0.3)
+def title(text, size=TITLE_SIZE, max_width=None):
+    """Scene title: one style everywhere, en dash after the step number, shrunk to fit if long."""
+    t = Text(text.replace(" - ", " – "), font_size=size, weight=SEMIBOLD)
+    mw = max_width or config.frame_width - 1.0
+    if t.width > mw:
+        t.scale_to_fit_width(mw)
+    return t.to_edge(UP, buff=0.3)
 
 
 # ---------------------------------------------------------------- set-up parts
