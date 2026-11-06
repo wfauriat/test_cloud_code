@@ -62,7 +62,7 @@ class S1_Setup(Scene):
 
         eq2 = MathTex(r"A_{\text{object}}(i) = \exp\big(-\textstyle\sum_k \rho_k\, L_{ik}\big)",
                       font_size=34, color=OBJ_LINE)
-        known = MathTex(r"\rho_k", r"\text{ unknown}", r"\qquad D_0,\ A_{\text{casing}},\ L_{ik} \text{ known}",
+        known = MathTex(r"\rho_k", tr(r"\text{ unknown}"), tr(r"\qquad D_0,\ A_{\text{casing}},\ L_{ik} \text{ known}"),
                         font_size=32)
         known[0].set_color(ACCENT)
         VGroup(eq2, known).arrange(RIGHT, buff=0.8).to_edge(DOWN, buff=0.22)
@@ -306,7 +306,7 @@ class S4_BrickFit(Scene):
         ylabels = VGroup(*[MathTex(rf"10^{{{e}}}", font_size=20).next_to(ax.c2p(0, e + 4), LEFT, buff=0.1)
                            for e in (0, -2, -4)])
         xlab = Text("move", font_size=20).next_to(ax.x_axis, DOWN, buff=0.4)
-        ylab = MathTex(r"\text{mismatch} = \sum_i \Delta_i^2", font_size=28).next_to(ax, UP, buff=0.3)
+        ylab = MathTex(tr(r"\text{mismatch}") + r" = \sum_i \Delta_i^2", font_size=28).next_to(ax, UP, buff=0.3)
         ylab.align_to(ax, LEFT).shift(LEFT * 0.3)
         delta_def = MathTex(r"\Delta_i = A^{\text{cand}}_i - A^{\text{obs}}_i", font_size=24).next_to(ylab, UP, buff=0.12)
         delta_def.align_to(ylab, LEFT)
@@ -445,12 +445,18 @@ class S5_Gradient(Scene):
         # ================================================ right: two brick panels (walk | gradient)
         ttl = VGroup(Text("Phase 2: inverting –", font_size=26, weight=SEMIBOLD),
                      Text("why gradients help the optimization", font_size=26, weight=SEMIBOLD)) \
-            .arrange(DOWN, buff=0.1).move_to([3.72, 3.42, 0])
+            .arrange(DOWN, buff=0.1)
+        if ttl.width > 6.0:
+            ttl.scale_to_fit_width(6.0)
+        ttl.move_to([3.72, 3.42, 0])
         bh, base = 0.3, -2.7
 
         def panel(x0, name, color):
             bx = [x0 + 0.56 * k for k in range(M.N)]
-            head = Text(name, font_size=26, color=color).move_to([(bx[0] + bx[-1]) / 2, 2.45, 0])
+            head = Text(name, font_size=26, color=color)
+            if head.width > 2.7:
+                head.scale_to_fit_width(2.7)
+            head.move_to([(bx[0] + bx[-1]) / 2, 2.45, 0])
             floor = Line([bx[0] - 0.33, base, 0], [bx[-1] + 0.33, base, 0], stroke_color=INK, stroke_width=2)
             names = VGroup(*[MathTex(rf"\rho_{k + 1}", font_size=24, color=SHELL_HUES[k] if k < 2 else GREY_B)
                              .move_to([bx[k], base - 0.27, 0]) for k in range(M.N)])
@@ -580,8 +586,8 @@ class S5_Gradient(Scene):
                 self.wait(0.6)
 
         self.play(Indicate(target, color=GRAD), Indicate(VGroup(*gcols), color=GRAD, scale_factor=1.04), run_time=0.9)
-        cap = swap_caption(self, cap, f"Same answer: {n_w} single-brick steps (step walk) vs {n_steps} gradient steps. "
-                                      "With N shells, a brick step means 2N trials.")
+        cap = swap_caption(self, cap, tr("Same answer: {a} single-brick steps (step walk) vs {b} gradient steps. "
+                                      "With N shells, a brick step means 2N trials.", a=n_w, b=n_steps))
         self.wait(3.5)
 
 
@@ -631,7 +637,7 @@ class S6_Noise(Scene):
         col_heads = VGroup(Text("noisy", font_size=13), Text("exact", font_size=13, color=GREY_B))
         col_heads[0].next_to(vals, UP, buff=0.08)
         col_heads[1].next_to(true_vals, UP, buff=0.08)
-        scr_lab = Text(f"measured absorption A\n({M.NOISE:.0%} noise)", font_size=17, line_spacing=0.8,
+        scr_lab = Text(tr("measured absorption A\n({noise} noise)", noise=f"{M.NOISE:.0%}"), font_size=17, line_spacing=0.8,
                        color=SCREEN_EDGE).next_to(scr, UP, buff=0.4).align_to(scr, LEFT)
         arrow = Arrow([-4.55, -0.3, 0], [-2.75, -0.3, 0], buff=0, color=INK, stroke_width=3)
         arrow_lab = Text("invert\n(no regularization)", font_size=16, line_spacing=0.8).next_to(arrow, DOWN, buff=0.12)
@@ -646,10 +652,12 @@ class S6_Noise(Scene):
         notes = VGroup(Text("dashed: true density", font_size=15, color=GREY_C),
                        Text("red: spread over many noise draws", font_size=15, color=ACCENT)) \
             .arrange(DOWN, aligned_edge=LEFT, buff=0.08).move_to([4.6, 2.55, 0])
+        if notes.get_right()[0] > 6.8:
+            notes.shift(LEFT * (notes.get_right()[0] - 6.8))
 
         self.play(FadeIn(scr), FadeIn(vals), FadeIn(true_vals), FadeIn(col_heads), FadeIn(scr_lab), GrowArrow(arrow), FadeIn(arrow_lab), Create(floor), FadeIn(axis),
                   FadeIn(names), FadeIn(ends), FadeIn(truth), FadeIn(stacks), FadeIn(notes[0]), run_time=1.3)
-        cap = caption(f"{M.NOISE:.0%} noise on the measured screen (10 shells): hardly visible on the screen.")
+        cap = caption(tr("{noise} noise on the measured screen (10 shells): hardly visible on the screen.", noise=f"{M.NOISE:.0%}"))
         self.play(FadeIn(cap), run_time=0.6)
 
         def cycle(draws, rt=0.55):
@@ -754,7 +762,7 @@ class S7_TwoMaterials(Scene):
 
         same = Text("all identical to the observed screen", font_size=17, color=GRAD)
         same.next_to(VGroup(*[Dot([x, yc - M.N * ph / 2 - 0.45, 0]) for x in x_cand]), DOWN, buff=0.1)
-        cap = swap_caption(self, cap, f"{n_c} objects, one screen: the measurement alone cannot tell them apart.")
+        cap = swap_caption(self, cap, tr("{n} objects, one screen: the measurement alone cannot tell them apart.", n=n_c))
         self.play(FadeIn(same), run_time=0.8)
         self.wait(2.5)
         cap = swap_caption(self, cap, "Extra information is needed: prior knowledge, or another measurement "
