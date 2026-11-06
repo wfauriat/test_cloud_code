@@ -1,52 +1,63 @@
-"""Physical model shared by every scene (no Manim imports here, so it can be tested alone).
+"""Physical model shared by every scene (no Manim imports, so it can be tested alone).
 
-Geometry (one vertical slice through the object, beam along +x):
-  * Object = N concentric circular shells, radii r_k = k R / N (regular division).
-  * Screen = N pixels; pixel j sits at height y_j = (j - 1/2) R / N (centre of band j).
-  * Quasi-parallel beam (far source): ray j is horizontal at height y_j.
+Indexing (1-based in the text, 0-based in the code):
+  * shell k = 1 .. N, from the OUTERMOST (k = 1) to the innermost (k = N);
+    radii are a regular division of R: shell k spans [R (N-k)/N, R (N-k+1)/N].
+  * screen row / pixel i = 1 .. N, from the TOP (i = 1) down to the axis;
+    row i is a horizontal ray at height y_i = R - (i - 1/2) R / N  (one pixel per shell band).
+  * Quasi-parallel beam (far source).
 
-Beer-Lambert, material coefficient = 1:
-  I_meas(y) = I0(y) * T_casing(y) * T_obj(y),   T_obj(y) = exp(-sum_k rho_k L_k(y))
-Step 1 (calibration shot, no object) gives I_cal(y) = I0(y) * T_casing(y), so
-  p(y) := -ln(I_meas / I_cal) = sum_k L_k(y) rho_k      (linear in the densities)
-Step 2 (tomography) recovers rho from p, given the known chord matrix L.
+Doses (Beer-Lambert, material coefficient = 1):
+  D_mes(i)  = D_0(i) * A_casing(i) * A_object(i),   A_object(i) = exp(-sum_k L_ik rho_k)
+  D_void(i) = D_0(i) * A_casing(i)                 (calibration shot / blank virtual shot)
+Step 1:  A_object(i) = D_mes(i) / D_void(i),  p_i = -ln A_object(i) = sum_k L_ik rho_k
+Step 2:  recover rho from A_object (or p), given the known path lengths L_ik.
+Since row i only crosses shells 1..i, L is lower-triangular.
 """
 import numpy as np
 
-N = 4                     # number of shells = number of screen pixels
-R = 1.0                   # object radius (model units)
-RADII = np.linspace(0, R, N + 1)          # r_0 = 0 ... r_N = R
-Y_PIX = (np.arange(N) + 0.5) * R / N      # ray heights, one per screen pixel
+N = 5
+R = 1.0
+SHELL_OUT = R * (N - np.arange(N)) / N      # outer radius of shell k (k = 0 is outermost)
+SHELL_IN = SHELL_OUT - R / N
+Y_PIX = R - (np.arange(N) + 0.5) * R / N    # row i = 0 is the top row
 
-RHO_TRUE = np.array([0.6, 1.4, 1.0, 0.4])  # densities, innermost -> outermost
-BRICK = 0.2                                 # density carried by one "lego brick"
+RHO_TRUE = np.array([0.4, 1.0, 1.4, 0.8, 0.6])   # outermost -> innermost
+BRICK = 0.2                                       # density carried by one "lego brick"
 
-CASING_WALL = 0.08         # wall thickness crossed twice by every horizontal ray
+CASING_WALL = 0.08          # wall thickness crossed twice by every horizontal ray
 RHO_CASING = 2.0
 
 
-def source_profile(y):
-    """Source intensity on the screen (fan beam -> mild fall-off with height)."""
+def source_dose(y):
+    """D_0: source dose reaching the screen (fan beam -> mild fall-off with height)."""
     return 1.0 - 0.15 * (np.asarray(y) / R) ** 2
 
 
-def casing_transmission(y):
+def casing_factor(y):
+    """A_casing: fraction of the dose let through by the two casing walls."""
     return np.exp(-RHO_CASING * 2 * CASING_WALL) * np.ones_like(np.asarray(y, dtype=float))
 
 
 def half_chord(r, y):
-    """Half-length of the chord of a circle of radius r at height y (0 if missed)."""
     return np.sqrt(np.clip(r ** 2 - y ** 2, 0, None))
 
 
 def chord_in_shell(k, y):
-    """Total path length of a horizontal ray at height y inside shell k (0-based)."""
-    return 2 * (half_chord(RADII[k + 1], y) - half_chord(RADII[k], y))
+    """Total path length of a horizontal ray at height y inside shell k (0-based, 0 = outer)."""
+    return 2 * (half_chord(SHELL_OUT[k], y) - half_chord(SHELL_IN[k], y))
+
+
+def shell_index(r):
+    """Shell index (0 = outer) for radius r, -1 outside the object."""
+    r = np.asarray(r)
+    k = (N - 1) - np.floor(r / R * N).astype(int)
+    return np.where(r < R, k, -1)
 
 
 def chord_matrix(y=Y_PIX):
-    """L[j, k] = path length of ray j inside shell k  (upper-triangular for band-centred rays)."""
-    return np.array([[chord_in_shell(k, yj) for k in range(N)] for yj in np.atleast_1d(y)])
+    """L[i, k] = path length of row i inside shell k."""
+    return np.array([[chord_in_shell(k, yi) for k in range(N)] for yi in np.atleast_1d(y)])
 
 
 L = chord_matrix()
@@ -56,29 +67,38 @@ def optical_depth(rho, y=Y_PIX):
     return chord_matrix(y) @ np.asarray(rho)
 
 
-def object_transmission(rho, y=Y_PIX):
+def object_factor(rho, y=Y_PIX):
+    """A_object(i)."""
     return np.exp(-optical_depth(rho, y))
 
 
-def calibration_shot(y=Y_PIX):
-    return source_profile(y) * casing_transmission(y)
+def void_shot(y=Y_PIX):
+    """D_void(i): calibration shot or simulation without the object."""
+    return source_dose(y) * casing_factor(y)
 
 
 def measurement(rho=RHO_TRUE, y=Y_PIX):
-    return calibration_shot(y) * object_transmission(rho, y)
+    """D_mes(i)."""
+    return void_shot(y) * object_factor(rho, y)
 
 
-P_OBS = -np.log(measurement() / calibration_shot())   # what step 1 delivers
+A_OBS = measurement() / void_shot()       # delivered by step 1
+P_OBS = -np.log(A_OBS)
+
+
+def pixel_mismatch(bricks):
+    """Per-pixel difference candidate - observed, in A (what the screen shows)."""
+    return object_factor(np.asarray(bricks) * BRICK) - A_OBS
 
 
 def misfit(bricks):
-    r = optical_depth(np.asarray(bricks) * BRICK) - P_OBS
+    r = pixel_mismatch(bricks)
     return float(r @ r)
 
 
 def brick_fit(max_steps=200):
-    """Greedy 'lego' optimisation: each step adds or removes the single brick that
-    best reduces the screen mismatch. Returns the list of brick-count states."""
+    """Greedy 'lego' descent: each step adds or removes the single brick that most
+    reduces the mismatch. Returns the list of brick-count states."""
     b = np.zeros(N, dtype=int)
     history = [b.copy()]
     for _ in range(max_steps):
@@ -89,7 +109,7 @@ def brick_fit(max_steps=200):
                 if c[k] < 0:
                     continue
                 v = misfit(c)
-                if v < best_val - 1e-12:
+                if v < best_val - 1e-14:
                     best, best_val = c, v
         if best is None:
             break
@@ -100,12 +120,14 @@ def brick_fit(max_steps=200):
 
 if __name__ == "__main__":
     np.set_printoptions(precision=3, suppress=True)
-    print("chord matrix L (rows = rays bottom->top, cols = shells inner->outer):\n", L)
-    print("calibration I_cal :", calibration_shot())
-    print("measurement I_meas:", measurement())
-    print("object transmission:", measurement() / calibration_shot())
-    print("optical depth p   :", P_OBS)
-    print("exact inversion   :", np.linalg.solve(L, P_OBS))
+    print("L (rows i = top -> bottom, cols k = outer -> inner):\n", L)
+    print("D_void :", void_shot())
+    print("D_mes  :", measurement())
+    print("A_obj  :", A_OBS)
+    print("p      :", P_OBS)
+    print("exact inversion:", np.linalg.solve(L, P_OBS))
     h = brick_fit()
-    print(f"brick fit: {len(h) - 1} moves, final bricks {h[-1]} -> rho {h[-1] * BRICK}, misfit {misfit(h[-1]):.2e}")
-    print("moves:", [int(np.flatnonzero(h[i + 1] - h[i])[0]) for i in range(len(h) - 1)])
+    print(f"brick fit: {len(h) - 1} moves -> rho {h[-1] * BRICK}, misfit {misfit(h[-1]):.2e}")
+    print("moves (shell, +/-):", [(int(np.flatnonzero(h[i + 1] - h[i])[0]) + 1, int((h[i + 1] - h[i]).sum()))
+                                  for i in range(len(h) - 1)])
+    print("misfit path:", [f"{misfit(s):.1e}" for s in h])
