@@ -73,13 +73,13 @@ class S1_Setup(Scene):
 
 # =====================================================================================
 class S2_Separate(Scene):
-    """Step 1: separate the object's contribution from the source and the casing."""
+    """Phase 1 (accounting): separate the object's contribution from the source and the casing."""
 
     def construct(self):
         src, cas, obj, scr = make_source(), make_casing(), make_object(M.RHO_TRUE), make_screen()
         rows = row_labels(scr[0])
         obj_lab = Text("Object: concentric shells", font_size=22, color=OBJ_LINE).next_to(obj[0], UP, buff=0.12)
-        ttl = title("Step 1 - separate the object's contribution from the rest")
+        ttl = title("Phase 1: accounting - separate the object's contribution from the rest")
         self.add(src, cas, obj, obj_lab, scr, rows)
         self.play(Write(ttl), run_time=1.2)
 
@@ -171,10 +171,10 @@ class S2_Separate(Scene):
 
 # =====================================================================================
 class S3_ForwardModel(Scene):
-    """Step 2a: the forward model as a matrix system A = exp(-L rho), built one pixel row at a time."""
+    """Phase 2 (inverting), a: the forward model as a matrix system A = exp(-L rho), built one pixel row at a time."""
 
     def construct(self):
-        ttl = title("Step 2 - what each pixel row sees")
+        ttl = title("Phase 2: inverting - what each pixel row sees")
         shift = LEFT * 2.9
 
         def place(m):          # the object side is drawn at 80 % to leave room for the system
@@ -258,10 +258,10 @@ class S3_ForwardModel(Scene):
 
 # =====================================================================================
 class S4_BrickFit(Scene):
-    """Step 2b: stack density bricks, one downhill step at a time, until the screens match."""
+    """Phase 2 (inverting), b: optimization, stack density bricks, one downhill step at a time, until the screens match."""
 
     def construct(self):
-        ttl = title("Step 2 - stack bricks until the screens match")
+        ttl = title("Phase 2: inverting - optimization: stack bricks until the screens match")
         self.play(Write(ttl), run_time=1)
         hist = M.brick_fit()
         n_moves = len(hist) - 1
@@ -383,7 +383,7 @@ def slice_grad(r1, r2):
 
 
 class S5_Gradient(Scene):
-    """Step 2c, in principle: step walk vs gradient walk, on the mismatch landscape and as brick stacks.
+    """Phase 2 (inverting), c, in principle: step walk vs gradient walk, on the mismatch landscape and as brick stacks.
     Only rho_1 and rho_2 vary; shells 3-5 are fixed at their true value (grey)."""
 
     def construct(self):
@@ -443,7 +443,9 @@ class S5_Gradient(Scene):
             ax.c2p(*M.RHO_TRUE[:2])).set_z_index(9)
 
         # ================================================ right: two brick panels (walk | gradient)
-        ttl = title("Step 2 - why gradients help", size=28).move_to([3.95, 3.5, 0])
+        ttl = VGroup(Text("Phase 2: inverting –", font_size=26, weight=SEMIBOLD),
+                     Text("why gradients help the optimization", font_size=26, weight=SEMIBOLD)) \
+            .arrange(DOWN, buff=0.1).move_to([3.72, 3.42, 0])
         bh, base = 0.3, -2.7
 
         def panel(x0, name, color):
