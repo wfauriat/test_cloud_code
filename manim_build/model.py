@@ -118,6 +118,35 @@ def brick_fit(max_steps=200):
     return history
 
 
+
+def candidates_tested(bricks):
+    """Simulations needed by one brick-walk step from this state: every valid +/-1 brick is tried."""
+    return int(N + np.count_nonzero(np.asarray(bricks) > 0))
+
+
+def jacobian(rho):
+    """dA_i/drho_k = -L_ik A_i : the derivative of exp(-L rho)."""
+    return -object_factor(rho)[:, None] * L
+
+
+def gauss_newton(n_iter=6):
+    """Gradient-based fit (Gauss-Newton): each iteration = one simulation + its derivative.
+    Returns the list of density vectors, starting from zero."""
+    rho = np.zeros(N)
+    out = [rho.copy()]
+    for _ in range(n_iter):
+        J = jacobian(rho)
+        r = object_factor(rho) - A_OBS
+        rho = rho - np.linalg.solve(J.T @ J, J.T @ r)
+        out.append(rho.copy())
+    return out
+
+
+def rho_misfit(rho):
+    r = object_factor(rho) - A_OBS
+    return float(r @ r)
+
+
 if __name__ == "__main__":
     np.set_printoptions(precision=3, suppress=True)
     print("L (rows i = top -> bottom, cols k = outer -> inner):\n", L)
