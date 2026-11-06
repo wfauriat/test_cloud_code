@@ -245,3 +245,49 @@ def brick_column(x, rho, color, base, bh=0.3, width=0.5, dashed=False, brick=M.B
 def truth_marks(xs, rhos, base, bh=0.3, half=0.3):
     return VGroup(*[DashedLine([x - half, base + r / M.BRICK * bh, 0], [x + half, base + r / M.BRICK * bh, 0],
                                dash_length=0.06, stroke_color=GREY_C, stroke_width=2) for x, r in zip(xs, rhos)])
+
+
+
+def hatched_brick(x, y_bottom, h, color, width=0.5, spacing=0.11):
+    """Second material: light fill with diagonal lines drawn across the whole brick."""
+    r = Rectangle(width=width, height=h, fill_color=color, fill_opacity=0.3, stroke_color=color, stroke_width=2)
+    r.move_to([x, y_bottom, 0], aligned_edge=DOWN)
+    x0, x1, y0, y1 = x - width / 2, x + width / 2, y_bottom, y_bottom + h
+    lines = VGroup()
+    d = (x0 - y1) + spacing / 2
+    while d < x1 - y0:
+        xa, xb = max(x0, y0 + d), min(x1, y1 + d)
+        if xb - xa > 1e-3:
+            lines.add(Line([xa, xa - d, 0], [xb, xb - d, 0], stroke_color=color, stroke_width=2))
+        d += spacing
+    return VGroup(r, lines)
+
+
+def material_column(x, rho, color, base, bh=0.3, width=0.5, material=1, brick=M.BRICK):
+    """Bricks of material 1 (plain) or material 2 (hatched); the last brick may be partial."""
+    g = VGroup()
+    h_tot, y = rho / brick * bh, base
+    while h_tot > 1e-6:
+        h = min(bh, h_tot)
+        if material == 2:
+            g.add(hatched_brick(x, y, h, color, width))
+        else:
+            g.add(Rectangle(width=width, height=h, fill_color=color, fill_opacity=0.85, stroke_color=WHITE,
+                            stroke_width=1.5).move_to([x, y, 0], aligned_edge=DOWN))
+        y += h
+        h_tot -= h
+    return g
+
+
+def density_axis(x, base, top_rho=1.6, bh=0.3, step=0.4, brick=M.BRICK, label="density"):
+    """Fixed vertical axis in density units, so that height changes read as real changes."""
+    top = base + top_rho / brick * bh
+    g = VGroup(Line([x, base, 0], [x, top, 0], stroke_color=INK, stroke_width=2))
+    v = 0.0
+    while v <= top_rho + 1e-9:
+        y = base + v / brick * bh
+        g.add(Line([x - 0.07, y, 0], [x + 0.07, y, 0], stroke_color=INK, stroke_width=2))
+        g.add(DecimalNumber(v, num_decimal_places=1, font_size=16).next_to([x - 0.07, y, 0], LEFT, buff=0.06))
+        v += step
+    g.add(Text(label, font_size=16).next_to([x, top, 0], UP, buff=0.12))
+    return g
