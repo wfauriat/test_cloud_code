@@ -384,30 +384,41 @@ def slice_grad(r1, r2):
 
 
 class S5_Gradient(Scene):
-    """Step 2c, in principle: a blind brick walk vs following the slope (the gradient)."""
+    """Step 2c, in principle: brick walk vs gradient walk, on the mismatch landscape and as brick stacks.
+    Only rho_1 and rho_2 vary; shells 3-5 are fixed at their true value (grey)."""
 
     def construct(self):
         import contourpy
-        ttl = title("Step 2 - why gradients help", size=34)
-        self.play(Write(ttl), run_time=1)
+        cap = None
 
-        # ------------------------------------------------ mismatch landscape over (rho_1, rho_2)
+        # ================================================ left: explanation box + landscape
+        box_txt = VGroup(
+            VGroup(Text("Brick walk:", font_size=18, color=WALK, weight=BOLD),
+                   Text("knows the mismatch only where it tries;", font_size=18)).arrange(RIGHT, buff=0.12),
+            Text("probes the neighbours, one brick at a time.", font_size=18),
+            VGroup(Text("Gradient:", font_size=18, color=GRAD, weight=BOLD),
+                   MathTex(r"\frac{\partial A}{\partial \rho} = -L\,e^{-L\rho}", font_size=30)).arrange(RIGHT, buff=0.15),
+            Text("slope known everywhere, all shells at once.", font_size=18),
+        ).arrange(DOWN, aligned_edge=LEFT, buff=0.1)
+        box_txt[1].shift(RIGHT * 0.2); box_txt[3].shift(RIGHT * 0.2)
+        box = SurroundingRectangle(box_txt, buff=0.15, corner_radius=0.08, stroke_color=SCREEN_EDGE, stroke_width=1.5)
+        VGroup(box, box_txt).to_corner(UL, buff=0.25)
+
         lo, hi, n = 0.0, 1.6, 161
         g = np.linspace(lo, hi, n)
         Z = np.log10(np.array([[slice_misfit(x, y) for x in g] for y in g]) + 1e-6)
-        ax = Axes(x_range=[lo, hi, 0.4], y_range=[lo, hi, 0.4], x_length=4.6, y_length=4.6, tips=False,
-                  axis_config={"color": INK, "stroke_width": 2, "include_numbers": True, "font_size": 18,
+        size = 4.2
+        ax = Axes(x_range=[lo, hi, 0.4], y_range=[lo, hi, 0.4], x_length=size, y_length=size, tips=False,
+                  axis_config={"color": INK, "stroke_width": 2, "include_numbers": True, "font_size": 16,
                                "decimal_number_config": {"num_decimal_places": 1, "color": INK}})
-        ax.move_to([-3.2, -0.25, 0])
-        xl = MathTex(r"\rho_1", font_size=30, color=SHELL_HUES[0]).next_to(ax.x_axis, RIGHT, buff=0.2)
-        yl = MathTex(r"\rho_2", font_size=30, color=SHELL_HUES[1]).next_to(ax.y_axis, LEFT, buff=0.45)
-
-        # heat map (light = small mismatch) + contour lines
+        ax.move_to([-3.75, -0.95, 0])
+        xl = MathTex(r"\rho_1", font_size=28, color=SHELL_HUES[0]).next_to(ax.x_axis, RIGHT, buff=0.15)
+        yl = MathTex(r"\rho_2", font_size=28, color=SHELL_HUES[1]).next_to(ax.c2p(0, 1.4), LEFT, buff=0.45)
         Zc = np.clip(Z, -3.0, None)
         zn = (Zc - Zc.min()) / (Zc.max() - Zc.min())
         lo_c, hi_c = np.array([255, 250, 228]), np.array([150, 178, 212])
-        img = (lo_c + np.clip(zn, 0, 1)[..., None] * (hi_c - lo_c)).astype(np.uint8)[::-1]
-        heat = ImageMobject(img).stretch_to_fit_width(4.6).stretch_to_fit_height(4.6).move_to(ax.c2p(0.8, 0.8))
+        img = (lo_c + zn[..., None] * (hi_c - lo_c)).astype(np.uint8)[::-1]
+        heat = ImageMobject(img).stretch_to_fit_width(size).stretch_to_fit_height(size).move_to(ax.c2p(0.8, 0.8))
         heat.set_z_index(-2)
         cg = contourpy.contour_generator(g, g, Z)
         contours = VGroup()
@@ -416,91 +427,145 @@ class S5_Gradient(Scene):
                 if len(line) > 3:
                     contours.add(VMobject(stroke_color=GREY_C, stroke_width=1.2, stroke_opacity=0.8)
                                  .set_points_smoothly([ax.c2p(x, y) for x, y in line[::3]]))
-        target = Star(n=5, outer_radius=0.13, inner_radius=0.06, color=ACCENT, fill_opacity=1).move_to(
-            ax.c2p(*M.RHO_TRUE[:2])).set_z_index(4)
-        tlab = Text("true densities", font_size=16, color=ACCENT).next_to(target, UR, buff=0.05).set_z_index(4)
+        target = Star(n=5, outer_radius=0.12, inner_radius=0.055, color=ACCENT, fill_opacity=1).move_to(
+            ax.c2p(*M.RHO_TRUE[:2])).set_z_index(9)
 
-        cap = caption("Mismatch for every candidate (ρ1, ρ2), the other shells fixed: a landscape with one valley.")
-        self.play(Create(ax), FadeIn(xl), FadeIn(yl), FadeIn(heat), run_time=1.2)
-        self.play(Create(contours, lag_ratio=0.02), FadeIn(cap), run_time=1.5)
-        self.play(FadeIn(target, scale=0.5), FadeIn(tlab), run_time=0.8)
+        # ================================================ right: two brick panels (walk | gradient)
+        ttl = Text("Step 2 - why gradients help", font_size=28, weight=BOLD).move_to([3.95, 3.5, 0])
+        bh, base = 0.3, -2.7
+
+        def panel(x0, name, color):
+            bx = [x0 + 0.56 * k for k in range(M.N)]
+            head = Text(name, font_size=26, color=color).move_to([(bx[0] + bx[-1]) / 2, 2.55, 0])
+            floor = Line([bx[0] - 0.33, base, 0], [bx[-1] + 0.33, base, 0], stroke_color=INK, stroke_width=2)
+            names = VGroup(*[MathTex(rf"\rho_{k + 1}", font_size=24, color=SHELL_HUES[k] if k < 2 else GREY_B)
+                             .move_to([bx[k], base - 0.27, 0]) for k in range(M.N)])
+            fixed = VGroup()
+            for k in range(2, M.N):
+                for j in range(int(round(M.RHO_TRUE[k] / M.BRICK))):
+                    fixed.add(Rectangle(width=0.46, height=bh, fill_color=GREY_B, fill_opacity=0.6, stroke_color=WHITE,
+                                        stroke_width=1.5).move_to([bx[k], base + (j + 0.5) * bh, 0]))
+            flab = Text("fixed", font_size=16, color=GREY_B).move_to([bx[3], base + 7 * bh + 0.2, 0])
+            targets = VGroup(*[DashedLine([bx[k] - 0.26, base + M.RHO_TRUE[k] / M.BRICK * bh, 0],
+                                          [bx[k] + 0.26, base + M.RHO_TRUE[k] / M.BRICK * bh, 0],
+                                          dash_length=0.06, stroke_color=GREY_C, stroke_width=2) for k in range(2)])
+            steps_lab = Text("steps:", font_size=20).move_to([bx[1], 2.05, 0])
+            steps = Integer(0, font_size=24, color=color).next_to(steps_lab, RIGHT, buff=0.12)
+            return bx, VGroup(head, floor, names, fixed, flab, targets, steps_lab, steps), steps
+
+        wbx, wpanel, wsteps = panel(0.55, "Brick walk", WALK)
+        gbx, gpanel, gsteps = panel(4.25, "Gradient walk", GRAD)
+        dash_note = Text("dashed: true density", font_size=15, color=GREY_C).move_to([3.95, 1.55, 0])
+
+        self.play(FadeIn(ttl), Create(ax), FadeIn(xl), FadeIn(yl), FadeIn(heat), run_time=1.2)
+        self.play(Create(contours, lag_ratio=0.02), FadeIn(target, scale=0.5), run_time=1.5)
+        cap = caption("Mismatch for every (ρ1, ρ2), shells 3 to 5 fixed: a landscape with one valley (light = small).")
+        self.play(FadeIn(cap), FadeIn(wpanel), FadeIn(gpanel), FadeIn(dash_note), run_time=1.2)
         self.wait(1.5)
 
-        # ------------------------------------------------ right panel text
-        rx = 3.9
-        h1 = Text("Brick walk", font_size=28, color=WALK)
-        t1 = Text("knows the mismatch only where it tries:\nprobe the neighbouring bricks,\nmove one brick at a time",
-                  font_size=19, line_spacing=0.8)
-        b1 = VGroup(h1, t1).arrange(DOWN, aligned_edge=LEFT, buff=0.15).move_to([rx, 1.55, 0])
-        h2 = Text("Gradient", font_size=28, color=GRAD)
-        f2 = MathTex(r"\frac{\partial A_i}{\partial \rho_k} = -L_{ik}\,A_i", font_size=34)
-        t2 = Text("exp(-Lρ) is smooth: its slope is known\nin closed form, everywhere, for all\nshells at once",
-                  font_size=19, line_spacing=0.8)
-        b2 = VGroup(h2, f2, t2).arrange(DOWN, aligned_edge=LEFT, buff=0.15).move_to([rx, -1.35, 0])
-        b2.align_to(b1, LEFT)
-
-        # ------------------------------------------------ brick walk on the grid
-        step = M.BRICK
-        p = np.array([0.0, 0.0])
-        walker = Dot(ax.c2p(*p), radius=0.09, color=WALK).set_z_index(6)
+        # ================================================ brick walk: one brick per step
         cap = swap_caption(self, cap, "Brick walk: try each neighbouring brick, keep the best, repeat.")
-        self.play(FadeIn(b1, shift=LEFT * 0.2), FadeIn(walker, scale=0.5), run_time=1)
-        probes_total, path = 0, VGroup().set_z_index(5)
-        self.add(path)
+        self.play(FadeIn(box), FadeIn(box_txt[:2]), run_time=0.8)
+        step = M.BRICK
+        p = np.zeros(2)
+        walker = Dot(ax.c2p(*p), radius=0.08, color=WALK).set_z_index(6)
+        self.play(FadeIn(walker, scale=0.5), run_time=0.4)
+        wstacks = [[], []]
+        n_w = 0
         while True:
             nbrs = [p + d for d in (np.array([step, 0]), np.array([-step, 0]), np.array([0, step]), np.array([0, -step]))
                     if (p + d).min() >= -1e-9]
-            probes_total += len(nbrs)
             best = min(nbrs, key=lambda q: slice_misfit(*q))
             if slice_misfit(*best) >= slice_misfit(*p):
                 break
-            probe = VGroup(*[Cross(scale_factor=0.08, stroke_color=WALK, stroke_width=3).move_to(ax.c2p(*q))
+            n_w += 1
+            probe = VGroup(*[Cross(scale_factor=0.07, stroke_color=WALK, stroke_width=3).move_to(ax.c2p(*q))
                              for q in nbrs])
-            seg = Line(ax.c2p(*p), ax.c2p(*best), stroke_color=WALK, stroke_width=4)
-            path.add(seg)
-            self.play(FadeIn(probe, run_time=0.35))
-            self.play(Create(seg), walker.animate.move_to(ax.c2p(*best)), FadeOut(probe), run_time=0.45)
+            seg = Line(ax.c2p(*p), ax.c2p(*best), stroke_color=WALK, stroke_width=4).set_z_index(5)
+            k = int(np.flatnonzero(np.abs(best - p) > 1e-9)[0])
+            if best[k] > p[k]:
+                b = Rectangle(width=0.46, height=bh, fill_color=SHELL_HUES[k], fill_opacity=0.85, stroke_color=WHITE,
+                              stroke_width=1.5).move_to([wbx[k], base + (len(wstacks[k]) + 0.5) * bh, 0])
+                wstacks[k].append(b)
+                brick_anim = FadeIn(b, shift=DOWN * 0.4)
+            else:
+                brick_anim = FadeOut(wstacks[k].pop(), shift=UP * 0.4)
+            self.play(FadeIn(probe), run_time=0.35)
+            self.play(Create(seg), walker.animate.move_to(ax.c2p(*best)), FadeOut(probe), brick_anim,
+                      wsteps.animate.set_value(n_w), run_time=0.55)
             p = best
         self.wait(0.8)
 
-        # ------------------------------------------------ gradient field + following the slope
+        # ================================================ gradient walk: several (uneven) bricks per step
         cap = swap_caption(self, cap, "The gradient gives the downhill direction at every point, without trying anything.")
-        self.play(FadeIn(b2, shift=LEFT * 0.2), run_time=1)
+        self.play(FadeIn(box_txt[2:]), run_time=0.8)
         field = VGroup()
         for x in np.linspace(0.1, 1.5, 8):
             for y in np.linspace(0.1, 1.5, 8):
                 d = -slice_grad(x, y)
-                d = d / (np.linalg.norm(d) + 1e-12) * 0.13
+                d = d / (np.linalg.norm(d) + 1e-12) * 0.12
                 field.add(Arrow(ax.c2p(x - d[0] / 2, y - d[1] / 2), ax.c2p(x + d[0] / 2, y + d[1] / 2), buff=0,
-                                color=GRAD, stroke_width=2.5, stroke_opacity=0.55, tip_length=0.1,
+                                color=GRAD, stroke_width=2.5, tip_length=0.09,
                                 max_tip_length_to_length_ratio=0.5).set_opacity(0.55))
         self.play(LaggedStart(*[GrowArrow(a) for a in field], lag_ratio=0.01), run_time=1.5)
-        self.wait(1)
+        self.wait(0.8)
 
-        # steepest-descent path (normalised gradient flow) from the same start
-        q, flow = np.array([0.0, 0.0]), [np.array([0.0, 0.0])]
+        # steepest-descent path (normalised gradient flow), cut into 4 steps
+        n_steps = 4
+        q, flow = np.zeros(2), [np.zeros(2)]
         for _ in range(4000):
             d = -slice_grad(*q)
             q = q + 0.002 * d / (np.linalg.norm(d) + 1e-12)
             flow.append(q.copy())
-            if np.linalg.norm(q - M.RHO_TRUE[:2]) < 0.01:
+            if np.linalg.norm(q - M.RHO_TRUE[:2]) < 0.004:
                 break
+        flow.append(M.RHO_TRUE[:2].copy())
         flow = np.array(flow)
         arc = np.concatenate([[0], np.cumsum(np.linalg.norm(np.diff(flow, axis=0), axis=1))])
-        marks = [int(np.searchsorted(arc, s)) for s in np.linspace(0, arc[-1], 6)]
-        ball = Dot(ax.c2p(0, 0), radius=0.09, color=GRAD).set_z_index(7)
-        cap = swap_caption(self, cap, "Follow the slope: each step changes all densities together, straight downhill.")
-        self.play(FadeIn(ball, scale=0.5), run_time=0.5)
-        for a, b in zip(marks[:-1], marks[1:]):
-            piece = VMobject(stroke_color=GRAD, stroke_width=4.5).set_points_smoothly(
-                [ax.c2p(*v) for v in flow[a:b + 1:max(1, (b - a) // 12)]] + [ax.c2p(*flow[b])]).set_z_index(5)
-            d = -slice_grad(*flow[a]); d = d / np.linalg.norm(d) * 0.35
-            arrow = Arrow(ax.c2p(*flow[a]), ax.c2p(*(flow[a] + d)), buff=0, color=GRAD, stroke_width=5,
-                          tip_length=0.16).set_z_index(8)
-            self.play(GrowArrow(arrow), run_time=0.4)
-            self.play(Create(piece), MoveAlongPath(ball, piece.copy()), FadeOut(arrow), run_time=0.8)
-        self.play(Indicate(target, color=GRAD), run_time=0.8)
+        marks = [int(np.searchsorted(arc, s)) for s in np.linspace(0, arc[-1], n_steps + 1)]
+        marks[-1] = len(flow) - 1
 
-        cap = swap_caption(self, cap, f"With N shells a brick step means 2N trials; the gradient covers every shell "
-                                      f"in one computation.")
+        ball = Dot(ax.c2p(0, 0), radius=0.08, color=GRAD).set_z_index(7)
+        gcols = [VGroup(), VGroup()]          # pieces of uneven bricks, per shell
+        self.add(*gcols)
+        cap = swap_caption(self, cap, "Gradient walk: follow the slope, all densities together, with steps of any size.")
+        self.play(FadeIn(ball, scale=0.5), run_time=0.4)
+
+        def column_to(k, rho_new, rho_old):
+            """Animations bringing gradient column k from rho_old to rho_new (add a brick, or trim the top)."""
+            h_old, h_new = rho_old / M.BRICK * bh, rho_new / M.BRICK * bh
+            if h_new >= h_old + 1e-3:
+                piece = Rectangle(width=0.46, height=h_new - h_old, fill_color=SHELL_HUES[k], fill_opacity=0.85,
+                                  stroke_color=WHITE, stroke_width=1.5).move_to([gbx[k], base + h_old, 0], aligned_edge=DOWN)
+                gcols[k].add(piece)
+                return [FadeIn(piece, shift=DOWN * 0.4)]
+            anims, cut = [], h_old - h_new
+            for piece in reversed(list(gcols[k])):
+                if cut <= 1e-3:
+                    break
+                ph = piece.height
+                if ph <= cut + 1e-3:
+                    anims.append(FadeOut(piece)); gcols[k].remove(piece); cut -= ph
+                else:
+                    anims.append(piece.animate.stretch_to_fit_height(ph - cut).align_to(piece, DOWN))
+                    cut = 0
+            return anims
+
+        for j, (a, b) in enumerate(zip(marks[:-1], marks[1:]), start=1):
+            r0, r1 = flow[a], flow[b]
+            piece = VMobject(stroke_color=GRAD, stroke_width=4.5).set_points_smoothly(
+                [ax.c2p(*v) for v in flow[a:b + 1:max(1, (b - a) // 12)]] + [ax.c2p(*r1)]).set_z_index(5)
+            d = -slice_grad(*r0); d = d / np.linalg.norm(d) * 0.32
+            arrow = Arrow(ax.c2p(*r0), ax.c2p(*(r0 + d)), buff=0, color=GRAD, stroke_width=5,
+                          tip_length=0.15).set_z_index(8)
+            self.play(GrowArrow(arrow), run_time=0.45)
+            bricks = column_to(0, r1[0], r0[0]) + column_to(1, r1[1], r0[1])
+            self.play(Create(piece), MoveAlongPath(ball, piece.copy()), FadeOut(arrow), *bricks,
+                      gsteps.animate.set_value(j), run_time=1.0)
+            if j == 1:
+                self.wait(0.6)
+
+        self.play(Indicate(target, color=GRAD), Indicate(VGroup(*gcols), color=GRAD, scale_factor=1.04), run_time=0.9)
+        cap = swap_caption(self, cap, f"Same answer: {n_w} single-brick steps vs {n_steps} gradient steps. "
+                                      "With N shells, a brick step means 2N trials.")
         self.wait(3.5)
