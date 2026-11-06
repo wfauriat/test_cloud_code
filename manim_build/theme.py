@@ -9,6 +9,7 @@ BG = WHITE
 INK = "#222222"
 CASING = "#0070C0"
 SOURCE = "#FFC000"
+SOURCE_TXT = "#B8860B"
 RAY = "#F08C00"
 OBJ_LINE = "#3B5E2B"
 GREEN_LO = "#E2F0D9"   # density 0
@@ -16,17 +17,21 @@ GREEN_HI = "#1E3B12"   # density RHO_MAX
 RHO_MAX = 1.6
 SCREEN_EDGE = "#7F7F7F"
 ACCENT = "#C00000"
+# shell identity colours (not density): shell 1 (outer) ... shell 5 (inner)
+SHELL_HUES = ["#17A2B8", "#9467BD", "#1F77B4", "#E377C2", "#D62728"]
+# unitless attenuation factor A in [0, 1], two colours: red (high absorption) -> blue (low absorption)
+A_STOPS = ["#C0272D", "#2C6FB7"]
 
 for cls in (Text, MathTex, Tex, DecimalNumber, Integer):
     cls.set_default(color=INK)
 
 # ---------------------------------------------------------------- layout (scene units)
 OBJ_C = np.array([-0.6, -0.65, 0.0])  # object centre
-S = 2.3                              # scene units per model unit
+S = 2.3                               # scene units per model unit
 X_SOURCE = -5.6
 CASING_X = (-4.0, 2.8)
 CASING_Y = (-3.15, 2.3)
-CASING_W = 0.14                      # drawn wall thickness
+CASING_W = 0.14
 X_SCREEN = 4.4
 PIX_W = 0.45
 PIX_H = S * M.R / M.N
@@ -40,24 +45,36 @@ def shell_color(rho):
     return interpolate_color(ManimColor(GREEN_LO), ManimColor(GREEN_HI), float(np.clip(rho / RHO_MAX, 0, 1)))
 
 
-def intensity_color(i):
-    return interpolate_color(ManimColor(BLACK), ManimColor(WHITE), float(np.clip(i, 0, 1)))
+def dose_color(d):
+    """Radiation level on the screen: black (no dose) -> white (full dose)."""
+    return interpolate_color(ManimColor(BLACK), ManimColor(WHITE), float(np.clip(d, 0, 1)))
 
 
-# ---------------------------------------------------------------- mobject builders
+def a_color(a):
+    """Colormap for the unitless factor A."""
+    a = float(np.clip(a, 0, 1)) * (len(A_STOPS) - 1)
+    j = min(int(a), len(A_STOPS) - 2)
+    return interpolate_color(ManimColor(A_STOPS[j]), ManimColor(A_STOPS[j + 1]), a - j)
+
+
+# ---------------------------------------------------------------- text helpers
 def caption(text, size=26):
-    return Text(text, font_size=size).to_edge(DOWN, buff=0.25)
+    c = Text(text, font_size=size)
+    if c.width > config.frame_width - 0.6:
+        c.scale_to_fit_width(config.frame_width - 0.6)
+    return c.to_edge(DOWN, buff=0.25)
 
 
 def title(text, size=34):
     return Text(text, font_size=size, weight=BOLD).to_edge(UP, buff=0.3)
 
 
+# ---------------------------------------------------------------- set-up parts
 def make_source():
     fan = Sector(radius=0.75, angle=PI / 2.6, start_angle=-PI / 5.2, arc_center=ORIGIN,
                  fill_color=SOURCE, fill_opacity=1, stroke_color="#7F6000", stroke_width=1.5)
     fan.move_to([X_SOURCE, y_scene(0.5), 0])
-    label = Text("Source (X-rays)", font_size=22, color="#B8860B").next_to(fan, DOWN, buff=1.0)
+    label = Text("Source (X-rays)", font_size=22, color=SOURCE_TXT).next_to(fan, DOWN, buff=1.0)
     return VGroup(fan, label)
 
 
@@ -70,10 +87,11 @@ def make_casing():
 
 
 def make_object(rho, ghost_opacity=0.18, edge=True):
-    """Concentric shells: full colour on the top half (what the screen sees), ghosted bottom half."""
+    """Concentric shells: top half in full colour (what the screen sees), ghosted bottom half.
+    obj[0][k] / obj[1][k] = shell k (0 = outermost)."""
     top, bottom = VGroup(), VGroup()
     for k in range(M.N):
-        kw = dict(inner_radius=M.RADII[k] * S, outer_radius=M.RADII[k + 1] * S, angle=PI,
+        kw = dict(inner_radius=M.SHELL_IN[k] * S, outer_radius=M.SHELL_OUT[k] * S, angle=PI,
                   arc_center=OBJ_C, fill_color=shell_color(rho[k]),
                   stroke_color=OBJ_LINE, stroke_width=1.5 if edge else 0)
         top.add(AnnularSector(start_angle=0, fill_opacity=1, **kw))
@@ -82,48 +100,56 @@ def make_object(rho, ghost_opacity=0.18, edge=True):
     return VGroup(top, bottom)
 
 
-def recolor_object(obj, rho):
-    for k in range(M.N):
-        obj[0][k].set_fill(shell_color(rho[k]))
-        obj[1][k].set_fill(shell_color(rho[k]))
-    return obj
-
-
-def make_screen(values=None, x=X_SCREEN, label="Screen (1 slice)", label_size=22):
+def make_screen(values=None, x=X_SCREEN, label="Screen (1 slice)", label_size=22, cmap=dose_color):
+    """screen[0][i] = pixel of row i (0 = top)."""
     pix = VGroup()
-    for j in range(M.N):
+    for i in range(M.N):
         r = Rectangle(width=PIX_W, height=PIX_H, stroke_color=SCREEN_EDGE, stroke_width=2,
-                      fill_color=WHITE if values is None else intensity_color(values[j]), fill_opacity=1)
-        r.move_to([x, y_scene(M.Y_PIX[j]), 0])
+                      fill_color=WHITE if values is None else cmap(values[i]), fill_opacity=1)
+        r.move_to([x, y_scene(M.Y_PIX[i]), 0])
         pix.add(r)
     lab = Text(label, font_size=label_size, color=SCREEN_EDGE).next_to(pix, UP, buff=0.2)
     return VGroup(pix, lab)
 
 
-def set_screen(screen, values):
-    for j in range(M.N):
-        screen[0][j].set_fill(intensity_color(values[j]))
-    return screen
+def row_labels(pixels, side=RIGHT, size=24, buff=0.15, prefix=True):
+    out = VGroup()
+    for i, p in enumerate(pixels):
+        tex = rf"i={i + 1}" if (prefix and i == 0) else rf"{i + 1}"
+        out.add(MathTex(tex, font_size=size, color=SCREEN_EDGE).next_to(p, side, buff=buff))
+    if prefix:  # align the numbers, not the "i="
+        for m in out[1:]:
+            m.align_to(out[0], RIGHT if side is LEFT else LEFT)
+            if side is RIGHT:
+                m.shift(RIGHT * (out[0].width - m.width))
+    return out
 
 
-def screen_values_labels(screen, values, side=RIGHT, digits=2, size=24):
-    return VGroup(*[DecimalNumber(values[j], num_decimal_places=digits, font_size=size)
-                    .next_to(screen[0][j], side, buff=0.15) for j in range(M.N)])
+def colorbar(width=2.6, height=0.22, n=40, label=r"A"):
+    cells = VGroup(*[Rectangle(width=width / n * 1.3, height=height, stroke_width=0, fill_opacity=1,
+                               fill_color=a_color((j + 0.5) / n)) for j in range(n)])
+    cells.arrange(RIGHT, buff=-width / n * 0.3)  # slight overlap hides anti-aliasing seams
+    frame = SurroundingRectangle(cells, buff=0, stroke_color=SCREEN_EDGE, stroke_width=1.5)
+    ticks = VGroup(*[MathTex(t, font_size=22).next_to(cells, DOWN, buff=0.08).set_x(cells.get_left()[0] + f * width)
+                     for t, f in (("0", 0), ("0.5", 0.5), ("1", 1))])
+    lab = MathTex(label, font_size=26).next_to(cells, LEFT, buff=0.15)
+    ends = VGroup(Text("high\nabsorption", font_size=15, color=A_STOPS[0], line_spacing=0.7),
+                  Text("low\nabsorption", font_size=15, color=A_STOPS[-1], line_spacing=0.7))
+    ends[0].next_to(ticks, DOWN, buff=0.08).align_to(cells, LEFT)
+    ends[1].next_to(ticks, DOWN, buff=0.08).align_to(cells, RIGHT)
+    return VGroup(cells, frame, ticks, lab, ends)
 
 
 # ---------------------------------------------------------------- rays with Beer-Lambert attenuation
 def _mu_along(xs, y_model, rho, with_casing, with_object):
-    """Attenuation per scene unit along a horizontal ray at model height y_model."""
     mu = np.zeros_like(xs)
     if with_casing:
-        per_wall = -np.log(M.casing_transmission(y_model)) / 2
-        for x0 in (CASING_X[0], CASING_X[1]):
-            inside = np.abs(xs - x0) <= CASING_W / 2
-            mu[inside] += per_wall / CASING_W
+        per_wall = -np.log(M.casing_factor(y_model)) / 2
+        for x0 in CASING_X:
+            mu[np.abs(xs - x0) <= CASING_W / 2] += per_wall / CASING_W
     if with_object:
-        r = np.sqrt(((xs - OBJ_C[0]) / S) ** 2 + y_model ** 2)
-        k = np.searchsorted(M.RADII, r, side="right") - 1
-        inside = (k >= 0) & (k < M.N)
+        k = M.shell_index(np.sqrt(((xs - OBJ_C[0]) / S) ** 2 + y_model ** 2))
+        inside = k >= 0
         mu[inside] += np.asarray(rho)[k[inside]] / S
     return mu
 
@@ -132,34 +158,30 @@ def ray_profile(y_model, rho=M.RHO_TRUE, with_casing=True, with_object=True, x_e
     xs = np.linspace(X_SOURCE + 0.3, x_end, 2400)
     mu = _mu_along(xs, y_model, rho, with_casing, with_object)
     tau = np.concatenate([[0], np.cumsum((mu[1:] + mu[:-1]) / 2 * np.diff(xs))])
-    return xs, M.source_profile(y_model) * np.exp(-tau)
+    return xs, M.source_dose(y_model) * np.exp(-tau)
 
 
 def make_ray(y_model, rho=M.RHO_TRUE, with_casing=True, with_object=True, n_seg=160, width=5):
-    xs, I = ray_profile(y_model, rho, with_casing, with_object)
+    xs, D = ray_profile(y_model, rho, with_casing, with_object)
     idx = np.linspace(0, len(xs) - 1, n_seg + 1).astype(int)
     y = y_scene(y_model)
     segs = VGroup()
     for a, b in zip(idx[:-1], idx[1:]):
         segs.add(Line([xs[a], y, 0], [xs[b], y, 0], stroke_color=RAY, stroke_width=width,
-                      stroke_opacity=float(np.clip(I[(a + b) // 2], 0.04, 1))))
+                      stroke_opacity=float(np.clip(D[(a + b) // 2], 0.04, 1))))
     return segs
 
 
 def make_rays(**kw):
-    return VGroup(*[make_ray(yj, **kw) for yj in M.Y_PIX])
-
-
-# ---------------------------------------------------------------- shell identity colours (not density)
-SHELL_HUES = ["#D62728", "#1F77B4", "#9467BD", "#17A2B8"]   # shell 1 (inner) ... shell 4 (outer)
+    return VGroup(*[make_ray(yi, **kw) for yi in M.Y_PIX])
 
 
 def chord_segments(y_model, width=9):
-    """Thick coloured segments marking where a horizontal ray at y_model is inside each shell."""
+    """Thick coloured segments marking where a horizontal ray is inside each shell."""
     g = VGroup()
     y = y_scene(y_model)
     for k in range(M.N):
-        h_out, h_in = M.half_chord(M.RADII[k + 1], y_model), M.half_chord(M.RADII[k], y_model)
+        h_out, h_in = M.half_chord(M.SHELL_OUT[k], y_model), M.half_chord(M.SHELL_IN[k], y_model)
         if h_out <= 1e-9:
             continue
         for sgn in (-1, 1):
@@ -169,10 +191,14 @@ def chord_segments(y_model, width=9):
 
 
 def shell_labels(size=24):
+    """rho_1 (outer) ... rho_N (inner), with white backing so they stay readable.
+    Each label sits mid-shell, at the height between two rows, so no ray runs through it."""
     out = VGroup()
     for k in range(M.N):
-        rm = (M.RADII[k] + M.RADII[k + 1]) / 2 * S
-        ang = 72 * DEGREES
-        out.add(MathTex(rf"\rho_{k + 1}", font_size=size, color=SHELL_HUES[k]).set_z_index(10)
-                .move_to(OBJ_C + rm * np.array([np.cos(ang), np.sin(ang), 0])))
+        rm = (M.SHELL_IN[k] + M.SHELL_OUT[k]) / 2
+        yl = M.R - (k + 1) * M.R / M.N + 0.03
+        lab = MathTex(rf"\rho_{k + 1}", font_size=size, color=SHELL_HUES[k])
+        lab.move_to(OBJ_C + S * np.array([-np.sqrt(max(rm ** 2 - yl ** 2, 0)), yl, 0]))
+        bg = BackgroundRectangle(lab, color=WHITE, fill_opacity=0.85, buff=0.03)
+        out.add(VGroup(bg, lab).set_z_index(10))
     return out
