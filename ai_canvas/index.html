@@ -1,0 +1,1416 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Language Machine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: a pannable, zoomable map. The root card sits in the middle; four territories branch
+   left and right as an outline tree; cards unfold in place and the camera follows. */
+:root {
+  --paper: #E6EBEF;   /* canvas ground: cool map paper */
+  --grid: #BFC9D3;    /* dot grid */
+  --card: #FFFFFF;
+  --ink: #141C26;
+  --muted: #586475;
+  --line: #D2D9E1;
+  --wash: #F1F4F7;    /* drawer ground */
+  --machine: #3A4BC8; /* indigo */
+  --life: #0A8273;    /* teal */
+  --work: #A35F00;    /* ochre */
+  --society: #A8336E; /* plum */
+  --shadow: 0 1px 2px rgba(20, 28, 38, .06), 0 12px 32px -16px rgba(20, 28, 38, .30);
+  --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0D1218; --grid: #233040; --card: #161E28; --ink: #E3E9F0; --muted: #95A2B3;
+    --line: #2A3644; --wash: #1D2733; --machine: #93A0FF; --life: #4FCDB9; --work: #EEAD4A;
+    --society: #F07DB7; --shadow: 0 1px 2px rgba(0,0,0,.4), 0 14px 34px -16px rgba(0,0,0,.7);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0D1218; --grid: #233040; --card: #161E28; --ink: #E3E9F0; --muted: #95A2B3;
+  --line: #2A3644; --wash: #1D2733; --machine: #93A0FF; --life: #4FCDB9; --work: #EEAD4A;
+  --society: #F07DB7; --shadow: 0 1px 2px rgba(0,0,0,.4), 0 14px 34px -16px rgba(0,0,0,.7);
+  color-scheme: dark;
+}
+
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  margin: 0; overflow: hidden; background: var(--paper); color: var(--ink);
+  font-family: var(--f-body); font-size: 14px; -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--machine); outline-offset: 2px; }
+
+/* ---------- canvas ---------- */
+.viewport {
+  position: fixed; inset: 0; overflow: hidden; touch-action: none; cursor: grab;
+  background-image: radial-gradient(circle, var(--grid) 1.1px, transparent 1.5px);
+  background-size: 28px 28px;
+  user-select: none; -webkit-user-select: none;
+}
+.viewport.panning { cursor: grabbing; }
+.world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.links { position: absolute; left: 0; top: 0; width: 1px; height: 1px; overflow: visible; pointer-events: none; }
+.links .zone { stroke: none; }
+.links .edge { fill: none; stroke-width: 2; stroke-linecap: round; vector-effect: non-scaling-stroke; opacity: .55; }
+
+/* ---------- cards ---------- */
+.card {
+  --c: var(--ink);
+  position: absolute; left: 0; top: 0; box-sizing: border-box;
+  background: var(--card); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
+  transition: opacity .35s ease, box-shadow .25s ease, border-color .25s ease;
+  cursor: default;
+}
+.card.enter { opacity: 0; }
+.t-machine { --c: var(--machine); }
+.t-life { --c: var(--life); }
+.t-work { --c: var(--work); }
+.t-society { --c: var(--society); }
+
+.hd { padding: 16px 18px 12px; cursor: pointer; }
+.eyebrow {
+  font-family: var(--f-mono); font-size: 11px; font-weight: 500; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--c); margin: 0 0 6px;
+}
+.card h2 {
+  font-family: var(--f-display); font-weight: 700; font-size: 21px; line-height: 1.15;
+  letter-spacing: -.01em; margin: 0 0 8px; text-wrap: balance;
+}
+.gist { margin: 0; font-size: 15px; line-height: 1.5; }
+.card p { text-wrap: pretty; }
+
+.foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 8px 10px 8px 18px; border-top: 1px solid var(--line);
+}
+.fbtn {
+  display: inline-flex; align-items: center; gap: 8px; border: 0; background: none; cursor: pointer;
+  font-family: var(--f-mono); font-size: 12px; font-weight: 500; color: var(--c);
+  padding: 6px 8px; margin-left: -8px; border-radius: 8px;
+}
+.fbtn:hover { background: color-mix(in srgb, var(--c) 10%, transparent); }
+.fbtn .pm {
+  width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid currentColor; position: relative; flex: none;
+}
+.fbtn .pm::before, .fbtn .pm::after {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 8px; height: 1.5px; background: currentColor;
+  transform: translate(-50%, -50%); transition: transform .25s ease;
+}
+.fbtn .pm::after { transform: translate(-50%, -50%) rotate(90deg); }
+.fbtn[aria-expanded="true"] .pm::after { transform: translate(-50%, -50%) rotate(0deg); }
+.fx { font-family: var(--f-mono); font-size: 12px; color: var(--muted); letter-spacing: .12em; }
+
+/* root card: inverted */
+.d0 { background: var(--ink); color: var(--card); border-color: transparent; border-radius: 22px; }
+.d0 .hd { padding: 26px 28px 8px; cursor: default; }
+.d0 .eyebrow { color: color-mix(in srgb, var(--card) 70%, transparent); }
+.d0 h2 { font-size: 40px; font-weight: 800; line-height: 1; letter-spacing: -.02em; margin-bottom: 14px; }
+.d0 .gist { font-size: 16px; color: color-mix(in srgb, var(--card) 88%, transparent); }
+.root-x { padding: 6px 28px 26px; display: grid; gap: 16px; }
+.hints { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; font-family: var(--f-mono); font-size: 12.5px; color: color-mix(in srgb, var(--card) 72%, transparent); }
+.hints b { color: var(--card); font-weight: 500; }
+.root-x .go {
+  justify-self: start; border: 0; cursor: pointer; border-radius: 10px; padding: 10px 14px;
+  background: var(--card); color: var(--ink); font-weight: 600; font-size: 14px;
+}
+
+/* territory cards */
+.d1 { background: color-mix(in srgb, var(--c) 11%, var(--card)); border-color: color-mix(in srgb, var(--c) 40%, transparent); border-radius: 18px; }
+.d1 .hd { padding: 20px 22px 14px; }
+.d1 h2 { font-size: 30px; font-weight: 800; color: var(--c); letter-spacing: -.02em; }
+.d1 .foot { border-top-color: color-mix(in srgb, var(--c) 25%, transparent); padding-left: 22px; }
+
+/* angle cards */
+.d2 h2 { font-size: 22px; }
+.d2.is-exp { border-color: color-mix(in srgb, var(--c) 45%, var(--line)); }
+
+/* idea cards */
+.d3 h2 { font-size: 18.5px; }
+.d3 .gist { font-size: 14.5px; color: var(--ink); }
+.d3.is-open { border-color: color-mix(in srgb, var(--c) 45%, var(--line)); }
+.more { padding: 0 18px 4px; }
+.body p { margin: 0 0 10px; font-size: 14.5px; line-height: 1.58; color: var(--ink); }
+.body { padding-top: 10px; border-top: 1px dashed var(--line); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 12px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+  font-family: var(--f-mono); font-size: 12px; padding: 5px 10px 5px 8px; border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--c) 35%, var(--line)); background: var(--card);
+}
+.chip .g { color: var(--c); font-weight: 500; width: 1em; text-align: center; }
+.chip:hover { border-color: var(--c); }
+.chip[aria-expanded="true"] { background: color-mix(in srgb, var(--c) 13%, var(--card)); border-color: var(--c); }
+.drawer { background: var(--wash); border-radius: 10px; padding: 11px 14px 12px; margin: 0 0 12px; }
+.drawer .dl {
+  font-family: var(--f-mono); font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--c); margin: 0 0 5px;
+}
+.drawer p { margin: 0; font-size: 14px; line-height: 1.55; }
+.drawer.k-ask p { font-family: var(--f-display); font-size: 16.5px; font-weight: 500; line-height: 1.35; }
+.xref {
+  border: 0; background: none; padding: 0; cursor: pointer; color: var(--c); font: inherit;
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px;
+}
+.xref::after { content: " \2197"; font-size: .85em; }
+
+/* semantic zoom: when far away, a large label replaces the fine print */
+.far {
+  position: absolute; inset: 0; display: none; align-items: center; justify-content: center; text-align: center;
+  padding: 6%; box-sizing: border-box; border-radius: inherit; background: inherit; color: var(--c);
+  font-family: var(--f-display); font-weight: 700; line-height: 1.05; letter-spacing: -.01em;
+  font-size: min(calc(var(--ft) * var(--inv, 1) * 1px), var(--fcap)); overflow: hidden; pointer-events: none;
+}
+.d0 .far { color: var(--card); --ft: 22; --fcap: 64px; }
+.d1 .far { --ft: 20; --fcap: 72px; }
+.d2 .far { --ft: 15; --fcap: 46px; }
+.d3 .far { --ft: 13; --fcap: 40px; }
+.world.is-far .far { display: flex; }
+
+.card.spot { box-shadow: 0 0 0 3px var(--c), var(--shadow); }
+@media (prefers-reduced-motion: no-preference) {
+  .card.spot { animation: spot 1.6s ease-out 1; }
+  @keyframes spot { 0% { box-shadow: 0 0 0 16px color-mix(in srgb, var(--c) 0%, transparent), var(--shadow); }
+                    30% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--c) 35%, transparent), var(--shadow); }
+                    100% { box-shadow: 0 0 0 3px var(--c), var(--shadow); } }
+}
+
+/* next-word toy */
+.nw-sent { font-family: var(--f-display); font-size: 17px; font-weight: 500; margin: 2px 0 10px !important; }
+.nw-slot { display: inline-block; min-width: 4.2em; border-bottom: 2px solid var(--c); color: var(--c); font-weight: 700; text-align: center; }
+.nw-slot.pop { animation: pop .35s ease-out; }
+@keyframes pop { 0% { transform: translateY(4px); opacity: 0; } 100% { transform: none; opacity: 1; } }
+.nw-bars { display: grid; gap: 3px; margin-bottom: 10px; }
+.nw-row { display: grid; grid-template-columns: 5.6em 1fr 3.4em; align-items: center; gap: 8px; font-family: var(--f-mono); font-size: 12px; }
+.nw-bar { height: 10px; background: color-mix(in srgb, var(--c) 10%, transparent); border-radius: 3px; overflow: hidden; }
+.nw-bar i { display: block; height: 100%; background: var(--c); border-radius: 3px; transition: width .25s ease; }
+.nw-p { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+.nw-ctl { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; font-family: var(--f-mono); font-size: 12px; }
+.nw-ctl label { display: inline-flex; align-items: center; gap: 8px; }
+.nw-ctl input[type="range"] { width: 110px; accent-color: var(--c); }
+.nw-ctl output { font-variant-numeric: tabular-nums; min-width: 2.2em; }
+.nw-pick { border: 0; border-radius: 8px; padding: 7px 12px; background: var(--c); color: var(--card); cursor: pointer; font-weight: 600; font-family: var(--f-body); font-size: 13px; }
+.nw-hist { font-family: var(--f-mono); font-size: 12px; color: var(--muted); margin: 8px 0 6px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nw-note { font-size: 13px !important; color: var(--muted); }
+
+/* ---------- overlay UI ---------- */
+.ui {
+  position: fixed; z-index: 5; background: color-mix(in srgb, var(--card) 94%, transparent);
+  border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+}
+.brand {
+  top: calc(env(safe-area-inset-top, 0px) + 14px); left: max(16px, env(safe-area-inset-left, 0px));
+  padding: 10px 16px 11px; max-width: calc(100vw - 32px); box-sizing: border-box;
+}
+.brand b { display: block; font-family: var(--f-display); font-weight: 800; font-size: 18px; letter-spacing: -.01em; }
+.brand span { display: block; font-family: var(--f-mono); font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+.tools {
+  top: calc(env(safe-area-inset-top, 0px) + 14px); right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; gap: 6px; padding: 6px;
+}
+.btn {
+  height: 34px; padding: 0 12px; border-radius: 9px; border: 1px solid transparent; background: transparent;
+  font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; color: var(--ink);
+}
+.btn:hover { background: var(--wash); }
+.btn.primary { background: var(--ink); color: var(--card); }
+.btn.primary:hover { background: color-mix(in srgb, var(--ink) 86%, var(--card)); }
+.btn[disabled] { opacity: .4; cursor: default; }
+.zoombar {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); left: max(16px, env(safe-area-inset-left, 0px));
+  display: flex; align-items: center; gap: 2px; padding: 5px;
+}
+.zoombar .btn { min-width: 34px; padding: 0 10px; font-size: 16px; }
+.zoombar .btn.txt { font-size: 13px; }
+.zl { font-family: var(--f-mono); font-size: 12px; min-width: 3.4em; text-align: center; font-variant-numeric: tabular-nums; color: var(--muted); }
+.minimap {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); right: max(16px, env(safe-area-inset-right, 0px));
+  width: 200px; height: 128px; padding: 0; overflow: hidden; cursor: crosshair; touch-action: none;
+}
+.minimap canvas { display: block; width: 100%; height: 100%; }
+
+.guide {
+  top: calc(env(safe-area-inset-top, 0px) + 70px); right: max(16px, env(safe-area-inset-right, 0px));
+  width: min(370px, calc(100vw - 32px)); max-height: calc(100% - 100px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  overflow: auto; box-sizing: border-box; padding: 18px 18px 8px; z-index: 6;
+  background: var(--card); overscroll-behavior: contain;
+}
+.guide h3 { font-family: var(--f-display); font-size: 20px; font-weight: 800; margin: 0; }
+.guide h4 {
+  font-family: var(--f-mono); font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted); margin: 22px 0 8px;
+}
+.guide p { font-size: 13.5px; line-height: 1.5; margin: 0 0 10px; color: var(--muted); }
+.ghead { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.paths { display: grid; gap: 6px; }
+.path {
+  text-align: left; border: 1px solid var(--line); background: var(--card); border-radius: 11px; padding: 10px 12px;
+  cursor: pointer; display: grid; gap: 3px;
+}
+.path:hover { border-color: var(--ink); }
+.path b { font-size: 14px; font-weight: 600; }
+.path span { font-size: 13px; color: var(--muted); line-height: 1.4; }
+.path i { font-style: normal; font-family: var(--f-mono); font-size: 11px; color: var(--muted); }
+.toc { display: grid; gap: 12px; }
+.toc-t { display: flex; align-items: center; gap: 8px; font-family: var(--f-display); font-weight: 700; font-size: 15px; color: var(--c); border: 0; background: none; padding: 0; cursor: pointer; }
+.toc-t::before { content: ""; width: 9px; height: 9px; border-radius: 3px; background: var(--c); }
+.toc ul { list-style: none; margin: 4px 0 0; padding: 0 0 0 17px; display: grid; gap: 2px; }
+.toc li button { border: 0; background: none; padding: 3px 0; cursor: pointer; font-size: 13.5px; text-align: left; color: var(--ink); }
+.toc li button:hover { color: var(--c); text-decoration: underline; }
+.keys { list-style: none; padding: 0; margin: 0; display: grid; gap: 5px; font-size: 13px; color: var(--muted); }
+.keys kbd { font-family: var(--f-mono); font-size: 11.5px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; padding: 1px 5px; color: var(--ink); background: var(--wash); }
+.opt { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; line-height: 1.4; cursor: pointer; }
+.opt input { margin-top: 2px; accent-color: var(--ink); }
+
+.tour {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); left: 50%; transform: translateX(-50%);
+  width: min(620px, calc(100vw - 32px)); box-sizing: border-box; padding: 12px 14px 12px 18px;
+  display: grid; grid-template-columns: 1fr auto; gap: 4px 14px; align-items: center; background: var(--card);
+}
+.tour-meta { grid-column: 1 / -1; display: flex; gap: 10px; font-family: var(--f-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.tour-meta b { color: var(--ink); font-weight: 500; }
+.tour-note { margin: 0; font-size: 14.5px; line-height: 1.4; min-width: 0; }
+.tour-nav { display: flex; gap: 4px; }
+
+@media (max-width: 760px) {
+  .minimap { display: none; }
+  body.touring .zoombar { display: none; }
+  .tour { grid-template-columns: 1fr; }
+  .tour-nav { justify-content: flex-end; }
+}
+@media (max-width: 560px) {
+  .brand span { display: none; }
+  .brand { padding: 9px 12px; }
+  .brand b { font-size: 16px; }
+  .tools { top: auto; bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); }
+  .tools .wide, .zl { display: none; }
+  body.touring .tools { display: none; }
+  .guide { top: calc(env(safe-area-inset-top, 0px) + 66px); max-height: calc(100% - 150px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card, .nw-bar i, .fbtn .pm::before, .fbtn .pm::after { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="viewport" id="vp">
+  <div class="world" id="world">
+    <svg class="links" id="links" aria-hidden="true"><g id="zones"></g><g id="edges"></g></svg>
+  </div>
+</div>
+
+<div class="ui brand" id="brand"><b>The Language Machine</b><span>an explorable map of AI, for everyone</span></div>
+
+<div class="ui tools" id="tools">
+  <button class="btn primary" id="b-guide" type="button" aria-expanded="false" aria-controls="guide">Guide</button>
+  <button class="btn" id="b-overview" type="button" title="Fold everything back to the overview">Overview</button>
+  <button class="btn wide" id="b-all" type="button" title="Open every angle at once">Show all threads</button>
+</div>
+
+<div class="ui zoombar" id="zoombar">
+  <button class="btn" id="b-out" type="button" aria-label="Zoom out">&minus;</button>
+  <span class="zl" id="zl" aria-live="off">100%</span>
+  <button class="btn" id="b-in" type="button" aria-label="Zoom in">+</button>
+  <button class="btn txt" id="b-fit" type="button" title="Fit everything on screen (F)">Fit</button>
+</div>
+
+<div class="ui minimap" id="minimap" title="Map overview: click or drag to move"><canvas id="mm"></canvas></div>
+
+<aside class="ui guide" id="guide" hidden aria-label="Guide">
+  <div class="ghead"><h3>Guide</h3><button class="btn" id="b-gclose" type="button">Close</button></div>
+  <h4>Pick a path</h4>
+  <p>Short guided routes through the map, depending on where you start from. Everyone in a room starts somewhere different.</p>
+  <div class="paths" id="paths"></div>
+  <h4>Jump to an angle</h4>
+  <div class="toc" id="toc"></div>
+  <h4>Moving around</h4>
+  <ul class="keys">
+    <li>Drag anywhere to move. Scroll, pinch or <kbd>+</kbd> <kbd>&minus;</kbd> to zoom.</li>
+    <li>Click a card to open it. Inside, the small chips open an analogy, an example, a catch or a question.</li>
+    <li><kbd>F</kbd> fits the map, <kbd>Esc</kbd> closes panels and paths, <kbd>&larr;</kbd> <kbd>&rarr;</kbd> step through a path.</li>
+  </ul>
+  <h4>Settings</h4>
+  <label class="opt"><input type="checkbox" id="opt-follow" checked> Move the view to follow what I open</label>
+  <h4>About this map</h4>
+  <p>Built from a late-2026 digest of public surveys (Pew, Reuters Institute, Gallup), vendor usage reports (OpenAI, Anthropic, Microsoft, Google) and education research (OECD and randomized trials). Numbers are rounded on purpose and age fast, so check the originals before quoting them. The analogies and questions are prompts for conversation, not findings.</p>
+</aside>
+
+<div class="ui tour" id="tour" hidden role="region" aria-label="Guided path">
+  <div class="tour-meta"><b id="tour-name"></b><span id="tour-count"></span></div>
+  <p class="tour-note" id="tour-note"></p>
+  <div class="tour-nav">
+    <button class="btn" id="t-prev" type="button">&larr; Back</button>
+    <button class="btn primary" id="t-next" type="button">Next &rarr;</button>
+    <button class="btn" id="t-end" type="button">End</button>
+  </div>
+</div>
+
+<noscript><p style="position:fixed;inset:auto 16px 16px;background:var(--card);padding:16px;border-radius:12px">This map needs JavaScript to run.</p></noscript>
+
+<script>
+(() => {
+'use strict';
+
+/* =====================================================================
+   CONTENT
+   Each node: id, title, gist (one line), and for ideas: body + drawers.
+   Drawer kinds: analogy, example, try (interactive), catch, ask.
+   Inline markup: {{node-id|label}} links to another card, *text* is emphasis.
+   ===================================================================== */
+
+const TERRITORY = { machine: 'The machine', life: 'In your life', work: 'At work', society: 'Society' };
+
+const DATA = {
+  id: 'root',
+  title: 'The Language Machine',
+  gist: `Chatbots and AI assistants, for everyone: what they are, where they slip, how people actually use them, and what they change.`,
+  children: [
+
+  /* ------------------------------------------------------------- MACHINE */
+  { id: 'machine', theme: 'machine', side: -1, title: 'The machine',
+    gist: `What a language model is, where it shines, where it slips, and why working in words changes the game.`,
+    children: [
+
+    { id: 'what', title: 'What it is', short: 'What it is',
+      gist: `It predicts text, at enormous scale, and surprising abilities come out of that. It is neither "just autocomplete" nor a mind.`,
+      children: [
+        { id: 'predict', title: 'It guesses the next word',
+          gist: `At its core, a model reads some text and predicts what comes next, one small piece at a time.`,
+          body: `During training it read a huge share of the written web, books and code, and kept adjusting billions of internal dials to get better at one game: guess the next fragment of text.\n\nWhen you chat with it, it plays the same game. It writes its answer one fragment (a "token") at a time, each one picked from a list of likely candidates.`,
+          analogy: `A musician who has listened to millions of songs and can improvise a convincing continuation of any tune you start. They don't look the tune up. They have absorbed how tunes go.`,
+          try: 'nextword',
+          catch: `Because it picks among likely continuations, the same question can get different answers. And a fluent answer is not proof of a correct one: see {{hallucination|fluent and wrong}}.` },
+        { id: 'scale', title: 'Scale made it surprising',
+          gist: `To predict text really well, a model has to pick up grammar, facts, styles and some reasoning along the way.`,
+          body: `To guess the last line of a detective novel, you need to have followed the plot. Pushed to huge scale, this simple guessing game produced skills nobody programmed directly: translating, summarizing, writing code, explaining a joke.\n\nResearchers still argue about how far this goes, which is part of why the whole topic feels slippery.`,
+          analogy: `Learning a language by immersion. Nobody hands you the grammar book, yet after enough conversations you know what sounds right, without always being able to say why.`,
+          catch: `Abilities that appear this way are uneven and hard to list in advance. That is the {{jagged|jagged frontier}}.` },
+        { id: 'neither', title: 'Neither autocomplete nor a mind',
+          gist: `Both slogans mislead. One undersells what it can do; the other oversells what it is.`,
+          body: `"Just autocomplete" misses that the predictions can carry real knowledge and real chains of reasoning. "A mind" imports things we have no evidence for: intentions, feelings, a stable self, accountability.\n\nA more useful picture: a very capable text engine that has learned the patterns of human writing, including the patterns of reasoning, and that has no stake of its own in whether its answer is true.`,
+          analogy: `An extremely well-read improviser. Brilliant at producing what a knowledgeable person would plausibly say next. That is a different thing from being that person.`,
+          ask: `Which word do you reach for when you talk about it: tool, assistant, colleague, oracle? What does that word make you expect from it?` },
+        { id: 'product', title: 'From model to product',
+          gist: `The chatbot you use is a model plus a lot of wrapping: instructions, safety rules, search, memory, tools.`,
+          body: `The raw model only continues text. Companies then train it to follow instructions and hold a conversation, add rules about what to refuse, connect it to web search or your files, and give it tools such as a calculator or a code runner.\n\nTwo apps built on similar models can behave very differently because of this wrapping.`,
+          analogy: `An engine and a car. The engine sets what is possible; steering, brakes and dashboard decide how it drives, and who can drive it safely.`,
+          example: `When a chatbot cites web pages, it ran a search and read the results before answering. When it doesn't, it answers from what it absorbed in training, which stops at a cut-off date and has gaps.` },
+      ] },
+
+    { id: 'fails', title: 'Where it works and fails', short: 'Works & fails',
+      gist: `Strong on one task, weak on a neighbouring one, and the boundary between the two is hard to predict.`,
+      children: [
+        { id: 'jagged', title: 'The jagged frontier',
+          gist: `Its skill doesn't fade gently. It can ace a hard task and fumble an easy-looking one right next to it.`,
+          body: `We judge people by consistency: someone who can write a legal brief can surely count the items in a list. Models break that intuition. Their competence map has peaks and holes in unexpected places, and the holes move with every new version.\n\nResearchers call this a jagged frontier. You only learn its shape by using the tool on your own tasks.`,
+          analogy: `A brilliant new colleague who trained in another country: fluent in advanced topics, with surprising gaps in things "everyone here knows". You learn their map by working with them.`,
+          example: `Headlines say a model passed a medical or bar exam at expert level. The same model might misread a simple table in your spreadsheet. Both can be true on the same day.`,
+          ask: `Has a chatbot ever impressed you and let you down in the same week? On what?` },
+        { id: 'hallucination', title: 'Fluent and wrong',
+          gist: `When it doesn't know, it can still produce a confident, well-formed answer that is false. This is called hallucination.`,
+          body: `The model is built to produce plausible text. A made-up reference, a wrong date or an invented quote can be just as plausible as a real one, and arrives in the same confident tone.\n\nWeb search and better training reduce the problem. No current system can promise it away.`,
+          analogy: `A student in an oral exam who never says "I don't know" and always produces a smooth answer. Sometimes the smoothness covers real knowledge, sometimes a gap.`,
+          example: `Lawyers have been sanctioned by courts for filing briefs that cited cases a chatbot invented. The citations looked perfectly real.`,
+          catch: `It is most dangerous exactly where you can't check: a field you don't know, a source you won't open. See {{verification|why checking is the scarce skill}}.` },
+        { id: 'headlines', title: 'Expert-level headlines',
+          gist: `Exam scores and benchmarks measure something real, but rarely the thing you care about.`,
+          body: `A test score shows what a model does on a fixed set of questions with known answers. Real work is messier: unclear goals, missing information, consequences.\n\nWhen you see a headline, ask what was measured, on which tasks, and whether those tasks look anything like yours. More on that in {{numbers|reading the numbers}}.`,
+          example: `A model can score near the top of a coding contest and still need a person to decide what the software should do, and whether it really does it.` },
+        { id: 'whyfail', title: 'Why the slips look strange',
+          gist: `It reads text in chunks, never touches the world directly, and doesn't check its work unless it is made to.`,
+          body: `Some failures come from how it reads (chunks of words, not letters). Some come from what it never saw: recent events, local knowledge, things people know but rarely write down. Others come from writing before verifying.\n\nMany products now bolt on tools for the weak spots: a calculator for arithmetic, search for fresh facts, small programs to handle data.`,
+          analogy: `Someone working from memory, in a room with no windows, writing in pen. Give them a calculator, a phone and an eraser and they do far better, if they think to use them.` },
+      ] },
+
+    { id: 'language', title: 'Why this wave is different', short: 'Why this wave is different',
+      gist: `Earlier automation took over doing. This wave takes over describing, and describing is how knowledge and institutions are organized.`,
+      children: [
+        { id: 'describing', title: 'From doing to describing',
+          gist: `Machines took over muscle, then arithmetic, then routine procedures, then pattern recognition. Now they work in language itself.`,
+          body: `Each earlier wave automated a specific kind of doing: lifting, computing, sorting, recognizing faces. Language is different. It is the medium we use to describe everything else: instructions, laws, contracts, recipes, scientific papers, job descriptions.\n\nA machine that works in language can reach every domain that has a vocabulary.`,
+          analogy: `Earlier machines were specialized tools in a workshop. This one is closer to the workshop's shared language: the thing everyone uses to say what the tools should do.`,
+          ask: `What in your work exists mainly as text: emails, reports, rules, code? That is where this wave arrives first.` },
+        { id: 'between', title: 'Between formal and informal',
+          gist: `Code demands precision; everyday speech tolerates vagueness. Language models live in between.`,
+          body: `A program crashes on a missing comma. A friend understands "grab me something to drink". A language model can accept a vague request where vagueness is fine, and turn it into something precise where precision is needed: a formula, a search query, a draft contract.`,
+          example: `"Organize my files" and "move every PDF older than 2020 into the Archive folder" are both just sentences. The model can break the first into steps like the second, and you can read and correct each step before anything happens.`,
+          catch: `When a request is vague, the model fills the gaps with guesses, and studies find those guesses shift when the model or the wording changes. Saying precisely what you want is becoming a core skill.` },
+        { id: 'interface', title: 'One interface to many domains',
+          gist: `Anything with a vocabulary (law, medicine, spreadsheets, software) can now be reached by talking.`,
+          body: `Language is also the glue between tools. An assistant can read your request, decide to search, use a calculator, write a bit of code and report back, all coordinated in words.\n\nThat is why the same chat box can help with a lease, a lesson plan and a spreadsheet formula in one afternoon.`,
+          catch: `Knowledge that is physical, tacit or situational (how dough should feel, how to calm one particular patient, the mood of a room) is thinly written down. "Language is the substrate for everything" overstates the case.` },
+        { id: 'guarantee', title: 'Flexible, so hard to guarantee',
+          gist: `The flexibility that opens the door to everyone also makes the results hard to guarantee.`,
+          body: `The bottleneck moves: from writing the program to saying what you want and checking what you got.\n\nFor high-stakes work, the most credible approach pairs language-level proposals with a strict checker: a test suite for code, a proof checker for mathematics, a qualified human for medicine or law.`,
+          example: `In mathematics, models now translate textbook proofs into a formal language that a checking program verifies line by line. The checker can confirm the proof is valid. It cannot confirm that the formal statement means what the mathematician intended. That translation step is the weak link.`,
+          catch: `A model's written "reasoning steps" look like a window into its thinking. Tests show they often leave out what actually swayed the answer. Treat them as a useful scaffold, not a reliable window.` },
+      ] },
+    ] },
+
+  /* ---------------------------------------------------------------- LIFE */
+  { id: 'life', theme: 'life', side: 1, title: 'In your life',
+    gist: `Where people already meet AI, often without noticing, and what it does to how we learn and think.`,
+    children: [
+
+    { id: 'everyday', title: 'Already everywhere', short: 'Already everywhere',
+      gist: `Most people already meet AI every day, often without noticing. Using it on purpose is a separate, smaller story.`,
+      children: [
+        { id: 'exposure', title: 'Chosen, embedded, connected',
+          gist: `You meet AI in three ways: you open a chatbot, it's built into something you already use, or you connect it to your own accounts.`,
+          body: `*Chosen* use is the chat app you open on purpose; roughly half of adults in rich countries now do that. *Embedded* AI reaches far more people: summaries above search results, assistants inside messaging apps, writing suggestions in email, photo clean-up on phones. *Connected* AI is the newest and rarest: an assistant you link to your mail, calendar or files so it can read and act there.`,
+          analogy: `Electricity. A few people own a power drill, everyone uses the lights, and a handful have wired up a smart home.` },
+        { id: 'notuse', title: '"I don\'t use AI" (but you do)',
+          gist: `Plenty of people sincerely say they don't use AI while using it daily through their phone and search.`,
+          body: `In one phone survey, about half of people said they don't use AI on their phone. Shown a list of common features, the large majority turned out to use at least one.\n\nPredictive text, photo touch-ups, call screening, search summaries: AI that works well tends to disappear into the product.`,
+          ask: `Quick show of hands: who used AI today? Now, who searched the web, used predictive text or edited a photo?` },
+        { id: 'who', title: 'Who uses it on purpose',
+          gist: `Age is the strongest divide, then job role and country. The early gender gap has largely closed.`,
+          body: `Young adults use chatbots about three times as often as people over 65. At work, leaders and managers use AI more than the people they manage. Use is much higher in rich countries than elsewhere. Early users skewed male; that has mostly evened out.`,
+          example: `At work, the biggest lever isn't training. It is the manager: people whose manager clearly supports AI use are far more likely to use it often.`,
+          catch: `Not using it is often a choice. Many people with access prefer their own methods, or cite privacy and ethical concerns. Non-use isn't always a skills gap.` },
+        { id: 'asks', title: 'What people actually ask',
+          gist: `Mostly practical help: how-to advice, writing, and looking things up. Personal use now outweighs work.`,
+          body: `On consumer chat apps, about 70% of requests are practical guidance, writing and editing, or seeking information. Coding, despite the headlines, is a small slice there, though it dominates on developer platforms.\n\nAnd a growing majority of requests have nothing to do with work: recipes, health questions, letters, homework, trip plans, thinking out loud.`,
+          ask: `What's the last thing you asked a chatbot? Or, if you never have, what would you ask first?` },
+        { id: 'connectors', title: 'AI that reads your apps',
+          gist: `Assistants can now connect to your mail, documents and calendar, and read and act inside them.`,
+          body: `Behind a "Connectors" or "Apps" panel in the settings, you link your mail or your documents, and the assistant can search, summarize and sometimes act inside them. A shared technical standard made this easy across providers. You never see the plumbing, only the panel.`,
+          catch: `The questions are the ones you'd ask about a human assistant: what can it see, what can it do without asking, and who is responsible when it gets something wrong?` },
+      ] },
+
+    { id: 'learning', title: 'Learning and thinking', short: 'Learning & thinking',
+      gist: `Doing a task with AI is not the same as learning it. What matters is whether AI does the thinking or supports it.`,
+      children: [
+        { id: 'perf', title: 'Performance isn\'t learning',
+          gist: `With AI, people reliably do the task better. Whether they learn more is a separate question.`,
+          body: `Trials consistently find that AI raises scores on the task at hand. Take the AI away, though, and the picture splits.\n\nIn one field experiment, students who practised with a chatbot scored higher during practice but worse on a closed-book exam afterwards. In another trial, programmers learning a new tool with AI help understood it less well than those who coded by hand, and saved no real time.`,
+          analogy: `Satnav gets you there faster every time. After a year of satnav, could you draw a map of your town?`,
+          ask: `Think of something you learned the hard way. Which part of the struggle actually mattered?` },
+        { id: 'opposite', title: 'Same tool, opposite results',
+          gist: `Studies find AI tutors that boost learning and AI tutors that hurt it. The difference is how they're used.`,
+          body: `When the AI explains, asks questions and makes the student do the work, gains appear and can last. When it hands over answers, gains shrink or reverse.\n\nIn one large university trial, a built-in AI tutor lowered final grades and course participation. Elsewhere, a carefully designed physics tutor beat active classroom teaching. The weakest students often gained least.`,
+          example: `Students who used AI to explain a concept kept more of it a week later than those who let AI do the exercise. Programmers who asked "why does this work?" retained more than those who just asked for the code.` },
+        { id: 'offload', title: 'Offloading: relief or erosion?',
+          gist: `Handing thinking to a tool can free your mind or let a skill wither. The evidence points both ways.`,
+          body: `Surveys link heavy use and high trust in AI to less critical thinking, especially among young users. Knowledge workers report shifting their effort from gathering information to checking what the AI produced.\n\nYet calculators made many people better at applied maths, and some studies find structured use of technology protective. The emerging view: passive use erodes skills, structured use can build them.`,
+          catch: `Most of this evidence covers weeks or one semester, relies partly on self-reports, and comes from rich countries. Nobody has yet tracked how years of AI use change the way people reason. It is an open question.` },
+        { id: 'homework', title: 'The homework problem',
+          gist: `A take-home essay no longer shows what a student can do alone. Assessment is where education feels the most strain.`,
+          body: `Most students at large universities now use generative AI, and estimated cheating rises sharply among daily users. The deeper problem is validity: the grade no longer measures what it claims to measure.\n\nSchools are responding with in-person exams, oral defences, clearer rules, and assignments that build AI in openly.`,
+          ask: `If you were a teacher tomorrow, what would you ask students to do that AI can't do for them, or that they'd want to do themselves?` },
+      ] },
+
+    { id: 'usewell', title: 'Using it well', short: 'Using it well',
+      gist: `A few habits separate useful help from confident nonsense: give context, match trust to stakes, keep your own head in the game.`,
+      children: [
+        { id: 'brief', title: 'Give it the brief you\'d give a person',
+          gist: `Most disappointing answers come from thin questions. Context, purpose and audience change everything.`,
+          body: `The model doesn't know who you are, what you've tried, or what "good" looks like to you. Say it.\n\n"Write an email" gets a generic email. "Write a short, polite but firm email to my landlord asking to fix the boiler this week; I've asked twice already" gets one you can send.`,
+          example: `Paste the actual document, error message or table instead of describing it. Then say what you will use the answer for.` },
+        { id: 'trustlevel', title: 'Match trust to the stakes',
+          gist: `Brainstorming a party theme and checking a medication dose deserve very different levels of trust.`,
+          body: `For low-stakes, easy-to-judge tasks (a first draft, ideas, rephrasing), use it freely. For facts you'll act on, ask for sources and open them. For health, legal or money decisions, use it to prepare better questions for a professional.`,
+          analogy: `Advice from a well-read friend at dinner: great for getting oriented, not something you'd sign a contract on.` },
+        { id: 'sparring', title: 'Think with it, not instead of it',
+          gist: `Ask it to question you, critique your draft or explain its steps, and you learn as you go.`,
+          body: `The same tool can be a vending machine for answers or a sparring partner. Try "ask me three questions before you answer", "what's the strongest argument against my plan?", or "explain this step, then quiz me".\n\nThis is the way of using it that the {{opposite|learning studies}} reward.` },
+        { id: 'share', title: 'Mind what you share',
+          gist: `What you type may be stored, reviewed or used for training, depending on the product and your settings.`,
+          body: `Check the privacy settings of the app you use. Keep other people's personal data, health details and work secrets out, unless your employer provides an approved tool.\n\n{{connectors|Connected assistants}} raise the stakes: they can see everything you have linked to them.` },
+      ] },
+    ] },
+
+  /* ---------------------------------------------------------------- WORK */
+  { id: 'work', theme: 'work', side: 1, title: 'At work',
+    gist: `Jobs are bundles of tasks. AI absorbs some faster than others, and is starting to take on whole errands.`,
+    children: [
+
+    { id: 'jobs', title: 'Jobs are bundles of tasks', short: 'Jobs as bundles',
+      gist: `Jobs are bundles of tasks, and some tasks are absorbed much faster than others.`,
+      children: [
+        { id: 'tasks', title: 'Think in tasks, not jobs',
+          gist: `"Will AI take my job?" is the wrong unit. Ask which of your tasks it changes.`,
+          body: `A job is a bundle. A teacher prepares material, explains, marks, manages a room, talks with parents, notices who is struggling. AI touches some of these heavily (drafting material, first-pass feedback) and others barely (the room, the relationships).\n\nJobs change shape as the bundle is rearranged. Some shrink, some grow, a few disappear, new ones appear.`,
+          example: `Bank tellers didn't vanish with cash machines; the job shifted towards advice and sales. Typists largely did vanish with word processors. The difference was how much of the bundle remained.`,
+          ask: `List five things you did at work last week. Which would you happily hand off? Which would you defend?` },
+        { id: 'twist', title: 'Who\'s exposed: a twist',
+          gist: `This wave reaches office and creative work first, the reverse of most past automation.`,
+          body: `Earlier waves hit routine manual and clerical work. Language models reach writing, analysis, coding, customer support, translation and design: work done at a desk, with words and symbols. Hands-on, in-person and physically varied jobs are, for now, much less touched.`,
+          catch: `Exposure isn't replacement. A task AI *can* do may still be done by people, because of trust, liability, cost, or because customers want a human.` },
+        { id: 'productivity', title: 'Faster, and then what?',
+          gist: `Faster drafts don't automatically mean better results, fewer jobs or higher pay. Who captures the gain is a choice.`,
+          body: `Studies of customer support and writing found big speed-ups, often largest for less experienced workers. Whether that turns into shorter weeks, more output, higher wages or fewer hires depends on companies, unions, laws and markets.\n\nThe technology sets the possibilities; {{decides|people decide}} what happens.`,
+          analogy: `A new road can cut commute times, or fill up with more traffic. What happens depends on how people respond, not on the asphalt.` },
+        { id: 'managers', title: 'The manager effect',
+          gist: `Inside organizations, adoption follows leadership more than training.`,
+          body: `Leaders use AI more than the people they manage, and employees with a supportive manager are far more likely to use it often. Meanwhile many workers use personal tools quietly, without telling anyone.\n\nOrganizations that set clear rules tend to get more open, and safer, use.` },
+      ] },
+
+    { id: 'agents', title: 'From answers to errands', short: 'Answers to errands',
+      gist: `AI can be handed a multi-step job and work through it alone, using tools on the way. Few people do this yet, but it already takes a large share of the computing.`,
+      children: [
+        { id: 'modes', title: 'Ask, co-work, delegate',
+          gist: `Three ways to use the same AI: one question and one answer, iterating together, or handing over a whole job.`,
+          body: `*Ask*: a question, an answer, done. Most everyday use looks like this.\n\n*Co-work*: you draft and refine together, back and forth. Around half of conversations on some assistants look like this.\n\n*Delegate*: you describe a goal and an "agent" works for minutes or hours, searching, writing code, editing files, then reports back.`,
+          analogy: `Asking a librarian, writing with a co-author, hiring a contractor. Each needs a different kind of instruction, and a different kind of checking.` },
+        { id: 'compute', title: 'Few users, most of the work',
+          gist: `Coding agents serve a tiny fraction of users, yet produce most of the AI output in some workplaces.`,
+          body: `A coding agent may be used by well under 1% of a chatbot's audience, yet among business users it now generates most of the text the AI writes. One agent task can involve around a thousand times more text than a chat exchange.\n\nThat is why "agentic AI" dominates industry talk while most people have never knowingly used it.`,
+          catch: `Nearly all figures about agents come from the companies that sell them. Independent surveys don't measure agent use yet.` },
+        { id: 'loop', title: 'The delegation loop',
+          gist: `Delegating well means saying clearly what you want up front, and checking the result at the end.`,
+          body: `With an agent, your effort moves to both ends. Before: what exactly do you want, what are the limits, what does "done" look like? After: did it do that, and nothing else? The middle gets automated.\n\nPeople who are good at briefing others and reviewing their work tend to be good at this. It is the {{guarantee|specify-and-check}} problem in everyday clothes.`,
+          example: `"Clean up my downloads folder" could mean archive, delete or sort, and an agent will pick one. "Move files older than six months into an Archive folder, delete nothing, and give me a list of what moved" can be checked.` },
+        { id: 'acting', title: 'Acting raises the stakes',
+          gist: `An answer can be ignored. An action (sending, buying, deleting) can't be taken back so easily.`,
+          body: `When AI acts on your behalf, mistakes have consequences, and new risks appear. A web page or email can hide instructions that try to steer the agent somewhere you didn't intend.\n\nSensible set-ups ask for confirmation before anything irreversible, limit what the agent can touch, and keep a record of what it did.`,
+          ask: `What's one errand you'd hand to an AI today? One you never would? What's the difference between them?` },
+      ] },
+
+    { id: 'trust', title: 'Expertise and trust', short: 'Expertise & trust',
+      gist: `Fluent answers are cheap now, so checking them becomes the scarce skill.`,
+      children: [
+        { id: 'fluency', title: 'Polish is no longer a signal',
+          gist: `We used to read polished writing as a sign of competence. That shortcut is broken.`,
+          body: `A well-structured, confident text used to suggest that someone knew the subject. Now anyone can produce one in seconds.\n\nReviewers, teachers, editors and recruiters all lose a cue they relied on, and need new ways to tell knowledge from its imitation.`,
+          example: `Job applications and cover letters have become more polished and more alike. Recruiters respond with more interviews and practical tests.` },
+        { id: 'verification', title: 'Checking is the scarce skill',
+          gist: `Checking an answer often needs the very expertise the answer seemed to replace.`,
+          body: `Spotting a subtle error in a contract, a diagnosis or a piece of code takes knowing the field. AI makes experts faster, and hands novices answers they can't evaluate.\n\nIn surveys of knowledge workers, effort moves from gathering information to verifying the AI's output.`,
+          catch: `If juniors no longer do the routine work where expertise used to be built, where will the next generation of experts come from?` },
+        { id: 'fingertips', title: 'Advice for everyone',
+          gist: `Advice and information dominate use. That spreads help widely, and concentrates trust in a few systems.`,
+          body: `Someone with no lawyer, tutor or doctor on call can now get a decent first explanation at 2 a.m. That is a real gain.\n\nBut millions now ask the same few systems, so those systems' blind spots and biases repeat at enormous scale.`,
+          ask: `Where would you trust an AI answer more than a quick web search? Where less than a friend's advice?` },
+      ] },
+    ] },
+
+  /* ------------------------------------------------------------- SOCIETY */
+  { id: 'society', theme: 'society', side: -1, title: 'Society',
+    gist: `Power, incentives and money shape what AI becomes. And it raises old questions about what we are.`,
+    children: [
+
+    { id: 'decides', title: 'Who decides', short: 'Who decides',
+      gist: `Data, power, regulation and cost are public choices, not technical inevitabilities.`,
+      children: [
+        { id: 'gatekeepers', title: 'A handful of builders',
+          gist: `Building the most capable models takes enormous computing power, money and data. Only a few companies can.`,
+          body: `That concentration shapes what gets built, which languages and cultures are served well, and on whose terms. Open models, public research and competition push back, and the balance is still being set.`,
+          ask: `Should the most capable AI systems be treated more like a public utility, a regular product, or something else?` },
+        { id: 'ourwords', title: 'Built from our words',
+          gist: `Models learned from text written by millions of people. Credit, consent and payment are unsettled.`,
+          body: `Authors, artists, newspapers and programmers have gone to court over training on their work; some publishers have signed licensing deals instead.\n\nThe outcome will shape who benefits from the value stored in collective human writing.`,
+          ask: `If your writing helped train a model, what would you want: credit, money, a say, or nothing at all?` },
+        { id: 'rules', title: 'Rules are being written now',
+          gist: `Laws on transparency, safety and liability are being drafted in many places, with very different philosophies.`,
+          body: `Europe has passed broad AI legislation; other countries prefer rules sector by sector, or voluntary commitments. The open questions are concrete: who is liable when AI causes harm, what must be disclosed, which uses should be banned outright.\n\nThese are political choices, open to public debate.` },
+        { id: 'bill', title: 'The hidden bill',
+          gist: `Every answer runs in data centres that use electricity, water and scarce chips.`,
+          body: `One chat costs little. Billions a day, plus agents that run for hours, add up. AI demand is now a real factor in power-grid planning.\n\nThe trade-offs (where to build, with which energy, who pays) are decisions, not facts of nature.`,
+          catch: `Estimates vary widely, and each answer keeps getting more efficient even as total use grows.` },
+      ] },
+
+    { id: 'hype', title: 'Hype, fear and incentives', short: 'Hype & fear',
+      gist: `Boosters and doomsayers both have incentives. Ask what was measured, and by whom.`,
+      children: [
+        { id: 'stakes', title: 'Everyone has a stake',
+          gist: `Companies sell, investors bet, critics build audiences, media chase attention. All of it shapes what you hear.`,
+          body: `Bold promises raise money and attention; dire warnings do too. That doesn't make either side wrong. It means the loudest claims deserve the most scrutiny.\n\nA useful habit: ask what this person would gain if you believed them.` },
+        { id: 'numbers', title: 'Read the numbers like a pro',
+          gist: `Five questions that cut through most AI statistics.`,
+          body: `*Who measured it?* Often the vendor, using its own logs. *What's the definition?* "Ever used", "weekly" and "monthly users" give very different numbers. *People or messages?* A few heavy users can dominate a count of requests. *Reach or use?* Seeing an AI summary isn't choosing to use AI. *Where and when?* Most surveys cover rich countries, and figures age in months.`,
+          example: `"Billions of monthly users" for search summaries counts everyone who was shown one: exposure, not choice. "Half of adults use chatbots" comes from asking people directly. Both are true; they mean very different things.` },
+        { id: 'doomdazzle', title: 'Between doom and dazzle',
+          gist: `Most of the real story is slower and more uneven than either camp suggests.`,
+          body: `Big risks deserve serious work: misuse, concentration of power, loss of skills, systems we don't fully understand. So do big benefits.\n\nBut daily reality is mostly ordinary: a better draft, a quicker search, a confusing answer, a policy meeting. Holding both scales in mind is the hard part.`,
+          ask: `What would change your mind about AI, in either direction?` },
+      ] },
+
+    { id: 'us', title: 'What it says about us', short: 'What it says about us',
+      gist: `Understanding, creativity and intelligence are worth rethinking.`,
+      children: [
+        { id: 'understand', title: 'What does "understand" mean?',
+          gist: `If a system explains a joke well, does it understand it? The answer depends on what we meant all along.`,
+          body: `We never had to define understanding precisely, because only people did it. Now we have to decide whether it is about behaviour (giving the right answers), inner experience, or connection to the world.\n\nPhilosophers have argued about this for decades. Now the question has practical stakes.` },
+        { id: 'creativity', title: 'Creativity, recombined',
+          gist: `Models recombine what they've seen. Critics say that isn't creativity; others say that's what people do too.`,
+          body: `Much human creativity is recombination guided by taste, intention and lived experience. Models do the recombining fluently. What they lack, or have, is the heart of the debate.\n\nIn practice, many artists use them like a sketchbook and keep the choices for themselves.` },
+        { id: 'human', title: 'What stays human',
+          gist: `When explaining and drafting get cheap, other things gain value: judgment, care, presence, responsibility.`,
+          body: `Someone still decides what is worth doing, answers for it when it goes wrong, sits with a person who is struggling, and knows a place from having lived there.\n\nThese may move from the edges of many jobs to their centre.`,
+          ask: `What part of your work or life would you never want automated, even if it could be done perfectly?` },
+      ] },
+    ] },
+  ],
+};
+
+const PATHS = [
+  { id: 'new', label: 'New to all this', who: 'Start from zero: what it is, how it slips, and where you already meet it.',
+    steps: [
+      ['predict', 'Start with the mechanism. Most of what follows comes from this one guessing game. Try the "Try it" chip.'],
+      ['neither', 'Two slogans you will hear everywhere. Both mislead, in opposite directions.'],
+      ['jagged', 'Why the same tool can impress and disappoint you in one afternoon.'],
+      ['hallucination', 'The one failure everyone should know about before relying on an answer.'],
+      ['exposure', 'You have very likely met AI today already, by choice or not.'],
+      ['brief', 'One habit that makes the biggest difference to the answers you get.'],
+    ] },
+  { id: 'worried', label: 'Worried about it', who: 'Jobs, learning and power: what is actually changing, and what is still a choice.',
+    steps: [
+      ['tasks', 'First, change the question: from whole jobs to the tasks inside them.'],
+      ['twist', 'Who is exposed this time, and why that is new.'],
+      ['productivity', 'Gains don’t distribute themselves. Someone decides.'],
+      ['perf', 'A quieter risk than job loss: doing without learning.'],
+      ['rules', 'These outcomes are being decided now, in public, and can be argued over.'],
+      ['human', 'What gains value when drafting and explaining get cheap.'],
+    ] },
+  { id: 'skeptic', label: 'Skeptical of the hype', who: 'Incentives, numbers and failure modes, and the parts that hold up anyway.',
+    steps: [
+      ['stakes', 'Start with incentives: who benefits from each claim?'],
+      ['numbers', 'Five questions to ask any AI statistic.'],
+      ['headlines', 'What exam scores do, and don’t, tell you.'],
+      ['hallucination', 'The core reliability problem, stated plainly.'],
+      ['fingertips', 'And yet: the parts that are genuinely useful to ordinary people.'],
+      ['doomdazzle', 'Where that leaves a fair-minded skeptic.'],
+    ] },
+  { id: 'power', label: 'Already a heavy user', who: 'From chat to agents: delegating, checking, and the learning trap.',
+    steps: [
+      ['modes', 'Three modes of use. Which one are you in, most of the time?'],
+      ['loop', 'Delegation moves your effort to the brief and the review.'],
+      ['acting', 'When the AI acts rather than answers, the stakes change.'],
+      ['verification', 'The skill that becomes scarce as answers become cheap.'],
+      ['perf', 'The trap for heavy users: performing better while learning less.'],
+      ['share', 'What a connected assistant can see.'],
+    ] },
+  { id: 'notforme', label: 'Not really my thing', who: 'You may use more AI than you think, and it may already involve your data and your words.',
+    steps: [
+      ['notuse', 'Many people who "don’t use AI" use it every day.'],
+      ['exposure', 'The three ways it reaches you, chosen or not.'],
+      ['connectors', 'The newest channel: assistants that read your accounts.'],
+      ['ourwords', 'It was built partly from words people like you wrote.'],
+      ['rules', 'And the rules around it are still open to your opinion.'],
+    ] },
+];
+
+/* =====================================================================
+   ENGINE
+   ===================================================================== */
+
+const WIDTH = [440, 300, 330, 380];   // card width by depth
+const GAPX  = [0, 110, 90, 80];       // horizontal gap before a column of depth d
+const GAPY  = [0, 90, 26, 16];        // vertical gap between siblings of depth d
+const MIN_S = 0.05, MAX_S = 2.4, FAR_S = 0.46;
+const DRAWERS = [
+  ['analogy', '≈', 'Analogy'],
+  ['example', '→', 'Example'],
+  ['try', '▸', 'Try it'],
+  ['catch', '!', 'The catch'],
+  ['ask', '?', 'Ask the room'],
+];
+
+// next-word toy: illustrative probabilities for "After the storm, the streets were ___"
+const NEXT = [['wet', 42], ['empty', 17], ['flooded', 12], ['quiet', 9], ['littered', 7], ['shining', 5], ['slippery', 4], ['singing', 2], ['purple', 2]];
+
+const $ = (s, r = document) => r.querySelector(s);
+const vp = $('#vp'), world = $('#world'), zonesG = $('#zones'), edgesG = $('#edges');
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const SVGNS = 'http://www.w3.org/2000/svg';
+
+const state = { follow: true, tour: null, spot: null, touched: false };
+let booted = false;
+const cam = { x: 0, y: 0, s: 1 };
+const nodes = new Map();
+const all = [];
+
+function fmt(s) {
+  return s
+    .replace(/\{\{([\w-]+)\|([^}]+)\}\}/g, (_, id, l) => `<button type="button" class="xref" data-act="goto" data-id="${id}">${l}</button>`)
+    .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+}
+const paras = s => s.split(/\n\n/).map(p => `<p>${fmt(p)}</p>`).join('');
+
+/* ---------- build ---------- */
+function register(n, parent, depth) {
+  n.parent = parent; n.depth = depth; n.kids = n.children || [];
+  if (parent && depth > 1) { n.theme = parent.theme; n.side = parent.side; }
+  n.expanded = depth < 2; n.open = false; n.shown = false;
+  n.x = n.y = n.tx = n.ty = 0; n.w = WIDTH[depth]; n.h = 0; n.sh = 0;
+  nodes.set(n.id, n); all.push(n);
+  n.kids.forEach(k => register(k, n, depth + 1));
+}
+register(DATA, null, 0);
+
+function eyebrow(n) {
+  if (n.depth === 0) return 'A map for curious people';
+  if (n.depth === 1) return 'Territory';
+  if (n.depth === 2) return TERRITORY[n.theme];
+  return n.parent.title;
+}
+
+function buildCard(n) {
+  const el = document.createElement('article');
+  el.className = `card d${n.depth} t-${n.theme || 'root'}`;
+  el.dataset.id = n.id;
+  el.style.width = n.w + 'px';
+  el.hidden = true;
+  let h = `<div class="hd"${n.depth ? ' data-act="toggle"' : ''}><p class="eyebrow">${eyebrow(n)}</p><h2>${n.title}</h2>`;
+  if (n.gist) h += `<p class="gist">${fmt(n.gist)}</p>`;
+  h += `</div>`;
+  if (n.depth === 0) {
+    h += `<div class="root-x"><ul class="hints">
+      <li><b>Drag</b> to move around the map</li>
+      <li><b>Scroll</b> or <b>pinch</b> to zoom in and out</li>
+      <li><b>Click</b> a card to open it, and again to fold it</li></ul>
+      <button class="go" type="button" data-act="guide">Choose a path for me</button></div>`;
+  }
+  if (n.depth === 3) {
+    const kinds = DRAWERS.filter(([k]) => n[k]);
+    h += `<div class="more" hidden><div class="body">${paras(n.body)}</div>`;
+    if (kinds.length) {
+      h += `<div class="chips">` + kinds.map(([k, g, l]) =>
+        `<button type="button" class="chip" data-act="chip" data-k="${k}" aria-expanded="false"><span class="g">${g}</span>${l}</button>`).join('') + `</div>`;
+      h += kinds.map(([k, , l]) => `<div class="drawer k-${k}" data-k="${k}" hidden><p class="dl">${l}</p>${k === 'try' ? widgetHTML(n[k]) : `<p>${fmt(n[k])}</p>`}</div>`).join('');
+    }
+    h += `</div>`;
+    n.glyphs = kinds.map(k => k[1]).join(' ');
+  }
+  if (n.depth > 0) {
+    h += `<div class="foot"><button type="button" class="fbtn" data-act="toggle" aria-expanded="false"><span class="pm"></span><span class="fl"></span></button>`;
+    if (n.depth === 3 && n.glyphs) h += `<span class="fx" aria-hidden="true">${n.glyphs}</span>`;
+    h += `</div>`;
+  }
+  h += `<div class="far" aria-hidden="true">${n.short || n.title}</div>`;
+  el.innerHTML = h;
+  n.el = el;
+  world.appendChild(el);
+  if (n.parent) {
+    const p = document.createElementNS(SVGNS, 'path');
+    p.setAttribute('class', 'edge');
+    edgesG.appendChild(p);
+    n.edge = p;
+  }
+  if (n.depth === 1) {
+    const r = document.createElementNS(SVGNS, 'rect');
+    r.setAttribute('class', 'zone');
+    r.setAttribute('rx', '40');
+    zonesG.appendChild(r);
+    n.zone = r;
+  }
+}
+all.forEach(buildCard);
+
+function updateCard(n) {
+  const fb = n.el.querySelector('.fbtn');
+  if (n.depth === 1 || n.depth === 2) {
+    const c = n.kids.length, what = n.depth === 1 ? 'angles' : 'threads';
+    fb.setAttribute('aria-expanded', String(n.expanded));
+    fb.querySelector('.fl').textContent = n.expanded ? `Hide ${what}` : (n.depth === 1 ? `Show ${c} ${what}` : `Open ${c} ${what}`);
+    n.el.classList.toggle('is-exp', n.expanded);
+  } else if (n.depth === 3) {
+    n.el.querySelector('.more').hidden = !n.open;
+    fb.setAttribute('aria-expanded', String(n.open));
+    fb.querySelector('.fl').textContent = n.open ? 'Fold' : 'Read more';
+    n.el.classList.toggle('is-open', n.open);
+  }
+}
+
+/* ---------- visibility + layout ---------- */
+function isVisible(n) { for (let p = n.parent; p; p = p.parent) if (!p.expanded) return false; return true; }
+
+function syncVisibility() {
+  for (const n of all) {
+    const v = isVisible(n);
+    if (v && !n.shown) {
+      n.shown = true; n.el.hidden = false;
+      const p = n.parent;
+      if (p && p.shown) { n.x = p.x + (p.w - n.w) / 2; n.y = p.y + 10; }
+      if (!reduceMotion && booted) {
+        n.el.classList.add('enter');
+        requestAnimationFrame(() => requestAnimationFrame(() => n.el.classList.remove('enter')));
+      }
+      placeEl(n);
+    } else if (!v && n.shown) {
+      n.shown = false; n.el.hidden = true;
+    }
+    if (n.edge) n.edge.style.display = n.shown ? '' : 'none';
+    updateCard(n);
+  }
+}
+
+const kidsShown = n => (n.expanded ? n.kids.filter(k => k.shown) : []);
+const stackH = ks => ks.reduce((a, k) => a + k.sh, 0) + GAPY[ks[0].depth] * (ks.length - 1);
+function calcSH(n) {
+  const ks = kidsShown(n);
+  ks.forEach(calcSH);
+  n.sh = ks.length ? Math.max(n.h, stackH(ks)) : n.h;
+}
+// Outline-style: a parent is top-aligned with its first child; children stack downward.
+function place(n, edge, top, dir) {
+  n.tx = dir > 0 ? edge : edge - n.w;
+  n.ty = top;
+  const ks = kidsShown(n);
+  if (!ks.length) return;
+  const ce = dir > 0 ? n.tx + n.w + GAPX[n.depth + 1] : n.tx - GAPX[n.depth + 1];
+  let y = top;
+  for (const k of ks) { place(k, ce, y, dir); y += k.sh + GAPY[k.depth]; }
+}
+
+function layout(anchor) {
+  const vis = all.filter(n => n.shown);
+  for (const n of vis) n.h = n.el.offsetHeight;
+  const root = DATA;
+  root.tx = -root.w / 2; root.ty = -root.h / 2;
+  for (const dir of [-1, 1]) {
+    const ths = kidsShown(root).filter(t => t.side === dir);
+    if (!ths.length) continue;
+    ths.forEach(calcSH);
+    const total = stackH(ths);
+    let y = -total / 2;
+    const edge = dir > 0 ? root.w / 2 + GAPX[1] : -root.w / 2 - GAPX[1];
+    for (const t of ths) { place(t, edge, y, dir); y += t.sh + GAPY[1]; }
+  }
+  if (anchor && anchor.shown) {
+    const dx = anchor.x - anchor.tx, dy = anchor.y - anchor.ty;
+    for (const n of vis) { n.tx += dx; n.ty += dy; }
+  }
+}
+
+function snap() { for (const n of all) { n.x = n.tx; n.y = n.ty; placeEl(n); } }
+function placeEl(n) { n.el.style.transform = `translate(${n.x}px, ${n.y}px)`; }
+
+/* ---------- camera ---------- */
+let fly = null;
+function flyTo(to, dur = 560) {
+  to.s = clamp(to.s, MIN_S, MAX_S);
+  if (reduceMotion || dur === 0) { cam.x = to.x; cam.y = to.y; cam.s = to.s; fly = null; kick(); return; }
+  const cx = innerWidth / 2, cy = innerHeight / 2;
+  fly = {
+    a: { wx: (cx - cam.x) / cam.s, wy: (cy - cam.y) / cam.s, s: cam.s },
+    b: { wx: (cx - to.x) / to.s, wy: (cy - to.y) / to.s, s: to.s },
+    t0: performance.now(), dur,
+  };
+  kick();
+}
+function stepFly(t) {
+  if (!fly) return false;
+  const p = clamp((t - fly.t0) / fly.dur, 0, 1), e = ease(p);
+  const cx = innerWidth / 2, cy = innerHeight / 2;
+  const s = Math.exp(lerp(Math.log(fly.a.s), Math.log(fly.b.s), e));
+  cam.s = s; cam.x = cx - lerp(fly.a.wx, fly.b.wx, e) * s; cam.y = cy - lerp(fly.a.wy, fly.b.wy, e) * s;
+  if (p >= 1) fly = null;
+  return true;
+}
+function zoomAt(px, py, ns) {
+  ns = clamp(ns, MIN_S, MAX_S);
+  cam.x = px - (px - cam.x) * ns / cam.s;
+  cam.y = py - (py - cam.y) * ns / cam.s;
+  cam.s = ns;
+}
+
+const brand = $('#brand'), tools = $('#tools'), zoombar = $('#zoombar'), tourEl = $('#tour'), guide = $('#guide');
+function safe() {
+  const vw = innerWidth, vh = innerHeight;
+  const tb = tools.getBoundingClientRect(), bb = brand.getBoundingClientRect();
+  let top = bb.bottom + 14;
+  if (tb.top < vh / 2) top = Math.max(top, tb.bottom + 14);
+  let bottom = vh - 16;
+  for (const el of [tourEl, zoombar, tools]) {
+    if (el.hidden || getComputedStyle(el).display === 'none') continue;
+    const r = el.getBoundingClientRect();
+    if (r.top > vh / 2) bottom = Math.min(bottom, r.top - 14);
+  }
+  let right = vw - 16;
+  if (!guide.hidden && vw > 900) right = guide.getBoundingClientRect().left - 16;
+  return { l: 16, t: top, r: right, b: bottom };
+}
+function bbox(list, useTarget = true) {
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const n of list) {
+    const x = useTarget ? n.tx : n.x, y = useTarget ? n.ty : n.y;
+    x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x + n.w); y1 = Math.max(y1, y + n.h);
+  }
+  return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+}
+function fitBox(b, maxS = 1, pad = 28, dur) {
+  const sr = safe();
+  const w = Math.max(80, sr.r - sr.l - 2 * pad), h = Math.max(80, sr.b - sr.t - 2 * pad);
+  let s = clamp(Math.min(w / b.w, h / b.h), MIN_S, maxS);
+  const x = (sr.l + sr.r) / 2 - (b.x + b.w / 2) * s;
+  // if the box is taller than the view even at this scale, align its top
+  let y = (sr.t + sr.b) / 2 - (b.y + b.h / 2) * s;
+  if (b.h * s > h) y = sr.t + pad - b.y * s;
+  flyTo({ x, y, s }, dur);
+}
+function fitAll(dur) { fitBox(bbox(all.filter(n => n.shown)), 1, 28, dur); }
+const subtree = n => { const out = [n]; for (const k of kidsShown(n)) out.push(...subtree(k)); return out; };
+
+// Bring a card (or part of it) into view; zoom in to a readable size if we are far away.
+function focusCard(n, part) {
+  const sr = safe(), pad = 20;
+  const vw = sr.r - sr.l - 2 * pad, vh = sr.b - sr.t - 2 * pad;
+  const r = part || { x: n.tx, y: n.ty, w: n.w, h: n.h };
+  let s = cam.s, x, y;
+  if (s < 0.72 || n.w * s > vw) s = clamp(Math.min(1.05, vw / n.w), 0.3, 1.05);
+  if (s !== cam.s) {
+    x = (sr.l + sr.r) / 2 - (n.tx + n.w / 2) * s;
+    y = r.h * s <= vh ? (sr.t + sr.b) / 2 - (r.y + r.h / 2) * s : sr.t + pad - r.y * s;
+  } else {
+    const L = n.tx * s + cam.x, R = L + n.w * s;
+    x = (L < sr.l + pad || R > sr.r - pad) ? (sr.l + sr.r) / 2 - (n.tx + n.w / 2) * s : cam.x;
+    const T = r.y * s + cam.y, B = T + r.h * s;
+    if (r.h * s > vh || T < sr.t + pad) y = cam.y + (sr.t + pad - T);
+    else if (B > sr.b - pad) y = cam.y + (sr.b - pad - B);
+    else y = cam.y;
+  }
+  if (Math.abs(x - cam.x) > 1 || Math.abs(y - cam.y) > 1 || s !== cam.s) flyTo({ x, y, s });
+}
+
+/* ---------- render loop ---------- */
+let raf = 0, lastT = 0;
+function kick() { if (!raf) raf = requestAnimationFrame(frame); }
+function frame(t) {
+  raf = 0;
+  const dt = lastT ? Math.min(64, t - lastT) : 16;
+  lastT = t;
+  let moving = stepFly(t);
+  const k = reduceMotion ? 1 : 1 - Math.exp(-dt / 85);
+  for (const n of all) {
+    if (!n.shown) continue;
+    const dx = n.tx - n.x, dy = n.ty - n.y;
+    if (Math.abs(dx) > .4 || Math.abs(dy) > .4) { n.x += dx * k; n.y += dy * k; moving = true; }
+    else if (dx || dy) { n.x = n.tx; n.y = n.ty; }
+    else continue;
+    placeEl(n);
+  }
+  applyCamera();
+  drawLinks();
+  drawMinimap();
+  if (moving) kick(); else lastT = 0;
+}
+
+const zl = $('#zl');
+let wasFar = null;
+function applyCamera() {
+  world.style.transform = `translate(${cam.x}px, ${cam.y}px) scale(${cam.s})`;
+  let g = 28 * cam.s;
+  while (g < 14) g *= 2;
+  while (g > 56) g /= 2;
+  vp.style.backgroundSize = `${g}px ${g}px`;
+  vp.style.backgroundPosition = `${cam.x}px ${cam.y}px`;
+  const far = cam.s < FAR_S;
+  if (far !== wasFar) { world.classList.toggle('is-far', far); wasFar = far; }
+  if (far) world.style.setProperty('--inv', (1 / cam.s).toFixed(3));
+  zl.textContent = Math.round(cam.s * 100) + '%';
+}
+
+function drawLinks() {
+  for (const n of all) {
+    if (n.edge && n.shown) {
+      const p = n.parent, dir = n.side;
+      const x1 = dir > 0 ? p.x + p.w : p.x;
+      const y1 = p.y + (p.depth === 0 ? p.h / 2 : Math.min(p.h / 2, 46));
+      const x2 = dir > 0 ? n.x : n.x + n.w;
+      const y2 = n.y + Math.min(n.h / 2, 46);
+      const mx = (x1 + x2) / 2;
+      n.edge.setAttribute('d', `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`);
+      n.edge.style.stroke = `var(--${n.theme})`;
+    }
+    if (n.zone) {
+      const b = bbox(subtree(n), false), pad = 34;
+      n.zone.setAttribute('x', b.x - pad); n.zone.setAttribute('y', b.y - pad);
+      n.zone.setAttribute('width', b.w + pad * 2); n.zone.setAttribute('height', b.h + pad * 2);
+      n.zone.style.fill = `color-mix(in srgb, var(--${n.theme}) 7%, transparent)`;
+      n.zone.style.display = n.shown ? '' : 'none';
+    }
+  }
+}
+
+/* ---------- minimap ---------- */
+const mmBox = $('#minimap'), mm = $('#mm'), mctx = mm.getContext('2d');
+let mmT = null, colors = {};
+function readColors() {
+  const cs = getComputedStyle(document.documentElement);
+  for (const k of ['machine', 'life', 'work', 'society', 'ink', 'card', 'muted']) colors[k] = cs.getPropertyValue('--' + k).trim();
+  kick();
+}
+function drawMinimap() {
+  if (getComputedStyle(mmBox).display === 'none') return;
+  const dpr = window.devicePixelRatio || 1, W = mmBox.clientWidth, H = mmBox.clientHeight;
+  if (mm.width !== W * dpr) { mm.width = W * dpr; mm.height = H * dpr; }
+  mctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  mctx.clearRect(0, 0, W, H);
+  const vis = all.filter(n => n.shown);
+  const b = bbox(vis, false);
+  const view = { x: -cam.x / cam.s, y: -cam.y / cam.s, w: innerWidth / cam.s, h: innerHeight / cam.s };
+  const x0 = Math.min(b.x, view.x), y0 = Math.min(b.y, view.y);
+  const x1 = Math.max(b.x + b.w, view.x + view.w), y1 = Math.max(b.y + b.h, view.y + view.h);
+  const k = Math.min((W - 16) / (x1 - x0), (H - 16) / (y1 - y0));
+  const ox = (W - (x1 - x0) * k) / 2 - x0 * k, oy = (H - (y1 - y0) * k) / 2 - y0 * k;
+  mmT = { k, ox, oy };
+  for (const n of vis) {
+    mctx.fillStyle = n.depth === 0 ? colors.ink : colors[n.theme];
+    mctx.globalAlpha = n.depth === 3 ? .55 : .9;
+    mctx.fillRect(ox + n.x * k, oy + n.y * k, Math.max(1.5, n.w * k), Math.max(1.5, n.h * k));
+  }
+  mctx.globalAlpha = 1;
+  mctx.strokeStyle = colors.ink; mctx.lineWidth = 1.5;
+  mctx.strokeRect(ox + view.x * k, oy + view.y * k, view.w * k, view.h * k);
+}
+function mmMove(e) {
+  if (!mmT) return;
+  const r = mm.getBoundingClientRect();
+  const wx = (e.clientX - r.left - mmT.ox) / mmT.k, wy = (e.clientY - r.top - mmT.oy) / mmT.k;
+  fly = null;
+  cam.x = innerWidth / 2 - wx * cam.s; cam.y = innerHeight / 2 - wy * cam.s;
+  kick();
+}
+mmBox.addEventListener('pointerdown', e => { mmBox.setPointerCapture(e.pointerId); mmMove(e); state.touched = true; });
+mmBox.addEventListener('pointermove', e => { if (mmBox.hasPointerCapture(e.pointerId)) mmMove(e); });
+
+/* ---------- actions ---------- */
+function anchorFor(n) { let a = n; while (a && !a.shown) a = a.parent; return a; }
+
+function toggle(n) {
+  if (n.depth === 0) return;
+  state.touched = true;
+  if (n.depth === 3) n.open = !n.open; else n.expanded = !n.expanded;
+  syncVisibility();
+  layout(n);
+  kick();
+  if (!state.follow) return;
+  if (n.depth === 3) { if (n.open) focusCard(n); }
+  else if (n.expanded) fitBox(bbox(subtree(n)), 1);
+  else focusCard(n);
+}
+
+function toggleDrawer(n, k) {
+  const d = n.el.querySelector(`.drawer[data-k="${k}"]`), c = n.el.querySelector(`.chip[data-k="${k}"]`);
+  const open = d.hidden;
+  d.hidden = !open;
+  c.setAttribute('aria-expanded', String(open));
+  if (open && k === 'try' && !d.dataset.ready) { initWidget(d); d.dataset.ready = '1'; }
+  layout(n);
+  kick();
+  if (open && state.follow) focusCard(n, { x: n.tx, y: n.ty + d.offsetTop - 40, w: n.w, h: d.offsetHeight + 60 });
+}
+
+function reveal(n) { for (let p = n.parent; p; p = p.parent) p.expanded = true; }
+
+function goTo(id, opts = {}) {
+  const n = nodes.get(id);
+  if (!n) return;
+  state.touched = true;
+  const a = anchorFor(n);
+  reveal(n);
+  if (n.depth === 3) n.open = true; else if (n.depth > 0) n.expanded = true;
+  syncVisibility();
+  layout(a);
+  kick();
+  if (n.depth === 3) focusCard(n);
+  else if (n.depth === 0) fitAll();
+  else fitBox(bbox(subtree(n)), 1);
+  spotlight(n, opts.keep);
+}
+
+let spotTimer = 0;
+function spotlight(n, keep) {
+  if (state.spot) state.spot.el.classList.remove('spot');
+  clearTimeout(spotTimer);
+  state.spot = n;
+  void n.el.offsetWidth;
+  n.el.classList.add('spot');
+  if (!keep) spotTimer = setTimeout(() => { n.el.classList.remove('spot'); if (state.spot === n) state.spot = null; }, 2600);
+}
+
+function overview() {
+  for (const n of all) {
+    n.expanded = n.depth < 2; n.open = false;
+    n.el.querySelectorAll('.drawer').forEach(d => { d.hidden = true; });
+    n.el.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-expanded', 'false'));
+  }
+  syncVisibility();
+  layout(DATA);
+  kick();
+  fitAll();
+}
+function showAll() {
+  for (const n of all) if (n.depth < 3) n.expanded = true;
+  syncVisibility();
+  layout(DATA);
+  kick();
+  fitAll();
+}
+
+/* ---------- next-word toy ---------- */
+function widgetHTML() {
+  return `<div class="nw">
+    <p class="nw-sent">After the storm, the streets were <span class="nw-slot">&nbsp;</span></p>
+    <div class="nw-bars">${NEXT.map(([w]) => `<div class="nw-row"><span>${w}</span><span class="nw-bar"><i></i></span><span class="nw-p"></span></div>`).join('')}</div>
+    <div class="nw-ctl"><button type="button" class="nw-pick">Pick the next word</button>
+      <label>Temperature <input type="range" min="0.2" max="2.5" step="0.1" value="1" aria-label="Temperature"><output>1.0</output></label></div>
+    <p class="nw-hist">Picked so far: none yet</p>
+    <p class="nw-note">Illustrative numbers. At low temperature it almost always picks the favourite; turn it up and you get more surprise, and more nonsense. Chatbots sit somewhere in between, which is why the same question can get different answers.</p>
+  </div>`;
+}
+function initWidget(root) {
+  const rows = [...root.querySelectorAll('.nw-row')].map(r => ({ bar: r.querySelector('i'), p: r.querySelector('.nw-p') }));
+  const slot = root.querySelector('.nw-slot'), range = root.querySelector('input'), out = root.querySelector('output');
+  const hist = root.querySelector('.nw-hist'), btn = root.querySelector('.nw-pick');
+  let T = 1; const picks = [];
+  const probs = () => { const w = NEXT.map(([, p]) => Math.pow(p, 1 / T)); const z = w.reduce((a, b) => a + b, 0); return w.map(v => v / z); };
+  function render() {
+    const ps = probs(), top = Math.max(...ps);
+    rows.forEach((r, i) => { r.bar.style.width = (ps[i] / top * 100).toFixed(1) + '%'; r.p.textContent = (ps[i] * 100).toFixed(ps[i] < .095 ? 1 : 0) + '%'; });
+    out.textContent = T.toFixed(1);
+  }
+  range.addEventListener('input', () => { T = +range.value; render(); });
+  btn.addEventListener('click', () => {
+    const ps = probs(); let r = Math.random(), i = 0;
+    while (i < ps.length - 1 && (r -= ps[i]) > 0) i++;
+    slot.textContent = NEXT[i][0];
+    slot.classList.remove('pop'); void slot.offsetWidth; slot.classList.add('pop');
+    picks.unshift(NEXT[i][0]);
+    hist.textContent = 'Picked so far: ' + picks.slice(0, 10).join(', ');
+  });
+  render();
+}
+
+/* ---------- pointer, wheel, keys ---------- */
+const pointers = new Map();
+let drag = null, pinch = null, suppressClick = false;
+
+vp.addEventListener('pointerdown', e => {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  if (e.target.closest('input, select, textarea, label')) return;
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  fly = null;
+  if (pointers.size === 1) {
+    drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, cx: cam.x, cy: cam.y, moved: false };
+  } else if (pointers.size === 2) {
+    const [a, b] = [...pointers.values()];
+    pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2 };
+    if (drag) drag.moved = true;
+  }
+});
+window.addEventListener('pointermove', e => {
+  if (!pointers.has(e.pointerId)) return;
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pinch && pointers.size >= 2) {
+    const [a, b] = [...pointers.values()];
+    const d = Math.hypot(a.x - b.x, a.y - b.y), mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+    cam.x += mx - pinch.mx; cam.y += my - pinch.my;
+    zoomAt(mx, my, cam.s * d / (pinch.d || d));
+    pinch = { d, mx, my };
+    state.touched = true;
+    kick();
+    return;
+  }
+  if (!drag || drag.id !== e.pointerId) return;
+  const dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
+  if (!drag.moved && Math.hypot(dx, dy) > 5) {
+    drag.moved = true;
+    vp.classList.add('panning');
+  }
+  if (drag.moved) {
+    cam.x = drag.cx + dx; cam.y = drag.cy + dy;
+    state.touched = true;
+    kick();
+  }
+});
+function endPointer(e) {
+  if (!pointers.has(e.pointerId)) return;
+  pointers.delete(e.pointerId);
+  if (pointers.size < 2) pinch = null;
+  if (pointers.size === 1) {
+    const [[id, p]] = [...pointers.entries()];
+    drag = { id, x0: p.x, y0: p.y, cx: cam.x, cy: cam.y, moved: true };
+  } else if (pointers.size === 0) {
+    if (drag && drag.moved) { suppressClick = true; setTimeout(() => { suppressClick = false; }, 0); }
+    drag = null;
+    vp.classList.remove('panning');
+  }
+}
+window.addEventListener('pointerup', endPointer);
+window.addEventListener('pointercancel', endPointer);
+vp.addEventListener('click', e => { if (suppressClick) { e.stopPropagation(); e.preventDefault(); suppressClick = false; } }, true);
+
+vp.addEventListener('wheel', e => {
+  e.preventDefault();
+  fly = null;
+  state.touched = true;
+  const lines = e.deltaMode === 1 ? 33 : 1;
+  const isMouse = e.deltaMode === 1 || (e.deltaX === 0 && Math.abs(e.deltaY) >= 50 && Number.isInteger(e.deltaY));
+  if (e.ctrlKey || isMouse) {
+    const f = Math.exp(-e.deltaY * lines * (e.ctrlKey ? 0.01 : 0.0016));
+    zoomAt(e.clientX, e.clientY, cam.s * f);
+  } else {
+    cam.x -= e.deltaX; cam.y -= e.deltaY;
+  }
+  kick();
+}, { passive: false });
+
+vp.addEventListener('dblclick', e => {
+  if (e.target.closest('.card')) return;
+  const ns = clamp(cam.s * 1.8, MIN_S, MAX_S), c = { ...cam };
+  zoomAt(e.clientX, e.clientY, ns);
+  const to = { ...cam };
+  Object.assign(cam, c);
+  flyTo(to, 380);
+});
+
+world.addEventListener('click', e => {
+  const act = e.target.closest('[data-act]');
+  if (!act) return;
+  const card = act.closest('.card');
+  const n = card && nodes.get(card.dataset.id);
+  switch (act.dataset.act) {
+    case 'toggle': if (n) toggle(n); break;
+    case 'chip': if (n) toggleDrawer(n, act.dataset.k); break;
+    case 'goto': e.stopPropagation(); goTo(act.dataset.id); break;
+    case 'guide': openGuide(true); break;
+  }
+});
+// keyboard focus inside the canvas pulls the card into view
+world.addEventListener('focusin', e => {
+  const card = e.target.closest('.card');
+  if (!card || !e.target.matches(':focus-visible')) return;
+  const n = nodes.get(card.dataset.id);
+  if (n) focusCard(n, { x: n.tx, y: n.ty + e.target.offsetTop - 30, w: n.w, h: Math.min(n.h, e.target.offsetHeight + 60) });
+});
+
+function zoomBy(f) {
+  const c = { ...cam };
+  zoomAt(innerWidth / 2, innerHeight / 2, cam.s * f);
+  const to = { ...cam };
+  Object.assign(cam, c);
+  flyTo(to, 260);
+}
+$('#b-in').addEventListener('click', () => zoomBy(1.35));
+$('#b-out').addEventListener('click', () => zoomBy(1 / 1.35));
+$('#b-fit').addEventListener('click', () => fitAll());
+$('#b-overview').addEventListener('click', () => { endTour(); overview(); });
+$('#b-all').addEventListener('click', showAll);
+
+window.addEventListener('keydown', e => {
+  if (e.target.closest('input, textarea, select')) return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key;
+  if (k === 'Escape') { if (!guide.hidden) openGuide(false); else if (state.tour) endTour(); return; }
+  if (state.tour && (k === 'ArrowRight' || k === 'ArrowLeft')) { e.preventDefault(); tourStep(k === 'ArrowRight' ? 1 : -1); return; }
+  if (k === '+' || k === '=') { zoomBy(1.35); return; }
+  if (k === '-' || k === '_') { zoomBy(1 / 1.35); return; }
+  if (k === 'f' || k === 'F' || k === '0') { fitAll(); return; }
+  const pan = { ArrowLeft: [90, 0], ArrowRight: [-90, 0], ArrowUp: [0, 90], ArrowDown: [0, -90] }[k];
+  if (pan) { e.preventDefault(); fly = null; cam.x += pan[0]; cam.y += pan[1]; kick(); }
+});
+
+/* ---------- guide panel ---------- */
+const bGuide = $('#b-guide');
+function openGuide(open) {
+  guide.hidden = !open;
+  bGuide.setAttribute('aria-expanded', String(open));
+  if (open) $('#b-gclose').focus({ preventScroll: true });
+}
+bGuide.addEventListener('click', () => openGuide(guide.hidden));
+$('#b-gclose').addEventListener('click', () => openGuide(false));
+$('#opt-follow').addEventListener('change', e => { state.follow = e.target.checked; });
+
+$('#paths').innerHTML = PATHS.map(p =>
+  `<button type="button" class="path" data-path="${p.id}"><b>${p.label}</b><span>${p.who}</span><i>${p.steps.length} stops</i></button>`).join('');
+$('#paths').addEventListener('click', e => {
+  const b = e.target.closest('[data-path]');
+  if (b) startTour(b.dataset.path);
+});
+$('#toc').innerHTML = DATA.children.map(t =>
+  `<div class="t-${t.theme}"><button type="button" class="toc-t" data-goto="${t.id}">${t.title}</button><ul>` +
+  t.children.map(a => `<li><button type="button" data-goto="${a.id}">${a.title}</button></li>`).join('') + `</ul></div>`).join('');
+$('#toc').addEventListener('click', e => {
+  const b = e.target.closest('[data-goto]');
+  if (!b) return;
+  endTour();
+  if (innerWidth <= 900) openGuide(false);
+  goTo(b.dataset.goto);
+});
+
+/* ---------- guided paths ---------- */
+function startTour(id) {
+  const path = PATHS.find(p => p.id === id);
+  if (!path) return;
+  openGuide(false);
+  state.tour = { path, i: 0 };
+  tourEl.hidden = false;
+  document.body.classList.add('touring');
+  showStep();
+}
+function showStep() {
+  const { path, i } = state.tour;
+  const [id, note] = path.steps[i];
+  $('#tour-name').textContent = path.label;
+  $('#tour-count').textContent = `Stop ${i + 1} of ${path.steps.length}`;
+  $('#tour-note').textContent = note;
+  $('#t-prev').disabled = i === 0;
+  $('#t-next').innerHTML = i === path.steps.length - 1 ? 'Finish' : 'Next &rarr;';
+  goTo(id, { keep: true });
+}
+function tourStep(d) {
+  if (!state.tour) return;
+  const i = state.tour.i + d;
+  if (i < 0) return;
+  if (i >= state.tour.path.steps.length) { endTour(); fitAll(); return; }
+  state.tour.i = i;
+  showStep();
+}
+function endTour() {
+  if (!state.tour) return;
+  state.tour = null;
+  tourEl.hidden = true;
+  document.body.classList.remove('touring');
+  if (state.spot) { state.spot.el.classList.remove('spot'); state.spot = null; }
+}
+$('#t-prev').addEventListener('click', () => tourStep(-1));
+$('#t-next').addEventListener('click', () => tourStep(1));
+$('#t-end').addEventListener('click', endTour);
+
+/* ---------- boot ---------- */
+function boot() {
+  syncVisibility();
+  layout(null);
+  snap();
+  readColors();
+  fitAll(0);
+  booted = true;
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (h && nodes.has(h)) goTo(h);
+}
+boot();
+
+// Web fonts change card heights: re-measure once they arrive (keeps the view if the reader has not moved yet).
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(() => {
+    layout(DATA);
+    if (!state.touched) { snap(); fitAll(0); } else kick();
+  });
+}
+window.addEventListener('resize', () => kick());
+window.addEventListener('hashchange', () => { const h = decodeURIComponent(location.hash.slice(1)); if (nodes.has(h)) goTo(h); });
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readColors);
+new MutationObserver(readColors).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class'] });
+})();
+</script>
+</body>
+</html>
