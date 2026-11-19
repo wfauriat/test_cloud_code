@@ -24,9 +24,9 @@ Cette définition regroupe trois familles de comparateurs, familières dans l’
 
 1. *Une autre affirmation.* On recoupe un énoncé par un second calcul, une seconde estimation ou un autre jugement censé décrire le même fait. Dans la vie courante, on recompte une addition de bas en haut, ou l’on demande à un collègue de refaire le total de tête. En ingénierie, on confronte le calcul par éléments finis d’une ferrure métallique (@sec:ch05) à un calcul analytique approché mené à la main par un collègue, ou l’on compare deux modèles météorologiques indépendants avant de choisir une route maritime (@sec:ch03).
 2. *Un texte fixé à l’avance.* On confronte l’affirmation à une règle, à une norme ou à une spécification arrêtée avant le calcul ou l’opération. À l’échelle ordinaire, c’est vérifier l’heure annoncée d’un départ sur l’horaire officiel ou comparer une dose préparée à l’ordonnance écrite. À l’échelle technique, c’est confronter les résultats d’un modèle thermique à une loi de conservation de l’énergie, contrôler la conformité d’un dimensionnement aux exigences d’un code de calcul réglementaire, ou s’assurer qu’un fichier de résultats respecte le format et les unités prescrits par une notice d’interface écrite à l’avance.
-3. *Une observation du monde.* On met l’affirmation en présence des faits mesurés ou observés. On regarde par la fenêtre après avoir lu la prévision météo, ou l’on plonge un thermomètre dans la casserole au lieu de se fier au réglage de la plaque. En pratique technique, on soumet un prototype de la ferrure à un essai de charge sur banc, on pèse une pièce usinée, on inspecte une soudure par ultrasons (@sec:ch01) ou l’on confronte une prévision consignée dans un historique (@sec:ch03-calibration-historique) à l’issue effectivement observée.
+3. *Une observation du monde*, c’est-à-dire le fait observé lui-même, non le rapport qui en rend compte. On met l’affirmation en présence des faits mesurés ou observés. On regarde par la fenêtre après avoir lu la prévision météo, ou l’on plonge un thermomètre dans la casserole au lieu de se fier au réglage de la plaque. En pratique technique, on soumet un prototype de la ferrure à un essai de charge sur banc, on pèse une pièce usinée, on inspecte une soudure par ultrasons (@sec:ch01) ou l’on confronte une prévision consignée dans un historique (@sec:ch03-calibration-historique) à l’issue effectivement observée.
 
-Cette tripartition — une autre affirmation, un texte fixé à l’avance, une observation du monde — indique d’où un contrôle peut tirer son point d’appui. Elle annonce une question plus générale sur l’origine des références auxquelles nous confrontons nos calculs et nos programmes : le @sec:ch13 reprendra cette classification et la détaillera en quatre sources distinctes de comparateurs.
+Cette tripartition — une autre affirmation, un texte fixé à l’avance, une observation du monde — indique d’où un contrôle peut tirer son point d’appui. Elle annonce une question plus générale sur l’origine des références auxquelles nous confrontons nos calculs et nos programmes : le @sec:ch13 reprendra cette classification et en détaillera quatre sources de comparateurs, qui recoupent ces trois familles.
 
 ## Cinq conditions pour qu’un contrôle arrête une erreur {#sec:ch06-cinq-conditions}
 
@@ -45,14 +45,14 @@ Disons-le sans détour : prise isolément, la @prop:comparateur est presque déf
 5. *Prise en compte.* Il faut enfin que quelqu’un reçoive le désaccord, le reconnaisse pour tel et puisse agir en conséquence.
 
 ::: {.definition #def:prise-en-compte titre="Prise en compte"}
-La **prise en compte** est le fait que quelqu’un prenne acte d’un désaccord et ait l’autorité pour agir en conséquence.
+La **prise en compte** est le fait qu’un désaccord parvienne à quelqu’un qui à la fois en prend acte et a l’autorité pour agir en conséquence.
 :::
 
 Les deux volets de cette définition comptent également. D’une part, il faut que quelqu’un *prenne acte* du désaccord : un avertissement noyé dans des centaines de messages journaliers, relégué dans une annexe non lue ou écarté par habitude ne produit aucun effet. D’autre part, il faut que cette personne *ait l’autorité pour agir* : suspendre une mise en service, reporter un essai, demander un nouveau calcul ou modifier un choix. Si un technicien découvre une contradiction réelle, mais ne dispose ni du pouvoir de bloquer l’opération ni de l’écoute de celui qui décide, le contrôle remplit les quatre premières conditions et échoue néanmoins à la cinquième.
 
-![Les cinq conditions d’un contrôle représentées comme cinq barrages successifs entre l’affirmation et l’action : existence d’un comparateur, capacité à se tromper autrement, comparabilité des grandeurs et des conditions, arrivée à temps et prise en compte effective. Qu’un seul barrage cède pour une famille d’erreurs, et celles-ci traversent le contrôle sans être arrêtées.](figures/ch06-cinq-conditions.pdf){#fig:ch06-cinq-conditions width=92%}
+![Les cinq conditions d’un contrôle représentées comme cinq portes que le signal de désaccord doit toutes franchir entre l’affirmation et l’action : existence, différence (se tromper autrement), comparabilité des grandeurs et des conditions, arrivée à temps et prise en compte. Qu’une seule reste fermée devant une classe d’erreurs, et ces erreurs parviennent à l’action sans avoir été arrêtées.](figures/ch06-cinq-conditions.pdf){#fig:ch06-cinq-conditions width=92%}
 
-La @fig:ch06-cinq-conditions résume cette architecture : les cinq conditions agissent comme cinq barrages placés l’un derrière l’autre. Il ne suffit pas que le dispositif soit solide en moyenne ou satisfasse quatre exigences sur cinq ; si un seul barrage manque ou cède devant un type d’erreur donné, toute erreur de ce type traverse le contrôle sans obstacle.
+La @fig:ch06-cinq-conditions résume cette architecture : les cinq conditions jouent comme cinq portes que le signal de désaccord doit toutes franchir pour atteindre la décision. Il ne suffit pas que le dispositif soit solide en moyenne ou satisfasse quatre exigences sur cinq ; qu’une seule reste fermée devant une classe d’erreurs donnée, et toute erreur de cette classe parvient à l’action sans avoir été arrêtée.
 
 ::: {.nuance titre="Une proposition presque définitionnelle dont la portée tient aux cinq conditions"}
 La @prop:comparateur porte le statut de *définition* parce qu’elle énonce presque ce que signifie le mot même de détection. Aucune expérience empirique ne saurait la démentir : si l’on découvrait une erreur sans comparateur apparent, l’examen montrerait que l’esprit s’appuyait tacitement sur un souvenir, une règle de vraisemblance ou une attente physique, qui jouait précisément ce rôle.
@@ -67,15 +67,15 @@ Distinguer ce qui produit une erreur de ce qui l’empêche d’atteindre l’ac
 Mais connaître le taux d’erreur ne dit pas encore à quel point il est dangereux d’agir d’après l’affirmation. Une équipe ou un système dont le taux d’erreur est modeste peut néanmoins causer de graves dommages si ses erreurs franchissent tous les contrôles sans être arrêtées ; à l’inverse, un outil sujet à des erreurs fréquentes, mais aussitôt interceptées avant la décision, expose à moins de risque qu’un outil plus exact dont les fautes passent sans contradiction. Il faut donc nommer la seconde grandeur.
 
 ::: {.definition #def:echappement titre="Probabilité d’échappement"}
-La **probabilité d’échappement** est la probabilité qu’une affirmation fausse débouche sur une action sans avoir été contredite à temps.
+La **probabilité d’échappement** est la probabilité qu’une affirmation fausse débouche sur une action sans qu’un désaccord ait été détecté et pris en compte à temps.
 :::
 
-Dans ce chapitre, la probabilité d’échappement reste caractérisée de façon qualitative, à la limite extrême où l’une des cinq conditions manque entièrement. Considérons une famille particulière d’erreurs — par exemple les erreurs dues à une incompatibilité d’unités ou celles qu’engendre un facteur physique omis par le modèle — et un contrôle donné. Si l’une quelconque des cinq conditions fait défaut pour cette famille d’erreurs, le contrôle n’a aucune chance d’arrêter les erreurs de cette famille avant qu’elles ne se traduisent en acte : devant lui, leur probabilité d’échappement est égale à $1$, soit 100 %. Peu importe alors que le taux d’erreur $P(E)$ soit de 10 %, de 1 % ou d’un pour mille : chaque erreur de cette famille qui vient à se produire passe au travers sans contradiction utile.
+Dans ce chapitre, la probabilité d’échappement reste caractérisée de façon qualitative, à la limite extrême où l’une des cinq conditions manque entièrement. Considérons une classe particulière d’erreurs — par exemple les erreurs dues à une incompatibilité d’unités ou celles qu’engendre un facteur physique omis par le modèle — et un contrôle donné. Si l’une quelconque des cinq conditions fait défaut pour cette classe d’erreurs, le contrôle n’a aucune chance d’arrêter les erreurs de cette famille avant qu’elles ne se traduisent en acte : devant lui, leur probabilité d’échappement est égale à $1$, soit 100 %. Peu importe alors que le taux d’erreur $P(E)$ soit de 10 %, de 1 % ou d’un pour mille : chaque erreur de cette famille qui vient à se produire passe au travers sans contradiction utile.
 
 Dans bien des situations réelles, les cinq conditions ne sont ni parfaitement remplies ni totalement absentes : un comparateur ne décèle qu’une fraction des fautes, produit parfois des désaccords injustifiés sur des affirmations exactes, ou n’est suivi d’effet qu’une partie du temps. La probabilité d’échappement prend alors des valeurs intermédiaires entre $0$ et $1$. Le @sec:ch09 la quantifiera et montrera comment elle se combine avec le taux d’erreur $P(E)$ pour déterminer le risque effectif d’une décision.
 
 ::: {.formel titre="Condition nécessaire de détection et échappement total"}
-Soit une affirmation susceptible d’être fausse, et notons $E$ l’événement « l’affirmation est fausse », de probabilité $P(E) = \Pr(E) > 0$. Considérons une sous-classe particulière d’erreurs $E_k \subseteq E$, telle que $\Pr(E_k) > 0$, et un contrôle particulier chargé d’examiner l’affirmation avant qu’une action soit engagée.
+Soit une affirmation susceptible d’être fausse, et notons $E$ l’événement « l’affirmation est fausse », de probabilité $\Pr(E) > 0$ ; cette probabilité est le taux d’erreur, que nous noterons $P(E)$ (les tableaux des chapitres suivants l’affichent $P(\text{faux})$). Considérons une classe particulière d’erreurs $E_k \subseteq E$, telle que $\Pr(E_k) > 0$, et un contrôle particulier chargé d’examiner l’affirmation avant qu’une action soit engagée.
 
 Notons $D$ l’événement « l’erreur est détectée et prise en compte avant l’action », et associons aux cinq conditions les événements suivants pour l’épisode considéré :
 
@@ -83,21 +83,21 @@ Notons $D$ l’événement « l’erreur est détectée et prise en compte avant
 - $C_2$ : le comparateur ne subit pas la même erreur que l’affirmation ;
 - $C_3$ : l’affirmation et le comparateur sont comparés dans des grandeurs et des conditions compatibles ;
 - $C_4$ : le résultat de la confrontation parvient avant que l’action fixe les conséquences ;
-- $C_5$ : quelqu’un prend acte d’un éventuel désaccord et exerce l’autorité nécessaire pour suspendre ou corriger l’action.
+- $C_5$ : quelqu’un prend acte d’un éventuel désaccord et ait l’autorité nécessaire pour suspendre ou corriger l’action.
 
-D’après la @prop:comparateur, une détection suivie d’effet exige la réunion simultanée des cinq conditions :
+D’après la @prop:comparateur et les cinq conditions qui en découlent, une détection suivie d’effet exige la réunion simultanée de ces cinq conditions :
 
 $$D \subseteq C_1 \cap C_2 \cap C_3 \cap C_4 \cap C_5.$$ {#eq:ch06-inclusion}
 
-Supposons que, pour les erreurs de la sous-classe $E_k$, l’une au moins des conditions fasse systématiquement défaut : il existe un indice $j \in \{1, 2, 3, 4, 5\}$ tel que $\Pr(C_j \mid E_k) = 0$. (Par exemple, pour $j = 2$, la cause qui engendre $E_k$ fausse systématiquement le comparateur dans le même sens ; pour $j = 5$, les avis contraires relatifs à $E_k$ ne sont jamais suivis d’effet.) Par inclusion et monotonie des probabilités (@sec:ch01-probabilite), la probabilité conditionnelle de détection vérifie :
+Supposons que, pour les erreurs de la classe $E_k$, l’une au moins des conditions fasse systématiquement défaut : il existe un indice $j \in \{1, 2, 3, 4, 5\}$ tel que $\Pr(C_j \mid E_k) = 0$. (Par exemple, pour $j = 2$, la cause qui engendre $E_k$ fausse systématiquement le comparateur dans le même sens ; pour $j = 5$, les avis contraires relatifs à $E_k$ ne sont jamais suivis d’effet.) Par inclusion et monotonie des probabilités (@sec:ch01-probabilite), la probabilité conditionnelle de détection vérifie :
 
 $$\Pr(D \mid E_k) \le \Pr(C_j \mid E_k) = 0, \qquad \text{d’où} \qquad \Pr(D \mid E_k) = 0.$$ {#eq:ch06-detection-nulle}
 
-La probabilité conditionnelle qu’une erreur de la sous-classe $E_k$ échappe à ce contrôle — c’est-à-dire l’événement contraire $\overline{D}$, atteindre l’action sans avoir été contredite à temps — vaut donc :
+La probabilité conditionnelle qu’une erreur de la classe $E_k$ échappe à ce contrôle — c’est-à-dire la probabilité de l’événement contraire $\overline{D}$ : atteindre l’action sans qu’un désaccord ait été détecté et pris en compte à temps — vaut donc :
 
 $$\Pr(\overline{D} \mid E_k) = 1 - \Pr(D \mid E_k) = 1.$$ {#eq:ch06-echappement-un}
 
-Ce raisonnement repose sur deux hypothèses explicites : il vaut pour un contrôle donné (ou pour un ensemble de contrôles partageant tous la même lacune sur $E_k$), et il suppose l’absence totale de la condition $C_j$ sur cette sous-classe. L’inclusion (@eq:ch06-inclusion) ne donne qu’une borne supérieure : lorsque aucune condition ne fait systématiquement défaut, elle ne force plus la détection à zéro, et la probabilité d’échappement peut descendre au-dessous de $1$, ce que modélisera le @sec:ch09.
+Ce raisonnement repose sur deux hypothèses explicites : il vaut pour un contrôle donné (ou pour un ensemble de contrôles partageant tous la même lacune sur $E_k$), et il suppose l’absence totale de la condition $C_j$ sur cette classe. L’inclusion (@eq:ch06-inclusion) ne donne qu’une borne supérieure : lorsque aucune condition ne fait systématiquement défaut, elle ne force plus la détection à zéro, et la probabilité d’échappement peut descendre au-dessous de $1$, ce que modélisera le @sec:ch09.
 :::
 
 ## Le cas Challenger à la lumière des cinq conditions {#sec:ch06-challenger}
@@ -130,12 +130,12 @@ Supposons d’abord que la comparaison fasse apparaître un *désaccord* : le ca
 
 Considérons maintenant la situation inverse : l’affirmation et le comparateur *concordent*. Que prouve cet accord ? Pris tel quel, *il ne prouve rien*, à moins que le comparateur n’ait eu une véritable possibilité de contredire l’affirmation si celle-ci avait été fausse.
 
-Relisons cette asymétrie à travers les cinq conditions. Si les deux calculs de la ferrure métallique s’accordent étroitement parce qu’ils partagent les mêmes idéalisations géométriques et passent tous deux sous silence l’atmosphère corrosive dans laquelle la pièce doit servir, leur accord ne dit rien sur la tenue future de la pièce en milieu marin : le comparateur ne pouvait pas se tromper autrement sur la corrosion. De même, si un contrôle compare des nombres privés de leurs conditions de validité et accepte à peu près n’importe quel ordre de grandeur, la conformité apparente ne renseigne pas sur l’exactitude du résultat. En somme, un contrôle dont le comparateur aurait acquiescé même devant une erreur grave délivre une signature, non une preuve.
+Relisons cette asymétrie à travers les cinq conditions. Si les deux calculs de la ferrure métallique s’accordent étroitement parce qu’ils partagent les mêmes idéalisations géométriques et passent tous deux sous silence l’atmosphère corrosive dans laquelle la pièce doit servir, leur accord ne dit rien sur la tenue future de la pièce en milieu marin : le comparateur ne pouvait pas se tromper autrement sur la corrosion. De même, si un contrôle compare des nombres privés de leurs conditions de validité et accepte à peu près n’importe quel ordre de grandeur, la conformité apparente ne renseigne pas sur l’exactitude du résultat. En somme, un contrôle dont le comparateur aurait acquiescé même devant une erreur grave délivre une signature, non une preuve : comme une signature au bas d’un dossier, il engage ceux qui s’y fient sans rien établir.
 
 L’asymétrie est nette. Un désaccord établi entre grandeurs comparables oblige à chercher l’erreur, puisqu’il démontre qu’un des deux côtés au moins est erroné ; un accord, lui, n’apporte un véritable appui à l’affirmation que dans la mesure où le contrôle courait réellement le risque d’échouer si l’affirmation avait été fausse. Cette exigence — ce qui distingue une mise à l’épreuve véritable d’une confirmation de pure forme — constituera l’un des critères centraux du @sec:ch09.
 
 ::: {.question}
-Avant d’agir sur votre prochaine affirmation décisive, quel est son comparateur, et laquelle des cinq conditions — existence, capacité à se tromper autrement, comparabilité, arrivée à temps ou prise en compte — est la plus fragile ?
+Avant d’agir sur votre prochaine affirmation décisive, quel est son comparateur, et laquelle des cinq conditions — existence, différence (se tromper autrement), comparabilité, arrivée à temps ou prise en compte — est la plus fragile ?
 :::
 
 ## Points clés {.points-cles}
@@ -144,4 +144,4 @@ Avant d’agir sur votre prochaine affirmation décisive, quel est son comparate
 - Un contrôle efficace exige cinq conditions simultanées : l’existence d’un comparateur, sa capacité à se tromper autrement pour la cause d’erreur visée, la comparabilité des grandeurs et de leurs conditions, l’arrivée à temps du désaccord et sa prise en compte par une personne ayant l’autorité d’agir.
 - Qu’une seule de ces cinq conditions manque pour une classe d’erreurs, et la probabilité d’échappement de ces erreurs devant ce contrôle vaut $1$, quel que soit le taux d’erreur $P(E)$.
 - Le cas *Challenger* montre la combinaison de plusieurs défaillances : l’omission des vols sans dommage sur le graphique examiné la veille a fait céder les conditions de différence et de comparabilité, tandis que le rejet des objections techniques en séance a rompu la prise en compte.
-- Un désaccord établit qu’au moins un des deux termes est faux, sans dire lequel ; un accord n’apporte aucune preuve si le comparateur n’avait aucune possibilité de contredire une affirmation fausse.
+- Un désaccord établit qu’au moins un des deux termes est faux, sans dire lequel ; un accord n’apporte de preuve que dans la mesure où le comparateur aurait pu contredire une affirmation fausse.

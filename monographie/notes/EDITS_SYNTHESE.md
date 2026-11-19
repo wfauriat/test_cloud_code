@@ -1,0 +1,182 @@
+# Corrections appliquées après la synthèse
+
+Corrections issues de `notes/SYNTHESE_A_TRANCHER.md` (groupe 1) et des décisions consignées dans `notes/DECISIONS_SYNTHESE.md`. Les points encore ouverts, ou réservés à la discussion, ne sont pas touchés ; ils sont listés en fin de fichier. Chaque entrée renvoie au repère de la synthèse.
+
+- **G1-5** (`chapitres/05-trois-incertitudes.md`) : P1 : le terme épistémique n'est plus appelé « désaccord », pour réserver le mot au sens large de la proposition.
+  - Avant : « de ce qui tient au désaccord entre les hypothèses ? »
+  - Après : « de ce qui tient à l’écart entre les prévisions des différentes hypothèses ? »
+- **G1-5** (`chapitres/05-trois-incertitudes.md`) : P1 : sens large de « désaccord » explicité après la proposition (SPEC P1, FD).
+  - Avant : « :::
+
+Examinons pourquoi cette proposition résulte »
+  - Après : « :::
+
+Le mot *désaccord* s’entend ici au sens large : l’écart entre les membres de l’ensemble admis, qu’il s’agisse de répliques tirées sous une même loi ou d’hypothèses rivales.
+
+Examinons pourquoi cette proposition résulte »
+- **ch5 T2** (`chapitres/05-trois-incertitudes.md`) : Un facteur omis est une variable, non une hypothèse de Θ.
+  - Avant : « ne figure pas dans $\Theta$ ne signifie pas »
+  - Après : « n’intervient dans aucune des alternatives de $\Theta$ ne signifie pas »
+- **ch5 T7** (`chapitres/05-trois-incertitudes.md`) : L'encadré qui suit traite déjà z formellement.
+  - Avant : « (son traitement formel attendra le @sec:ch07) »
+  - Après : « (son traitement complet attendra le @sec:ch07) »
+- **ch5 T4** (`chapitres/05-trois-incertitudes.md`) : Portée : un facteur omis qui a varié élargit bien les barres (nuance du même chapitre).
+  - Avant : « ne se traduit-il pas par des barres d’erreur prudemment élargies »
+  - Après : « ne se traduit-il pas, en général, par des barres d’erreur prudemment élargies »
+- **ch5 T5 (PC)** (`chapitres/05-trois-incertitudes.md`) : PC aligné sur le corps.
+  - Avant : « sans pouvoir être nommé ni extrapolé à un contexte nouveau. »
+  - Après : « sans pouvoir être nommé, et sans protéger contre un changement durable de ce facteur dans un contexte nouveau. »
+- **ch5 T6 (PC)** (`chapitres/05-trois-incertitudes.md`) : PC aligné sur le corps.
+  - Avant : « mais ils élargissent les alternatives à l’intérieur du cadre sans jamais le quitter. »
+  - Après : « mais ils élargissent ou repondèrent les alternatives admises, ou ménagent une marge, à l’intérieur du cadre sans jamais le quitter. »
+- **N1** (`chapitres/05-trois-incertitudes.md`) : Arrière-plan tacite nommé à la première mention.
+  - Avant : « sur les règles à arrière-plan ouvert $A \cap (\dots) \rightarrow B$ »
+  - Après : « sur les règles de la forme $A \cap (\dots) \rightarrow B$, dont l’arrière-plan tacite $\mathcal{T}$ reste ouvert »
+- **N1** (`chapitres/05-trois-incertitudes.md`) : Pas de (…) nu en prose.
+  - Avant : « demeurés cachés dans l’arrière-plan $(\dots)$ de l’@eq:ch01-regle »
+  - Après : « demeurés cachés dans l’arrière-plan tacite de l’@eq:ch01-regle »
+- **S5** (`chapitres/05-trois-incertitudes.md`) : 2008 : la quasi-indépendance était figée dans la structure (omission), non un paramètre incertain (cohérent avec le texte et ART). Faits à vérifier.
+  - Avant : « apparaissaient faiblement corrélées d’un État à l’autre, et cette quasi-indépendance était intégrée dans la structure même des modèles de portefeuille. »
+  - Après : « étaient restées faiblement corrélées d’un État à l’autre, faute de baisse nationale dans la période observée. Tirée de cette histoire sans retournement généralisé, la quasi-indépendance avait été figée dans la structure même des modèles de portefeuille, au lieu d’y figurer comme un paramètre incerta »
+- **G1-4 ®** (`chapitres/06-detecter-une-erreur.md`) : Définition de l'échappement : un désaccord exprimé mais ignoré (Challenger) compte comme échappement (FD § 3).
+  - Avant : « débouche sur une action sans avoir été contredite à temps.
+::: »
+  - Après : « débouche sur une action sans qu’un désaccord ait été détecté et pris en compte à temps.
+::: »
+- **G1-4** (`chapitres/06-detecter-une-erreur.md`) : Encadré aligné sur la définition ; une probabilité n'est pas un événement.
+  - Avant : « c’est-à-dire l’événement contraire $\overline{D}$, atteindre l’action sans avoir été contredite à temps — vaut donc »
+  - Après : « c’est-à-dire la probabilité de l’événement contraire $\overline{D}$ : atteindre l’action sans qu’un désaccord ait été détecté et pris en compte à temps — vaut donc »
+- **R11 ®** (`chapitres/06-detecter-une-erreur.md`) : Prise en compte : le désaccord doit parvenir à quelqu'un qui à la fois en prend acte et a l'autorité.
+  - Avant : « La **prise en compte** est le fait que quelqu’un prenne acte d’un désaccord et ait l’autorité pour agir en conséquence. »
+  - Après : « La **prise en compte** est le fait qu’un désaccord parvienne à quelqu’un qui à la fois en prend acte et a l’autorité pour agir en conséquence. »
+- **R11** (`chapitres/06-detecter-une-erreur.md`) : C5 aligné sur la définition.
+  - Avant : « et exerce l’autorité nécessaire pour suspendre »
+  - Après : « et ait l’autorité nécessaire pour suspendre »
+- **R10** (`chapitres/06-detecter-une-erreur.md`) : Recouvrement des familles 1 et 3 levé.
+  - Avant : « 3. *Une observation du monde.* On met »
+  - Après : « 3. *Une observation du monde*, c’est-à-dire le fait observé lui-même, non le rapport qui en rend compte. On met »
+- **V3** (`chapitres/06-detecter-une-erreur.md`) : Image de la signature glosée à sa première occurrence.
+  - Avant : « délivre une signature, non une preuve. »
+  - Après : « délivre une signature, non une preuve : comme une signature au bas d’un dossier, il engage ceux qui s’y fient sans rien établir. »
+- **S2 + V20** (`chapitres/06-detecter-une-erreur.md`) : La métaphore des barrages en série disait l'inverse (redondance) ; le signal de désaccord doit franchir les cinq conditions. Noms fixés des conditions.
+  - Avant : « représentées comme cinq barrages successifs entre l’affirmation et l’action : existence d’un comparateur, capacité à se tromper autrement, comparabilité des grandeurs et des conditions, arrivée à temps et prise en compte effective. Qu’un seul barrage cède pour une famille d’erreurs, et celles-ci tra »
+  - Après : « représentées comme cinq portes que le signal de désaccord doit toutes franchir entre l’affirmation et l’action : existence, différence (se tromper autrement), comparabilité des grandeurs et des conditions, arrivée à temps et prise en compte. Qu’une seule reste fermée devant une classe d’erreurs, et  »
+- **S2** (`chapitres/06-detecter-une-erreur.md`) : Idem dans le texte.
+  - Avant : « les cinq conditions agissent comme cinq barrages placés l’un derrière l’autre. »
+  - Après : « les cinq conditions jouent comme cinq portes que le signal de désaccord doit toutes franchir pour atteindre la décision. »
+- **S2** (`chapitres/06-detecter-une-erreur.md`) : Idem.
+  - Avant : « si un seul barrage manque ou cède devant un type d’erreur donné, toute erreur de ce type traverse le contrôle sans obstacle. »
+  - Après : « qu’une seule reste fermée devant une classe d’erreurs donnée, et toute erreur de cette classe parvient à l’action sans avoir été arrêtée. »
+- **V20** (`chapitres/06-detecter-une-erreur.md`) : Noms fixés des cinq conditions.
+  - Avant : « existence, capacité à se tromper autrement, comparabilité, arrivée à temps ou prise en compte »
+  - Après : « existence, différence (se tromper autrement), comparabilité, arrivée à temps ou prise en compte »
+- **S3** (`chapitres/06-detecter-une-erreur.md`) : Le passage des trois éléments de la proposition aux cinq conditions est dit.
+  - Avant : « D’après la @prop:comparateur, une détection suivie d’effet exige la réunion simultanée des cinq conditions »
+  - Après : « D’après la @prop:comparateur et les cinq conditions qui en découlent, une détection suivie d’effet exige la réunion simultanée de ces cinq conditions »
+- **ch6 T14** (`chapitres/06-detecter-une-erreur.md`) : Passage de trois familles à quatre sources annoncé.
+  - Avant : « et la détaillera en quatre sources distinctes de comparateurs. »
+  - Après : « et en détaillera quatre sources de comparateurs, qui recoupent ces trois familles. »
+- **N4** (`chapitres/06-detecter-une-erreur.md`) : Équivalence des notations posée à la première occurrence.
+  - Avant : « de probabilité $P(E) = \Pr(E) > 0$. »
+  - Après : « de probabilité $\Pr(E) > 0$ ; cette probabilité est le taux d’erreur, que nous noterons $P(E)$ (les tableaux des chapitres suivants l’affichent $P(\text{faux})$). »
+- **ch6 T8 (PC)** (`chapitres/06-detecter-une-erreur.md`) : PC aligné sur la force graduelle du corps.
+  - Avant : « un accord n’apporte aucune preuve si le comparateur n’avait aucune possibilité de contredire une affirmation fausse. »
+  - Après : « un accord n’apporte de preuve que dans la mesure où le comparateur aurait pu contredire une affirmation fausse. »
+- **V10** (`chapitres/06-detecter-une-erreur.md`) : « classe d'erreurs » (formulation de P4).
+  - Avant : « Considérons une famille particulière d’erreurs »
+  - Après : « Considérons une classe particulière d’erreurs »
+- **V10** (`chapitres/06-detecter-une-erreur.md`) : Idem.
+  - Avant : « fait défaut pour cette famille d’erreurs »
+  - Après : « fait défaut pour cette classe d’erreurs »
+- **V10** (`chapitres/06-detecter-une-erreur.md`) : « sous-classe » → « classe » dans l’encadré formel (4 occurrences ; $E_k \subseteq E$ reste une classe d’erreurs).
+- **S4** (`chapitres/07-cadre-cause-commune.md`) : Hypothèses du volet (b) énoncées (FD) ; « volet » partout.
+  - Avant : « Les deux parties de cet énoncé sont des résultats sous hypothèses ; la partie (b) est illustrée ci-dessous par des constats empiriques. »
+  - Après : « Les deux volets de cet énoncé sont des résultats sous hypothèses. Le volet (a) repose sur les hypothèses du modèle M3 ci-dessous. Le volet (b) suppose que les observations sont produites par le monde et non calculées dans le cadre, que $z$ a varié pendant leur collecte, et que son effet ne se lit qu »
+- **ch7 T1 (PC)** (`chapitres/07-cadre-cause-commune.md`) : PC aligné sur le corps : la dérive concerne un facteur resté constant pendant la collecte.
+  - Avant : « elles le montrent alors comme une dispersion inexpliquée, ou par une dérive de distribution lorsqu’il bouge après coup. »
+  - Après : « elles le montrent alors comme une dispersion inexpliquée. S’il n’a pas varié pendant la collecte et ne bouge qu’après la mise en service, on parle de dérive de distribution, invisible aux contrôles fondés sur ces données. »
+- **ch7 T2** (`chapitres/07-cadre-cause-commune.md`) : Les grandeurs enregistrées incluent l'issue ; le cas muet est celui d'un effet sur des grandeurs non enregistrées (FD).
+  - Avant : « Si $z$ varie sans toucher aux grandeurs mesurées, ou si »
+  - Après : « Si $z$ varie sans toucher à aucune grandeur enregistrée, parce qu’il n’agit que sur des issues que l’on ne mesure pas, ou si »
+- **ch7 T6 + N5** (`chapitres/07-cadre-cause-commune.md`) : Annonce explicite d'un terme introduit au ch. 12 ; portée du volet (a) par extension.
+  - Avant : « (une *omission de saillance*, par contraste avec l’omission d’un facteur absent de la représentation). Le volet (a) de la @prop:cause-commune ne s’applique alors qu’aux contrôles »
+  - Après : « (ce que le @sec:ch12 appellera une *omission de saillance*, par contraste avec l’omission d’un facteur absent de la représentation). Le volet (a) de la @prop:cause-commune ne vaut alors, par extension, que pour les contrôles »
+- **ch7 T7** (`chapitres/07-cadre-cause-commune.md`) : Le fil coupé se trouve être rouge, sans que la couleur soit enregistrée (FD § 8).
+  - Avant : « il peut couper le fil rouge au fil de mille essais simulés sans jamais rien apprendre de la couleur »
+  - Après : « il peut, au cours de mille essais simulés, couper le fil qui se trouve être rouge sans jamais rien apprendre de la couleur »
+- **S10** (`chapitres/07-cadre-cause-commune.md`) : Le rééchantillonnage compte parmi les contrôles internes parce qu'il recalcule le résultat (FD) ; la confrontation à des issues observées relève des observations.
+  - Avant : « ou rééchantillonner un jeu de données sont des pratiques »
+  - Après : « ou rééchantillonner un jeu de données pour recalculer le résultat sont des pratiques »
+- **N1** (`chapitres/07-cadre-cause-commune.md`) : Arrière-plan tacite nommé.
+  - Avant : « laissant le reste dans un arrière-plan $(\dots)$ ; »
+  - Après : « laissant le reste dans son arrière-plan tacite $\mathcal{T}$ ; »
+- **N3** (`chapitres/07-cadre-cause-commune.md`) : Le modèle situé dans la série.
+  - Avant : « Le bloc formel suivant (modèle M3) précise »
+  - Après : « Le bloc formel suivant, le modèle M3 (le troisième des modèles formels du livre, présentés au @sec:ch00-architecture), précise »
+- **G1-1** (`chapitres/08-independance-chaines.md`) : Contresens : la phrase décrivait l'échappement comme l'apparition d'un désaccord ; sens mathématique inchangé.
+  - Avant : « Un désaccord n’apparaît — et n’arrête une erreur, sous réserve de prise en compte (@def:prise-en-compte) — que si la cause échappe au producteur *et* si le contrôleur ou la comparaison échoue à la faire ressortir : »
+  - Après : « Une erreur passe au travers du contrôle croisé lorsque sa cause échappe au producteur *et* que le contrôleur ou la comparaison échoue à la faire ressortir (même un désaccord exprimé ne l’arrête que sous réserve de prise en compte, @def:prise-en-compte) : »
+- **ch8 T15** (`chapitres/08-independance-chaines.md`) : Prénoms permutés : Steven H. Orzack et Elliott Sober.
+  - Avant : « Mais Elliott Orzack et Steven Sober [@orzack1993] »
+  - Après : « Mais Steven Orzack et Elliott Sober [@orzack1993] »
+- **R7 ®** (`chapitres/08-independance-chaines.md`) : Une réunion n'est pas une somme.
+  - Avant : « et les angles morts s’additionnent. »
+  - Après : « et les angles morts se cumulent. »
+- **ch8 T19** (`chapitres/08-independance-chaines.md`) : La notation u n'est introduite qu'au ch. 9.
+  - Avant : « en supposant la comparaison fidèle et chaque désaccord suivi d’effet (prise en compte égale à $1$) : »
+  - Après : « en supposant la comparaison fidèle et chaque désaccord suivi d’effet : »
+- **ch8 T7 (PC)** (`chapitres/08-independance-chaines.md`) : PC aligné sur M1 : B1 ∩ (B2 ∪ Bcmp).
+  - Avant : « compte tenu des écarts que la comparaison ne sait pas exprimer. »
+  - Après : « augmentée des écarts que la comparaison ne sait pas exprimer. »
+- **N3** (`chapitres/08-independance-chaines.md`) : Le modèle situé dans la série.
+  - Avant : « Le modèle M1 rassemble sous forme algébrique »
+  - Après : « Le modèle M1, le premier des modèles formels du livre (@sec:ch00-architecture), rassemble sous forme algébrique »
+- **V10** (`chapitres/08-independance-chaines.md`) : « classe d'erreurs ».
+  - Avant : « par rapport à une famille d’erreurs précise »
+  - Après : « par rapport à une classe d’erreurs précise »
+- **N1** (`chapitres/08-independance-chaines.md`) : Arrière-plan tacite nommé.
+  - Avant : « a laissé dans l’arrière-plan $(\dots)$, »
+  - Après : « a laissé dans son arrière-plan tacite $\mathcal{T}$, »
+- **R4 ®** (`chapitres/09-severite-echappement.md`) : « contrôle réussi » lu « bien exécuté » ; formulation sans ambiguïté.
+  - Avant : « La **sévérité** exprime la valeur probante d’un contrôle réussi : un contrôle réussi n’est probant que dans la mesure où il aurait échoué si l’affirmation avait été fausse [@mayo1996; @mayo2018].
+::: »
+  - Après : « La **sévérité** exprime la valeur probante d’un contrôle passé sans alerte : un tel contrôle n’est probant que dans la mesure où il aurait donné l’alerte si l’affirmation avait été fausse [@mayo1996; @mayo2018].
+:::
+
+On la mesure par $\Pr(\bar{A} \mid E)$, la probabilité que le contrôle donne l’aler »
+- **R4** (`chapitres/09-severite-echappement.md`) : Idem dans le texte.
+  - Avant : « Inversement, un contrôle réussi ne déplace la confiance »
+  - Après : « Inversement, un contrôle passé sans alerte ne déplace la confiance »
+- **R4** (`chapitres/09-severite-echappement.md`) : Idem.
+  - Avant : « c’est-à-dire si l’échec du contrôle était probable dans l’hypothèse »
+  - Après : « c’est-à-dire si une alerte était probable dans l’hypothèse »
+- **R4 (PC)** (`chapitres/09-severite-echappement.md`) : Idem dans les Points clés.
+  - Avant : « - Un contrôle réussi n’est probant que dans la mesure où il aurait échoué si l’affirmation avait été fausse (sévérité) »
+  - Après : « - Un contrôle passé sans alerte n’est probant que dans la mesure où il aurait donné l’alerte si l’affirmation avait été fausse (sévérité) »
+- **G1-4** (`chapitres/09-severite-echappement.md`) : Définition de l'échappement alignée sur le ch. 6.
+  - Avant : « parvienne jusqu’à l’action sans avoir été contredite à temps. »
+  - Après : « parvienne jusqu’à l’action sans qu’un désaccord ait été détecté et pris en compte à temps. »
+- **G1-13** (`chapitres/09-severite-echappement.md`) : Écueil 5 de la spec : Bayes fixe la VPP, le comportement décide de la prise en compte.
+  - Avant : « un effondrement de la $\mathrm{VPP}$ pousse vers l’appariement des probabilités et l’érosion de la prise en compte. »
+  - Après : « un effondrement de la $\mathrm{VPP}$ expose à l’appariement des probabilités et à l’érosion de la prise en compte. »
+- **ch9 T3 (PC)** (`chapitres/09-severite-echappement.md`) : PC aligné sur le corps.
+  - Avant : « qui paie presque toujours devant des enjeux élevés et irréversibles. »
+  - Après : « qui paie lorsque les enjeux sont élevés (décision unique, perte très supérieure au coût de la contre-expertise). »
+- **G1-14** (`chapitres/09-severite-echappement.md`) : Sens de c conforme au calcul s = (1 − c)(1 − m).
+  - Avant : « la part des causes d’erreur que le producteur et le contrôleur partagent — celles qui relèvent »
+  - Après : « la part des erreurs du producteur dont la cause est partagée avec le contrôleur — causes qui relèvent »
+- **V9** (`chapitres/09-severite-echappement.md`) : Nom de la théorie harmonisé.
+  - Avant : « d’une théorie générale du contrôle des représentations finies »
+  - Après : « d’une théorie des contrôles des représentations finies »
+- **N4** (`chapitres/09-severite-echappement.md`) : Équivalence des notations rappelée à la première occurrence.
+  - Avant : « dont le taux d’erreur (introduit au @sec:ch06) vaut $P(E)$. »
+  - Après : « dont le taux d’erreur (introduit au @sec:ch06) vaut $P(E) = \Pr(E)$, noté $P(\text{faux})$ dans les tableaux et les graphiques. »
+- **V2** (`parties/partie-2.md`) : Statut épistémique des propositions glosé (p2 T6).
+  - Avant : « indique son statut et les hypothèses dont elle dépend. »
+  - Après : « indique son statut épistémique (définition, résultat sous hypothèses, hypothèse de travail ou constat empirique) et les hypothèses dont elle dépend. »
+- **R7** (`parties/partie-2.md`) : « se cumulent ».
+  - Avant : « les angles morts de toutes les étapes s’additionnent. »
+  - Après : « les angles morts de toutes les étapes se cumulent. »
+- **R4** (`parties/partie-2.md`) : Formulation de la sévérité (p2 T8).
+  - Avant : « Un contrôle réussi n’apporte une preuve que dans la mesure où il aurait échoué si l’affirmation avait été fausse. »
+  - Après : « Un contrôle passé sans alerte n’apporte une preuve que dans la mesure où il aurait donné l’alerte si l’affirmation avait été fausse. »
