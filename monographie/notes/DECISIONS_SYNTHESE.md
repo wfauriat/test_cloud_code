@@ -90,3 +90,17 @@ Aucune décision n'est encore appliquée au texte.
   - « de l'intérieur du cadre » (page de la partie 3, ch. 13) ;
   - « à l'usage » (ch. 12) ;
   - « de l'intérieur de son propre cadre » (ch. 16).
+
+## Contenu et structure (§ 3.4)
+
+- **S14. Critère de la probabilité nulle.** *Adopté.*
+  - Le critère est harmonisé sur « logiquement impossible » (règle de Cromwell) aux ch. 1 et 3.
+  - Au ch. 3, la règle de prudence est complétée : « même lorsqu'on décide de ne pas examiner certains mondes : ne pas s'y attarder n'est pas leur donner zéro ».
+  - Le PC du ch. 3 reprend la formulation du corps : « que l'on ne peut raisonnablement écarter ».
+- **S6. La roulette russe (ch. 4, ch. 17).** *Ouvert*, réservé à la discussion. Non bloquant.
+- **S5. 2008 (ch. 5).** *Adopté.*
+  - L'encadré est récrit : la quasi-indépendance, estimée sur une période sans baisse nationale, était figée dans la structure des modèles, si bien qu'un couplage généralisé ne pouvait pas être engendré.
+  - Les faits sont à vérifier lors de la passe bibliographique.
+- **S4. Hypothèses du volet (b) de @prop:cause-commune (ch. 7).** *Adopté.*
+  - Phrase ajoutée après la proposition : « Le volet (a) repose sur les hypothèses du modèle M3 ci-dessous. Le volet (b) suppose que les observations sont produites par le monde et non calculées dans le cadre, que $z$ a varié pendant leur collecte, et que son effet ne se lit que sur les grandeurs enregistrées, issue comprise, sous la forme d'une dispersion que rien n'attribue. »
+  - « volet » partout, au lieu de « partie ».
