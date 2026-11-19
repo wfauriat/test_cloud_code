@@ -62,3 +62,31 @@ Aucune décision n'est encore appliquée au texte.
   - Pour la compétence du relecteur : « comprendre le niveau situé sous l'interface que l'on contrôle », avec les exemples de la source à la première occurrence (ch. 0, ch. 18) : « le code sous le programme généré, la physique sous le nombre calculé ».
   - Au ch. 17 : « la couche de la pile qui offre le moins de garanties (le modèle de langage) ».
 - **V5. Devinette.** *Adopté*, après discussion. On écrit « erreurs hasardées », par opposition aux « erreurs constantes ». Pour l'acte : « le modèle hasarde une réponse ». Pour un tirage : « une réponse hasardée ». Fichiers concernés : ch. 12 à 15 et la conclusion.
+- **V6. Invention.** *Adopté.*
+  - « invention » est le terme courant, avec « (ce qu'on appelle couramment une hallucination) » à la première occurrence du ch. 11.
+  - « confabulation » n'est employé que pour rapporter l'usage de Farquhar et al.
+  - Dans le passage sur l'ajustement par préférences : « modèle de récompense » partout, au lieu de « modèle auxiliaire ».
+- **V7. Orienter.** *Adopté.*
+  - « orienter » et « orientation » désignent l'effet ; ils remplacent « alignement » et « alignés » (ch. 12, 13).
+  - « ajustement sur des préférences humaines » désigne le moyen, toujours avec la même préposition (ch. 15, 16).
+- **V8. Consigne et requête.** *Adopté.*
+  - « consigne » partout où l'on parle d'un *prompt* (ch. 10 à 12).
+  - « requête informatique » est gardé au ch. 12.
+  - « consigne système » est glosé une fois : « instructions placées en tête de chaque échange, que l'utilisateur ne voit pas ».
+- **V16. Les trois effets de l'automatisation.** *Adopté.*
+  - Page de la partie 5 et chapeau du ch. 18 : « met nos contrôles en chaîne, en retire certains et corrèle ceux qui restent ».
+  - Titres du ch. 0, avec un sujet explicite (étiquettes inchangées) : « L'automatisation met les étapes en chaîne et fait passer les erreurs à l'acte » ; « L'automatisation érode les vérifications humaines » ; « L'automatisation corrèle les angles morts à l'échelle collective ».
+- **Harmonisations adoptées en lot.**
+  - V9 : « théorie des contrôles », partout.
+  - V10 : « classe d'erreurs ».
+  - V11 : « prendre une décision », au lieu de « trancher une décision » (page de la partie 4, ch. 16, avant-propos, ch. 18).
+  - V12 : « se former d'abord son propre jugement » ou « fixer d'abord sa propre estimation », au lieu d'« arrêter ».
+  - R7 : « les angles morts se cumulent » (registre, ch. 8).
+  - V17 : « exemples récurrents » (ch. 0, avant-propos).
+  - V13 : « lassitude face aux alertes », au lieu d'« usure des alertes », partout, y compris dans un titre de bloc au ch. 16.
+  - V15 : « recueil de règles » (page de la partie 5, ch. 18).
+- **V14. Chiffre assuré.** *Adopté.* L'expression est gardée. Elle est glosée une fois, à la première occurrence du ch. 17 : « un chiffre assuré, c'est-à-dire présenté avec assurance, sans ses conditions ».
+- **V18. « De l'intérieur ».** *Adopté.* Le référent est nommé à chaque occurrence :
+  - « de l'intérieur du cadre » (page de la partie 3, ch. 13) ;
+  - « à l'usage » (ch. 12) ;
+  - « de l'intérieur de son propre cadre » (ch. 16).
