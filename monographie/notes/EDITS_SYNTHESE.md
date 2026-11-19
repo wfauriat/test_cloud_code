@@ -515,3 +515,96 @@ Les règles dont il s’agit sont les instructions du programme elles-mêmes ; l
 - **p3 T4 (ch13)** (`parties/partie-3.md`) : Comme le PC du ch. 13.
   - Avant : « et qui ne s’automatise pas. »
   - Après : « et que la seule génération automatique n’accélère pas. »
+- **G1-3** (`chapitres/14-chaines-qui-agissent.md`) : Le confinement tenait au lecteur ou au comparateur, non aux couches basses, qui exécutent tout ordre bien formé (ES § 7).
+  - Avant : « l’absence de contrat au sommet demeurait contenue par les couches situées juste au-dessous. »
+  - Après : « l’absence de contrat au sommet demeurait contenue par le lecteur humain ou par le comparateur placé entre ce sommet et les couches situées au-dessous. »
+- **ch14 T2** (`chapitres/14-chaines-qui-agissent.md`) : 42,2 % ne « domine » pas ; force alignée sur les PC.
+  - Avant : « *Le facteur partagé finit par dominer les défaillances restantes.* »
+  - Après : « *Le facteur partagé pèse lourd dans les défaillances restantes.* »
+- **ch14 T3 (PC)** (`chapitres/14-chaines-qui-agissent.md`) : PC aligné sur l'encadré : facteur partagé par l'agent et ses contrôleurs.
+  - Avant : « ils laissent intact tout facteur omis partagé par l’ensemble des maillons, »
+  - Après : « ils laissent intact tout facteur omis que partagent l’agent et ses contrôleurs, et qui pèse sur toute la trajectoire, »
+- **N1** (`chapitres/14-chaines-qui-agissent.md`) : Pas de (…) nu en prose.
+  - Avant : « dans les limites de $(\dots)$ »
+  - Après : « dans les limites de son arrière-plan tacite $\mathcal{T}$ »
+- **V20** (`chapitres/14-chaines-qui-agissent.md`) : Nom fixé de la grille ; conditions énumérées à la première mention.
+  - Avant : « Rapproché des cinq conditions nécessaires pour qu’un contrôle arrête une erreur (@sec:ch06-cinq-conditions, @prop:comparateur), »
+  - Après : « Rapproché des cinq conditions de détection (existence, différence, comparabilité, arrivée à temps, prise en compte ; @sec:ch06-cinq-conditions, @prop:comparateur), »
+- **N3** (`chapitres/14-chaines-qui-agissent.md`) : Modèle situé dans la série.
+  - Avant : « Au @sec:ch08, le modèle M1 avait déjà chiffré »
+  - Après : « Au @sec:ch08, le modèle M1, celui des angles morts et de l’échappement, avait déjà chiffré »
+- **ch15 T4** (`chapitres/15-erosion-verifications.md`) : L'ironie de Bainbridge éclaire la posture, elle n'en est pas la cause (FD § 9.2).
+  - Avant : « Cette dynamique générale explique pourquoi la posture »
+  - Après : « Cette dynamique générale éclaire aussi pourquoi la posture »
+- **ch15 T5** (`chapitres/15-erosion-verifications.md`) : La première condition découle du scénario du brouillon, non des pièges.
+  - Avant : « La conclusion pratique de ces deux pièges est nette : »
+  - Après : « La conclusion pratique de cette analyse est nette : »
+- **ch15 T8 (PC) + p4 T5** (`chapitres/15-erosion-verifications.md`) : Le corps attribue l'effet à la fluidité, sans en faire la cause unique (ES : « fluent output feels like progress »).
+  - Avant : « un modèle supprime le signe révélateur du doute à la surface de chaque sortie et peut tromper jusqu’aux experts sur leur propre efficacité, »
+  - Après : « un modèle supprime le signe révélateur du doute à la surface de chaque sortie, et cette fluidité peut tromper jusqu’aux experts sur leur propre productivité, »
+- **N1** (`chapitres/15-erosion-verifications.md`) : (…) nu lu comme un trou par les deux lecteurs.
+  - Avant : « ce que le cadre du modèle a laissé dans $(\dots)$ ou »
+  - Après : « ce que le cadre du modèle a laissé dans son arrière-plan tacite $\mathcal{T}$ ou »
+- **V12** (`chapitres/15-erosion-verifications.md`) : « arrêter » lu « cesser ».
+  - Avant : « S’il n’a pas préalablement arrêté sa propre estimation, »
+  - Après : « S’il n’a pas préalablement fixé sa propre estimation, »
+- **V12 (PC)** (`chapitres/15-erosion-verifications.md`) : Idem.
+  - Avant : « que si la personne arrête d’abord sa propre représentation »
+  - Après : « que si la personne se forme d’abord sa propre représentation »
+- **V7** (`chapitres/15-erosion-verifications.md`) : Moyen : ajustement sur des préférences humaines.
+  - Avant : « sur les modèles orientés par préférences humaines »
+  - Après : « sur les modèles orientés par un ajustement sur des préférences humaines »
+- **ch16 T5** (`chapitres/16-angles-morts-collectifs.md`) : Vrai sous appariement seulement (sous examen complet, 32 % des erreurs sont arrêtées).
+  - Avant : « Avec un risque de 1,93 % contre 2 % sans contrôleur, le contrôle croisé n’arrête presque plus rien. »
+  - Après : « Sous appariement des probabilités, avec un risque de 1,93 % contre 2 % sans contrôleur, le contrôle croisé n’arrête presque plus rien. »
+- **V11** (`chapitres/16-angles-morts-collectifs.md`) : Collocation.
+  - Avant : « comment trancher une décision unique à fort enjeu »
+  - Après : « comment prendre une décision unique à fort enjeu »
+- **V12** (`chapitres/16-angles-morts-collectifs.md`) : « arrêter » lu « cesser ».
+  - Avant : « arrêter d’abord leur propre jugement avant de consulter l’outil »
+  - Après : « se former d’abord leur propre jugement avant de consulter l’outil »
+- **V13** (`chapitres/16-angles-morts-collectifs.md`) : « lassitude face aux alertes » (alert fatigue).
+  - Avant : « la montée de la corrélation des causes d’erreur et l’usure des alertes lorsque »
+  - Après : « la montée de la corrélation des causes d’erreur et la lassitude face aux alertes lorsque »
+- **V13** (`chapitres/16-angles-morts-collectifs.md`) : Idem.
+  - Avant : « récupère une partie de l’échappement dû à l’usure des alertes »
+  - Après : « récupère une partie de l’échappement dû à la lassitude face aux alertes »
+- **V13** (`chapitres/16-angles-morts-collectifs.md`) : Idem (titre de bloc).
+  - Avant : « titre="Séparer la corrélation des causes et l’usure des alertes" »
+  - Après : « titre="Séparer la corrélation des causes et la lassitude face aux alertes" »
+- **V13** (`chapitres/16-angles-morts-collectifs.md`) : Idem.
+  - Avant : « et réduit nettement l’usure due aux fausses alertes »
+  - Après : « et réduit nettement la lassitude due aux fausses alertes »
+- **V18** (`chapitres/16-angles-morts-collectifs.md`) : Référent de « l'intérieur ».
+  - Avant : « ne peut garantir, de l’intérieur, qu’elle n’a rien omis. »
+  - Après : « ne peut garantir, de l’intérieur de son propre cadre, qu’elle n’a rien omis. »
+- **V7** (`chapitres/16-angles-morts-collectifs.md`) : Moyen : ajustement sur des préférences humaines.
+  - Avant : « un biais induit par l’orientation sur préférences humaines »
+  - Après : « un biais induit par l’ajustement sur des préférences humaines »
+- **V7** (`chapitres/16-angles-morts-collectifs.md`) : Idem.
+  - Avant : « ce que la consigne ou l’ajustement par préférences pousse à taire »
+  - Après : « ce que la consigne ou l’ajustement sur des préférences humaines pousse à taire »
+- **N3** (`chapitres/16-angles-morts-collectifs.md`) : Modèle situé.
+  - Avant : « Dans les paramètres du modèle M1 (@eq:ch09-sensibilite »
+  - Après : « Dans les paramètres du modèle M1, celui des angles morts et de l’échappement (@eq:ch09-sensibilite »
+- **R7** (`parties/partie-4.md`) : « se cumulent ».
+  - Avant : « dont les angles morts s’additionnent. »
+  - Après : « dont les angles morts se cumulent. »
+- **p4 T2** (`parties/partie-4.md`) : La couche nommée (ES § 7 : « the least-guaranteed layer »).
+  - Avant : « Donner le pouvoir d’agir à la couche qui offre le moins de garanties inverse ainsi l’architecture qui rendait la pile logicielle sûre. »
+  - Après : « Confier le pouvoir d’agir au modèle de langage, la couche de la pile qui offre le moins de garanties, inverse l’architecture qui la rendait sûre. »
+- **p4 T6** (`parties/partie-4.md`) : FD : « process diagram ».
+  - Avant : « que personne n’avait jamais dessinée sur un organigramme. »
+  - Après : « que personne n’avait jamais inscrite dans un schéma de procédure. »
+- **p4 T5** (`parties/partie-4.md`) : Aligné sur le corps du ch. 15.
+  - Avant : « et l’aisance trompe jusqu’aux experts sur leur propre efficacité. »
+  - Après : « et cette fluidité trompe jusqu’aux experts sur leur propre productivité. »
+- **V13** (`parties/partie-4.md`) : « lassitude face aux alertes ».
+  - Avant : « sépare cette corrélation de l’usure des alertes, »
+  - Après : « sépare cette corrélation de la lassitude face aux alertes, »
+- **p4 T3** (`parties/partie-4.md`) : Objet du prêt, mots du ch. 16.
+  - Avant : « est un prêteur unique pour tous les emprunteurs : »
+  - Après : « est un prêteur unique de savoir et de formulation pour tous ceux qui le consultent : »
+- **V11** (`parties/partie-4.md`) : Collocation.
+  - Avant : « comment trancher une décision qui ne se jouera qu’une fois »
+  - Après : « comment prendre une décision qui ne se jouera qu’une fois »
