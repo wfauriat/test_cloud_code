@@ -987,3 +987,28 @@ Le monde qu’on y interroge est réel lorsqu’il est lui-même calculatoire (l
 - **N1** (`chapitres/02-cadre.md`) : Idem.
   - Avant : « et laisser le reste dans un arrière-plan ouvert $(\dots)$, que le calcul ne peut pas nommer. »
   - Après : « et laisser le reste dans un arrière-plan tacite, toujours ouvert, que le calcul ne peut pas nommer. »
+
+## Points laissés ouverts (non touchés)
+
+Ces points restent à discuter ; aucune correction ne les a anticipés. Les repères renvoient à `notes/SYNTHESE_A_TRANCHER.md` et à `notes/DECISIONS_SYNTHESE.md`.
+
+**Questions de fond (groupe 3)**
+- **D1. Indépendance et plancher d'échappement.** Ch. 8 T8 ; ch. 9 T1 et T2 (« indépendance » au sens de $s$, « plancher » égal à $c$) ; ch. 16 T1 et T2 (68,0 % attribués à $c$ seul ; scénario *Indépendant et précis*) ; page de la partie 4 (« plancher fixé par les causes partagées »).
+- **D2. Cadre et représentation.** Définitions du ch. 2 et du registre.
+- **D3. Portée du blanchiment.** Définition du ch. 8, PC du ch. 8, page de la partie 2, ch. 14 (« deux proches cousins »), ch. 16 (blanchiment de provenance).
+- **D4. *Challenger* et les cinq conditions.** Ch. 6, puces « différence » et « existence ».
+- **D5. Ce que coûte l'indépendance (P4).** Ch. 8 (énoncé, PC) ; page de la partie 2 (T3) ; conclusion (tableau, § « La tension entre coût et indépendance », PC 2).
+- **E1.** Ch. 13 : le monde présenté comme « seule source » d'une pertinence nouvelle ; reprise à la l. 123 de la conclusion.
+- **E2.** Ch. 0 : les « deux pièges » rattachés à la relecture humaine du brouillon.
+- **E3.** Ch. 15 : le texte déjà rédigé soumis au modèle (seconde condition) ; nombre de conditions annoncé au chapeau du ch. 15 et sur la page de la partie 4.
+
+**Arbitrages non tranchés (groupe 2)**
+- **R5.** « un texte fixé à l'avance » (registre, ch. 6, pages des parties 2 et 3, ch. 13), avec T5 de la page de la partie 3 (intitulés des sources de comparateurs).
+- **V1.** « précis », « dix fois plus précis », « 5 % de fausses alertes » (ch. 9, ch. 16).
+- **V21.** « comparabilité », « lisibilité », « comparaison fidèle », $B_{\text{cmp}}$ (ch. 14, 16, page de la partie 4).
+- **S6.** La roulette russe (ch. 4, § 3 et § 5 ; ch. 17).
+- **S1 (titre et synthèse du niveau 3) et S1b (limite de la 3e pratique), ch. 18.** Seul le statut de la 4e pratique a été corrigé.
+- **S7 à S9, S11 à S13, S15.** Points de construction du ch. 0 ; Vénus et Mercure ; typologie des sources au ch. 13 (« vos propres contrôles ») ; points locaux des ch. 1, 2, 8 et 16.
+- **Conclusion.** C-1 (statut de « le monde répond à l'action ») ; C-2 (rôle des constats empiriques, PC 1) ; C-3 (« hypothèse de travail » au sens large, conclusion et avant-propos) ; C-5 à C-7. Plus les trois questions éditoriales du § 6.3 de la synthèse.
+- **Points locaux de moindre importance** (§ 3.5 de la synthèse).
+- **Vérifications factuelles** (§ 5 de la synthèse). Ont été appliqués, parce qu'ils étaient établis : les prénoms d'Orzack et Sober, l'apologue de Dennett, l'objet du facteur 4,45 et la formulation de l'alarme pour *Mars Climate Orbiter*.
