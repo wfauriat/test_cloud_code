@@ -24,7 +24,30 @@ Aucune décision n'est encore appliquée au texte.
   - Au ch. 9, une phrase est ajoutée après la définition : « On la mesure par $\Pr(\bar A \mid E)$, la probabilité que le contrôle donne l'alerte quand l'affirmation est fausse. »
 - **R5. Comparateur : « un texte fixé à l'avance ».** *Ouvert*, réservé à la discussion. Non bloquant.
 - **R6. Vérification en amont.** *Adopté.* Dans le registre et au ch. 10 : « Contrôle d'un composant fait une fois, par rapport à sa spécification, et qui porte sur le composant plutôt que sur chacune de ses sorties : ce qu'il établit vaut pour toutes ses exécutions futures. » Dans les PC du ch. 10 : « peut contrôler le composant une fois pour toutes ».
+- **G1-4. Probabilité d'échappement** (point du groupe 1, confirmé ici parce qu'il modifie le registre). *Adopté.*
+  - Dans le registre, au ch. 6 et au ch. 9 : « Probabilité qu'une affirmation fausse débouche sur une action sans qu'un désaccord ait été détecté et pris en compte à temps. »
+  - Dans l'encadré du ch. 6 : « c'est-à-dire la probabilité de l'événement contraire $\overline{D}$ : atteindre l'action sans qu'un désaccord ait été détecté et pris en compte à temps ».
+- **R8. Erreur signalée, erreur silencieuse.** *Adopté.* Dans le registre et au ch. 13 : « Erreur que contredit au moins un comparateur avant l'action ; erreur que rien ne contredit avant l'action. »
+- **R9. Bac à sable et verrou.** *Adopté.*
+  - Les deux définitions du registre sont gardées.
+  - « ne pourrait (plus) être effacée » devient « serait irréversible » au ch. 17 (trois occurrences) et sur la page de la partie 5 ; sur cette page, « elle » devient « cette réponse ».
+  - Phrase ajoutée au ch. 17, après la définition du bac à sable : « Le monde qu'on y interroge est réel lorsqu'il est lui-même calculatoire (le compilateur, les tests, une base de données d'essai) ; ailleurs, le bac à sable n'interroge que ce qu'il reproduit. »
+- **R11. Prise en compte.** *Adopté.*
+  - Dans le registre et au ch. 6 : « Fait qu'un désaccord parvienne à quelqu'un qui à la fois en prend acte et a l'autorité pour agir en conséquence. »
+  - Dans l'encadré du ch. 6 ($C_5$) : « ait l'autorité » au lieu d'« exerce l'autorité ».
+  - Cette définition alimente la discussion D4 sur *Challenger*.
 - **R3. « décision unique ».** *Adopté.* Nouvelle définition, dans le registre et au ch. 4 : « décision prise sans série d'essais comparables, si bien qu'une issue malheureuse ne peut être compensée par d'autres cas : la réponse du monde n'arrive qu'après l'acte, trop tard pour le corriger ».
 - **N2. Rappels de termes hors de leur chapitre.** *Adopté.* Un rappel bref par chapitre est autorisé, repris mot pour mot de la définition du registre, sans gras. Il concerne les termes introduits au moins deux parties plus tôt, et les chapitres d'entrée des parcours de lecture du ch. 0. Environ 25 points deviennent applicables.
 - **N3. Modèles M1 à M3.** *Adopté.* On garde la numérotation de la spec. La série est présentée une fois au ch. 0 (§ Architecture), et chaque première mention dans un chapitre est accompagnée de quelques mots de description (« le modèle M1, des angles morts et de l'échappement, @sec:ch08 »). Huit fichiers.
 - **N4. $P(E)$, $\Pr(E)$, $P(\text{faux})$.** *Adopté.* Les trois notations sont gardées. L'équivalence est posée à la première occurrence aux ch. 6, 9 et 16. En prose, $c$ s'écrit en pourcentage, comme dans les tableaux.
+- **R10. Affirmation et observation.** *Adopté.* « rapport de mesure » reste dans la définition de l'affirmation. Au ch. 6, la famille 3 devient : « une observation du monde (le fait observé lui-même, non le rapport qui en rend compte) ».
+
+## Vocabulaire transversal (§ 3.2)
+
+- **V20. Les cinq conditions.** *Adopté.*
+  - Noms fixés : existence, différence, comparabilité, arrivée à temps, prise en compte.
+  - Nom de la grille : « les cinq conditions de détection ».
+  - Chaque chapitre qui s'appuie sur elles les énumère à la première mention, avec « différence (se tromper autrement) ».
+  - Fichiers concernés : ch. 6, 8 à 10, 13, 14, 17, 18 et la conclusion. La métaphore des « barrages » est traitée à part (S2).
+- **V21. Comparabilité, lisibilité, comparaison fidèle.** *Ouvert*, réservé à la discussion. Non bloquant.
+- **V1. Exact, précis, fiable.** *Ouvert*, réservé à la discussion. Non bloquant.
