@@ -801,3 +801,189 @@ Le monde qu’on y interroge est réel lorsqu’il est lui-même calculatoire (l
 - **p5 T6** (`parties/partie-5.md`) : « ces critères » sans antécédent (ch. 18 : « ces questions »).
   - Avant : « Reste à soumettre le livre lui-même à ces critères : »
   - Après : « Reste à poser ces questions au livre lui-même : »
+- **G1-19** (`chapitres/00-cartographier.md`) : Lecture concessive (FD § 11.1 ; corps du ch. 18).
+  - Avant : « notre expérience du monde déborde souvent le cadre du modèle que l’on consulte, à défaut de déborder le nôtre ; »
+  - Après : « notre expérience du monde déborde souvent le cadre du modèle que nous consultons, même si elle ne déborde jamais le nôtre ; »
+- **G1-20 + V2** (`chapitres/00-cartographier.md`) : Prescription (ES § 7, FD § 11.3) ; « état de vérification ».
+  - Avant : « protéger la capacité d’évaluation indépendante comme une ressource budgétaire propre qui plafonne le volume de production, exiger que toute affirmation soumise à la décision affiche son statut et ses hypothèses, »
+  - Après : « traiter la capacité d’évaluation indépendante comme une ligne budgétaire à part et ne pas produire plus que ce qu’elle permet de vérifier, exiger que toute affirmation soumise à la décision affiche son état de vérification (exploratoire ou établie, ce qui a été contrôlé de façon indépendante) et ses »
+- **G1-21 + V4** (`chapitres/00-cartographier.md`) : Le niveau situé sous l'interface (FD § 6, ES § 7).
+  - Avant : « et les confier à des relecteurs qui comprennent une couche en dessous de l’interface qu’ils contrôlent. »
+  - Après : « et les confier à des relecteurs qui partagent l’interface avec le producteur et comprennent par eux-mêmes le niveau situé dessous : le code sous le programme généré, la physique sous le nombre calculé. »
+- **G1-15** (`chapitres/00-cartographier.md`) : Le producteur est un humain assisté d'un modèle (FD § 9.3) ; tournure des PC. Nombres inchangés.
+  - Avant : « dans la seconde, le producteur ne se trompe plus que dans 1 % des cas, mais ses erreurs ont l’aisance de ses réussites, n’ont pas d’adresse, et ceux qui le relisent consultent le même outil que lui ; »
+  - Après : « dans la seconde, le producteur, désormais assisté d’un modèle, ne se trompe plus que dans 1 % des cas, mais ses erreurs se présentent avec la même aisance que ses réussites et n’ont pas d’adresse, et ceux qui le relisent consultent le même modèle ; »
+- **G1-17** (`chapitres/00-cartographier.md`) : « ambiante » lu « normale » ; aligné sur l'étape 3 du tableau du ch. 2.
+  - Avant : « l’eau pure, *à la pression atmosphérique ambiante*, bout à 100 °C. »
+  - Après : « l’eau pure, *portée à l’air libre*, bout à 100 °C. »
+- **G1-16** (`chapitres/00-cartographier.md`) : Chaînon du taux de base explicité (SPEC S9 : contrôleur fixe).
+  - Avant : « une part croissante des alertes d’un contrôleur imparfait sont de fausses alertes. »
+  - Après : « les vraies erreurs se raréfient alors que le taux de fausses alertes d’un contrôleur imparfait reste le même : une part croissante de ses alertes sont donc de fausses alertes. »
+- **G1-22** (`chapitres/00-cartographier.md`) : Référent : la seconde question.
+  - Avant : « Pour répondre à cette question, il faut repartir »
+  - Après : « Pour répondre à cette seconde question, il faut repartir »
+- **G1-22** (`chapitres/00-cartographier.md`) : Collision avec les propositions techniques.
+  - Avant : « Pour établir chacune de ces propositions sans pétition de principe »
+  - Après : « Pour établir chacune de ces thèses sans pétition de principe »
+- **G1-18** (`chapitres/00-cartographier.md`) : « garantie », comme le titre et les PC (SPEC S11).
+  - Avant : « la certitude préalable n’a pas été perdue par négligence »
+  - Après : « la garantie préalable n’a pas été perdue par négligence »
+- **G1-22** (`chapitres/00-cartographier.md`) : Symbole relié au seuil déjà écrit en toutes lettres.
+  - Avant : « établit le seuil de décision $p^\ast$ face à une décision unique. »
+  - Après : « établit le seuil de décision, noté $p^\ast$ (@eq:ch00-seuil), face à une décision unique. »
+- **G1-22** (`chapitres/00-cartographier.md`) : Étape manquante (FD § 9.4).
+  - Avant : « Puisque toute action sur le monde est en même temps une question posée au monde, il est fécond de laisser »
+  - Après : « Puisque toute action sur le monde est en même temps une question posée au monde, mieux vaut la poser là où la réponse coûte peu et peut être défaite : il est fécond de laisser »
+- **V16** (`chapitres/00-cartographier.md`) : Sujet explicite dans la table des matières ; « exécute les erreurs » ambigu.
+  - Avant : « ### Elle met les étapes en chaîne et exécute les erreurs { »
+  - Après : « ### L’automatisation met les étapes en chaîne et fait passer les erreurs à l’acte { »
+- **V16** (`chapitres/00-cartographier.md`) : Idem.
+  - Avant : « ### Elle érode les vérifications humaines { »
+  - Après : « ### L’automatisation érode les vérifications humaines { »
+- **V16** (`chapitres/00-cartographier.md`) : Idem.
+  - Avant : « ### Elle corrèle les angles morts à l’échelle collective { »
+  - Après : « ### L’automatisation corrèle les angles morts à l’échelle collective { »
+- **V16 (PC)** (`chapitres/00-cartographier.md`) : Idem.
+  - Avant : « - L’automatisation enchaîne les étapes jusqu’à l’action, »
+  - Après : « - L’automatisation met les étapes en chaîne jusqu’à l’action, »
+- **V17** (`chapitres/00-cartographier.md`) : Calque de running examples.
+  - Avant : « un petit nombre d’exemples courants qui »
+  - Après : « un petit nombre d’exemples récurrents qui »
+- **N1** (`chapitres/00-cartographier.md`) : Arrière-plan tacite nommé (sans définition formelle au ch. 0).
+  - Avant : « La parenthèse $(\dots)$ désigne cet arrière-plan ouvert d’exceptions possibles »
+  - Après : « La parenthèse $(\dots)$ désigne cet arrière-plan tacite, ouvert d’exceptions possibles »
+- **N1** (`chapitres/00-cartographier.md`) : Pas de (…) nu en prose.
+  - Avant : « relègue en silence dans $(\dots)$, »
+  - Après : « relègue en silence dans l’arrière-plan tacite, »
+- **N1** (`chapitres/00-cartographier.md`) : Idem.
+  - Avant : « tout ce que le cadre a laissé dans $(\dots)$. »
+  - Après : « tout ce que le cadre a laissé dans l’arrière-plan tacite. »
+- **N3 + V2** (`chapitres/00-cartographier.md`) : Série des modèles formels présentée ; statut épistémique.
+  - Avant : « portera explicitement son statut (*définition*, *résultat sous hypothèses*, *hypothèse de travail* ou *constat empirique*) et sera suivie d’un examen de ses limites de robustesse. »
+  - Après : « portera explicitement son statut épistémique (*définition*, *résultat sous hypothèses*, *hypothèse de travail* ou *constat empirique*) et sera suivie d’un examen de ses limites de robustesse. Trois modèles formels portent l’argument : le modèle M1, des angles morts et de l’échappement (chapitres [-@ »
+- **R4** (`chapitres/99-conclusion.md`) : Formulation de la sévérité.
+  - Avant : « Un contrôle réussi n’est probant que s’il aurait pu échouer ; »
+  - Après : « Un contrôle passé sans alerte n’est probant que s’il aurait pu donner l’alerte ; »
+- **V20 + S3** (`chapitres/99-conclusion.md`) : Les cinq conditions nommées une fois (Opus B2, Sonnet B1).
+  - Avant : « sa portée tient aux cinq conditions et à l’idée qu’elles cèdent séparément. »
+  - Après : « sa portée tient aux cinq conditions de détection (existence, différence, comparabilité, arrivée à temps, prise en compte) et à l’idée qu’elles cèdent séparément. »
+- **G1-12** (`chapitres/99-conclusion.md`) : Axes nommés (Opus B4, Sonnet B5).
+  - Avant : « la formalité déplace la colonne, non la ligne (@sec:ch13). »
+  - Après : « la formalité déplace la colonne (erreur signalée ou silencieuse), non la ligne (cause dans ou hors du cadre) (@sec:ch13). »
+- **G1-12** (`chapitres/99-conclusion.md`) : Idem.
+  - Avant : « puisque la formalité déplace la colonne et non la ligne (@sec:ch13-deux-axes). »
+  - Après : « puisque la formalité change le caractère signalé ou silencieux d’une erreur, non la place de sa cause dans ou hors du cadre (@sec:ch13-deux-axes). »
+- **N3** (`chapitres/99-conclusion.md`) : Un même modèle M1, étendu au ch. 9 (Opus B5, Sonnet C7).
+  - Avant : « Le modèle M1 a donc mis côte à côte deux politiques »
+  - Après : « Le même modèle M1, étendu au @sec:ch09, a ainsi mis côte à côte deux politiques »
+- **N3** (`chapitres/99-conclusion.md`) : Portée du statut (Opus C7).
+  - Avant : « *résultat sous hypothèses* pour le modèle M2 ; »
+  - Après : « *résultat sous hypothèses* pour la marge d’humilité (modèle M2) ; »
+- **V4** (`chapitres/99-conclusion.md`) : Niveau de compétence.
+  - Avant : « tout en comprenant au moins une couche au-dessous (@sec:ch18-placement-qui) »
+  - Après : « tout en comprenant le niveau situé sous cette interface (@sec:ch18-placement-qui) »
+- **V4** (`chapitres/99-conclusion.md`) : Idem.
+  - Avant : « une sortie qu’il ne sait pas lire une couche au-dessous. »
+  - Après : « une sortie dont il ne sait pas lire le niveau sous-jacent. »
+- **p3 T3 (conclusion)** (`chapitres/99-conclusion.md`) : Ellipse « inventer des faits rares ».
+  - Avant : « la calibration générative impose d’inventer des faits rares ; »
+  - Après : « la calibration générative impose d’inventer lorsque le modèle est interrogé sur des faits rares ; »
+- **N1** (`chapitres/99-conclusion.md`) : (…) nu en prose (Opus B1, Sonnet C1).
+  - Avant : « ce qui reste dans l’arrière-plan $(\dots)$ ; »
+  - Après : « ce qui reste dans l’arrière-plan tacite $\mathcal{T}$ ; »
+- **N2** (`chapitres/99-conclusion.md`) : Sigle développé à la première occurrence (Opus C2).
+  - Avant : « la VPP chute quand les erreurs se raréfient »
+  - Après : « la valeur prédictive positive (VPP) chute quand les erreurs se raréfient »
+- **N2** (`chapitres/99-conclusion.md`) : Lettres glosées (Opus B15, Sonnet B17).
+  - Avant : « les valeurs réelles des paramètres $c$, $m$, $f$ et $u$ »
+  - Après : « les valeurs réelles des paramètres $c$ (causes partagées), $m$ (oubli sur les autres causes), $f$ (fausses alertes) et $u$ (prise en compte) »
+- **V13 + Opus B8** (`chapitres/99-conclusion.md`) : Raccourci nommé ; « lassitude face aux alertes ».
+  - Avant : « ferment en outre la porte à un raccourci. »
+  - Après : « ferment en outre la porte à un raccourci : conclure que la seule lassitude face aux alertes suffit à rendre dangereux un producteur amélioré. »
+- **V13** (`chapitres/99-conclusion.md`) : Idem.
+  - Avant : « non sur la seule usure des alertes, »
+  - Après : « non sur la seule lassitude face aux alertes, »
+- **V2** (`chapitres/99-conclusion.md`) : « état de vérification » (sens 2).
+  - Avant : « l’affichage du statut, l’historique »
+  - Après : « l’affichage de l’état de vérification, l’historique »
+- **V2** (`chapitres/99-conclusion.md`) : Idem.
+  - Avant : « qu’une déclaration de statut peut redevenir »
+  - Après : « qu’une déclaration d’état de vérification peut redevenir »
+- **V2** (`chapitres/99-conclusion.md`) : Idem.
+  - Avant : « le pré-mortem ou l’affichage du statut »
+  - Après : « le pré-mortem ou l’affichage de l’état de vérification »
+- **Sonnet A1** (`chapitres/99-conclusion.md`) : « ce chapitre » ambigu dans une conclusion ; « même » mal placé.
+  - Avant : « Dans l’exemple illustratif de ce chapitre, le risque sous appariement des probabilités reste même plus bas »
+  - Après : « Dans l’exemple illustratif du @sec:ch16, le risque sous appariement des probabilités est même, au contraire, plus bas »
+- **Opus B3** (`chapitres/99-conclusion.md`) : Aligné sur le § sur l'omission de saillance.
+  - Avant : « les contrôles qui réemploient les mêmes paramètres et la même consigne. »
+  - Après : « les contrôles qui réemploient les mêmes paramètres et la même formulation de la consigne. »
+- **Opus B6** (`chapitres/99-conclusion.md`) : « prise en défaut dans l'usage » précisé (SPEC P2).
+  - Avant : « ne peut être prise en défaut que dans l’usage de la grille qu’elle déplie. »
+  - Après : « ne peut être prise en défaut que si la grille des cinq conditions qu’elle déplie se révèle inutile à l’usage. »
+- **Sonnet B7** (`chapitres/99-conclusion.md`) : Lien avec la proposition non démentable.
+  - Avant : « des défaillances de détection qui ne se laisseraient ranger sous aucune des cinq conditions (@sec:ch06) ; »
+  - Après : « des défaillances de détection qui ne se laisseraient ranger sous aucune des cinq conditions (@sec:ch06), ce qui ôterait à la grille son utilité sans réfuter la définition ; »
+- **Opus B7** (`chapitres/99-conclusion.md`) : Exemple rattaché à la ferrure ; tautologie retirée.
+  - Avant : « Traduire un taux d’attaque chimique en perte d’épaisseur, puis convaincre une équipe de rouvrir un plan bouclé, coûte moins en calcul qu’en traduction et en autorité. »
+  - Après : « Dans l’exemple de la ferrure (@sec:ch08), traduire un taux d’attaque chimique en perte d’épaisseur, puis convaincre une équipe de rouvrir un plan bouclé, coûte moins en calcul qu’en mise en correspondance et en autorité. »
+- **Sonnet B12** (`chapitres/99-conclusion.md`) : Le produit est positif ; c'est son sens de variation qui est en jeu (titre ; étiquette inchangée).
+  - Avant : « ### Le signe du produit entre taux d’erreur et échappement reste à mesurer { »
+  - Après : « ### Le sens de variation du produit entre taux d’erreur et échappement reste à mesurer { »
+- **Sonnet C3** (`chapitres/99-conclusion.md`) : Cohérent avec « ne réduisent jamais tout à fait ».
+  - Avant : « que le @sec:ch17 résout en articulant »
+  - Après : « que le @sec:ch17 atténue en articulant »
+- **Opus B10** (`chapitres/99-conclusion.md`) : « course » opaque hors contexte.
+  - Avant : « Une course sans incident ne juge guère un prévisionniste »
+  - Après : « Une traversée sans incident ne juge guère un prévisionniste »
+- **Sonnet B15** (`chapitres/99-conclusion.md`) : « prévoyait » maladroit.
+  - Avant : « ne prévoyait pas les erreurs qui atteignent réellement l’action »
+  - Après : « ne permettait pas de prédire la part des erreurs qui atteignent réellement l’action »
+- **Opus B11** (`chapitres/99-conclusion.md`) : Rattachement de « à un rythme ».
+  - Avant : « des relecteurs qui continueraient d’examiner des alertes de moins en moins souvent fondées à un rythme indépendant de leur valeur prédictive positive »
+  - Après : « des relecteurs qui, devant des alertes de moins en moins souvent fondées, continueraient de les examiner au même rythme, quelle que soit leur valeur prédictive positive »
+- **Sonnet B14** (`chapitres/99-conclusion.md`) : Logique du cas de 2025 explicitée.
+  - Avant : « faisant de l’étude de 2025 [@becker2025] un cas isolé »
+  - Après : « faisant de l’étude de 2025, où les développeurs s’estimaient plus rapides qu’ils ne l’étaient [@becker2025], un cas isolé »
+- **Opus B12** (`chapitres/99-conclusion.md`) : Référents flous.
+  - Avant : « Pour qu’elles l’éprouvent au lieu de le reconduire, »
+  - Après : « Pour que ces mesures mettent le livre à l’épreuve au lieu de reproduire son cadre, »
+- **Opus C15** (`chapitres/99-conclusion.md`) : « rien à ajouter » suivi d'un long rappel.
+  - Avant : « et il n’y a rien à ajouter à cette déclaration. »
+  - Après : « et on la rappelle ici sans rien y ajouter. »
+- **Opus B13** (`chapitres/99-conclusion.md`) : Référent de « elle » ; calque « témoigner que ».
+  - Avant : « il ne témoigne pas qu’elle soit juste, puisqu’il en partage le cadre. »
+  - Après : « il ne prouve pas que la thèse soit juste, puisqu’il en partage le cadre. »
+- **Sonnet B16** (`chapitres/99-conclusion.md`) : Ce sont les comparateurs qui se trompent autrement (titre ; étiquette inchangée).
+  - Avant : « ### Où ses affirmations peuvent se tromper autrement { »
+  - Après : « ### D’où peuvent venir des comparateurs qui se trompent autrement { »
+- **Opus B14** (`chapitres/99-conclusion.md`) : Renvoi exact.
+  - Avant : « Les observations recensées dans la section précédente. »
+  - Après : « Les observations recensées plus haut (@sec:conclusion-refutation). »
+- **Sonnet B18** (`chapitres/99-conclusion.md`) : Référent de « il ».
+  - Avant : « là où il engage une décision unique »
+  - Après : « là où l’argument engage une décision unique »
+- **C-4** (`chapitres/99-conclusion.md`) : Sens fixé par l'avant-propos (jugé sur ce qu'il énonce, non sur sa construction).
+  - Avant : « à être jugé sur ce qu’il énonce, et sur rien d’autre. »
+  - Après : « à être jugé sur ce qu’il énonce, confronté à ces comparateurs, et non sur la manière dont il a été construit. »
+- **Opus C4** (`chapitres/99-conclusion.md`) : Les hypothèses dites comme telles.
+  - Avant : « | Issue binaire, option sûre bien définie ; »
+  - Après : « | Suppose une issue binaire et une option sûre bien définie ; »
+- **Sonnet B12 (PC)** (`chapitres/99-conclusion.md`) : Comme le titre de section.
+  - Avant : « le signe du produit entre taux d’erreur et échappement, qui reste à mesurer ; »
+  - Après : « le sens de variation du produit entre taux d’erreur et échappement, qui reste à mesurer ; »
+- **Opus A3 (PC)** (`chapitres/99-conclusion.md`) : Les deux-points faisaient lire la suite comme une liste de risques.
+  - Avant : « retenue faute de mieux avec ses risques nommés : agir d’après des représentations finies, »
+  - Après : « retenue faute de mieux avec ses risques nommés. Il en découle une conduite : agir d’après des représentations finies, »
+- **Opus B6 (PC)** (`chapitres/99-conclusion.md`) : Comme le corps.
+  - Avant : « ne peut être prise en défaut que dans l’usage de la grille qu’elle déplie, »
+  - Après : « ne peut être prise en défaut que si la grille des cinq conditions qu’elle déplie se révèle inutile à l’usage, »
+- **N1** (`chapitres/02-cadre.md`) : Pas de (…) nu en prose.
+  - Avant : « la grandeur omise demeure dans l’arrière-plan $(\dots)$. »
+  - Après : « la grandeur omise demeure dans l’arrière-plan tacite $\mathcal{T}$. »
+- **N1** (`chapitres/02-cadre.md`) : Idem.
+  - Avant : « alors que la parenthèse $(\dots)$ reste aussi ouverte qu’avant. »
+  - Après : « alors que l’arrière-plan tacite reste aussi ouvert qu’avant. »
+- **N1** (`chapitres/02-cadre.md`) : Idem.
+  - Avant : « et laisser le reste dans un arrière-plan ouvert $(\dots)$, que le calcul ne peut pas nommer. »
+  - Après : « et laisser le reste dans un arrière-plan tacite, toujours ouvert, que le calcul ne peut pas nommer. »
