@@ -325,3 +325,193 @@ On la mesure par $\Pr(\bar{A} \mid E)$, la probabilité que le contrôle donne l
 - **R1** (`parties/partie-1.md`) : « ne vaut que si ses prémisses sont vraies » se lisait comme une condition de validité (p1 T1).
   - Avant : « Une déduction ne vaut que si ses prémisses sont vraies, »
   - Après : « Une déduction ne garantit sa conclusion que si ses prémisses sont vraies, »
+- **G1-6** (`chapitres/10-couches-basses.md`) : Lecture (a) établie par les sources : les règles sont le code ; le contrat peut être formulé après coup (FD § 9, ES § 5).
+  - Avant : « qu’on peut doter d’une spécification vérifiable, c’est-à-dire d’un contrat.
+::: »
+  - Après : « qu’on peut doter d’une spécification vérifiable, c’est-à-dire d’un contrat.
+:::
+
+Les règles dont il s’agit sont les instructions du programme elles-mêmes ; le contrat qui les énonce peut être écrit avant l’exécution, ou seulement formulé après coup. »
+- **R6 ®** (`chapitres/10-couches-basses.md`) : La vérification porte sur le composant ; elle vaut dans la mesure de ce qu'elle établit.
+  - Avant : « le contrôle d’un composant fait une fois, par rapport à sa spécification, et valable pour toutes ses exécutions futures. »
+  - Après : « le contrôle d’un composant fait une fois, par rapport à sa spécification, et qui porte sur le composant plutôt que sur chacune de ses sorties : ce qu’il établit vaut pour toutes ses exécutions futures. »
+- **R6 (PC)** (`chapitres/10-couches-basses.md`) : PC aligné sur le corps (« écrire n'est pas encore vérifier »).
+  - Avant : « contrôle le composant une fois pour toutes avant sa mise en service »
+  - Après : « peut contrôler le composant une fois pour toutes avant sa mise en service »
+- **ch10 T12** (`chapitres/10-couches-basses.md`) : Force alignée sur l'encadré des trois degrés.
+  - Avant : « dont les contrats écrits autorisent une vérification en amont »
+  - Après : « dont les contrats écrits rendent possible une vérification en amont »
+- **ch10 T4 (PC)** (`chapitres/10-couches-basses.md`) : Les cinq caractères du corps repris.
+  - Avant : « repose sur un énoncé écrit à l’avance, lisible par autrui, discutable et opposable à son exécution, »
+  - Après : « repose sur un énoncé écrit à l’avance, lisible par autrui, discutable, versionnable et violable, donc opposable à son exécution, »
+- **V8** (`chapitres/10-couches-basses.md`) : « consigne », terme du registre.
+  - Avant : « la sortie exacte de chaque requête, »
+  - Après : « la sortie exacte de chaque consigne, »
+- **V9 + V20** (`chapitres/10-couches-basses.md`) : Nom de la théorie ; noms des cinq conditions.
+  - Avant : « la théorie générale du contrôle exposée dans la @sec:partie-2, en particulier sur les cinq conditions nécessaires pour qu’un comparateur arrête une erreur (@sec:ch06, @prop:comparateur) »
+  - Après : « la théorie des contrôles exposée dans la @sec:partie-2, en particulier sur les cinq conditions de détection : existence, différence (se tromper autrement), comparabilité, arrivée à temps et prise en compte (@sec:ch06, @prop:comparateur) »
+- **ch10 T5** (`chapitres/10-couches-basses.md`) : Le facteur 4,45 porte sur les impulsions, non sur la trajectoire (corps du chapitre ; mco1999).
+  - Avant : « introduisant un écart d’un facteur voisin de 4,45 dans l’estimation de trajectoire »
+  - Après : « introduisant un écart d’un facteur voisin de 4,45 dans les impulsions prises en compte pour l’estimation de trajectoire »
+- **ch10 T6** (`chapitres/10-couches-basses.md`) : Des anomalies ont été vues sans être remontées (encadré, ES) : « alarme décisive » obscur.
+  - Avant : « a poursuivi ses calculs sans déclencher d’alarme décisive ni interrompre les opérations. »
+  - Après : « a poursuivi ses calculs sans qu’aucune alarme ne vienne interrompre les opérations. »
+- **ch10 T6 (PC)** (`chapitres/10-couches-basses.md`) : Idem.
+  - Avant : « en produisant des résultats faux sans alarme décisive, »
+  - Après : « en produisant des résultats faux sans qu’aucune alarme ne l’arrête, »
+- **ch11 T1 (PC) + p3 T4** (`chapitres/11-regle-tiree-des-donnees.md`) : Les tests de référence mesurent ; c'est l'optimisation de leurs scores qui oriente (corps, Goodhart ; ES § 3).
+  - Avant : « - Les consignes, l’ajustement sur des préférences humaines et les tests de référence orientent les distributions du modèle »
+  - Après : « - Les consignes, l’ajustement sur des préférences humaines et l’optimisation des scores aux tests de référence orientent les distributions du modèle »
+- **ch11 T2** (`chapitres/11-regle-tiree-des-donnees.md`) : À la lettre, la phrase décrivait un ajustement sur le jeu d'essai (faute de méthode).
+  - Avant : « — ainsi qu’aux échantillons d’essai tirés d’une source semblable —, »
+  - Après : « — que l’on contrôle ensuite sur des échantillons d’essai tirés d’une source semblable —, »
+- **ch11 T4 (PC)** (`chapitres/11-regle-tiree-des-donnees.md`) : Critère absent du corps.
+  - Avant : « n’obéit à aucune frontière nette ni prévisible, »
+  - Après : « n’obéit à aucune frontière nette, »
+- **ch11 T5 (PC)** (`chapitres/11-regle-tiree-des-donnees.md`) : Portée du corps : une réponse prise isolément.
+  - Avant : « n’a pas d’adresse de défaillance et ne porte en surface aucune marque d’erreur. »
+  - Après : « n’a pas d’adresse de défaillance et, prise isolément, ne porte en surface aucune marque d’erreur. »
+- **V8** (`chapitres/11-regle-tiree-des-donnees.md`) : « consigne ».
+  - Avant : « n’interdit l’invention sur la requête suivante. »
+  - Après : « n’interdit l’invention sur la consigne suivante. »
+- **V6** (`chapitres/11-regle-tiree-des-donnees.md`) : « invention » terme courant, nom usuel signalé une fois.
+  - Avant : « réduisent sensiblement la fréquence de ces inventions. »
+  - Après : « réduisent sensiblement la fréquence de ces inventions (ce qu’on appelle couramment des hallucinations). »
+- **V6** (`chapitres/11-regle-tiree-des-donnees.md`) : Idem.
+  - Avant : « dans les réponses fabriquées que dans »
+  - Après : « dans les réponses inventées que dans »
+- **V6** (`chapitres/11-regle-tiree-des-donnees.md`) : « modèle de récompense », comme l'encadré.
+  - Avant : « il procède en entraînant un modèle auxiliaire sur »
+  - Après : « il procède en entraînant un modèle de récompense sur »
+- **ch11 T10** (`chapitres/11-regle-tiree-des-donnees.md`) : Le procédé porte sur une phrase à compléter (ES § 4).
+  - Avant : « Lorsqu’on lui soumet le début d’une phrase demandant dans quelle ville se dresse la tour Eiffel, »
+  - Après : « Lorsqu’on lui soumet une phrase inachevée dont la suite attendue est la ville où se dresse la tour Eiffel, »
+- **G1-9** (`chapitres/12-autre-regime.md`) : La borne de Kalai est un minorant (encadré, ES).
+  - Avant : « engendrer des énoncés faux à un taux voisin de la proportion de singletons [@kalai2024]. »
+  - Après : « engendrer des énoncés faux à un taux au moins de l’ordre de la proportion de singletons [@kalai2024]. »
+- **G1-9 (PC)** (`chapitres/12-autre-regime.md`) : Idem.
+  - Avant : « à une fréquence comparable au taux de singletons »
+  - Après : « à une fréquence au moins de l’ordre du taux de singletons »
+- **G1-9** (`chapitres/12-autre-regime.md`) : Force alignée sur l'encadré : s'écarter de la calibration générative, notamment par l'abstention.
+  - Avant : « elle *entraîne* mathématiquement l’invention et doit être abandonnée [@kalai2024]. »
+  - Après : « elle *entraîne* mathématiquement l’invention, et il est recommandé de s’en écarter, notamment par l’abstention [@kalai2024]. »
+- **G1-10** (`chapitres/12-autre-regime.md`) : Citation sans source (phrase d'un texte interne) : guillemets retirés, renvoi au passage sur l'absence d'alarme.
+  - Avant : « La seconde confusion serait de conclure de façon trop absolue que « rien dans le modèle ne calcule de signal lorsqu’il quitte sa zone de compétence ». »
+  - Après : « La seconde confusion serait de conclure de façon trop absolue, de l’absence d’alarme relevée plus haut, que rien dans le modèle ne calcule de signal lorsqu’il quitte sa zone de compétence. »
+- **G1-11 + V18 + V8** (`chapitres/12-autre-regime.md`) : « à l'usage » (ES) ; « interne » contredisait l'encadré sur la dispersion ; « consigne ».
+  - Avant : « *L’indiscernabilité depuis l’intérieur.* Vue de l’interface conversationnelle, une réponse émise de chaque côté de la frontière garde la même aisance de ton. Aucune alarme interne n’informe l’utilisateur ou le programme appelant que la requête vient de tomber »
+  - Après : « *L’indiscernabilité à l’usage.* Vue de l’interface conversationnelle, une réponse émise de chaque côté de la frontière garde la même aisance de ton. Aucune alarme n’avertit l’utilisateur ou le programme appelant que la consigne vient de tomber »
+- **G1-11 (PC)** (`chapitres/12-autre-regime.md`) : Idem.
+  - Avant : « et indiscernable de l’intérieur de la conversation, »
+  - Après : « et invisible à l’usage, »
+- **ch12 T6** (`chapitres/12-autre-regime.md`) : Cinq réponses, et non six.
+  - Avant : « reposer la question 5 fois offre une sévérité de 99,9 % »
+  - Après : « tirer 5 réponses offre une sévérité de 99,9 % »
+- **ch12 T7** (`chapitres/12-autre-regime.md`) : Légende alignée sur le texte et le tableau.
+  - Avant : « taux d’alerte sur bonne réponse.](figures/ch12-plausibilite.pdf) »
+  - Après : « taux d’alerte à tort.](figures/ch12-plausibilite.pdf) »
+- **ch12 T9** (`chapitres/12-autre-regime.md`) : La formule donne la probabilité qu'au moins un tirage s'écarte de Mercure.
+  - Avant : « les tirages suivants rejoignent Vénus et le contrôle lève une alerte à tort »
+  - Après : « au moins un des tirages suivants s’écarte de Mercure, et le contrôle lève une alerte à tort »
+- **ch12 T12** (`chapitres/12-autre-regime.md`) : « compositionnel » a un sens technique précis ; ES : un modèle que n'importe quel logiciel appelle.
+  - Avant : « tient à la nature *compositionnelle* d’un grand modèle »
+  - Après : « tient à la nature *composable* d’un grand modèle »
+- **V7** (`chapitres/12-autre-regime.md`) : « orientation ».
+  - Avant : « chaque changement d’alignement ou d’outillage »
+  - Après : « chaque changement d’orientation ou d’outillage »
+- **V6** (`chapitres/12-autre-regime.md`) : « invention ».
+  - Avant : « entraîne mécaniquement la fabrication de faits rares. »
+  - Après : « entraîne mécaniquement l’invention de faits rares. »
+- **ch10 T5-T6 (ch12)** (`chapitres/12-autre-regime.md`) : Objet du facteur 4,45 ; « alarme décisive ».
+  - Avant : « introduisant un écart d’un facteur proche de $4{,}45$. Aucune alarme décisive n’a interrompu la mission »
+  - Après : « introduisant un écart d’un facteur proche de $4{,}45$ dans les impulsions transmises. Aucune alarme n’a interrompu la mission »
+- **ch12 T4** (`chapitres/12-autre-regime.md`) : Rappel du volet (a) avant l'encadré qui en dépend.
+  - Avant : « précise exactement le champ d’application du volet (a) de la @prop:cause-commune : »
+  - Après : « précise exactement le champ d’application du volet (a) de la @prop:cause-commune, selon lequel un comparateur calculé à partir du seul contenu du cadre ne peut pas détecter une erreur causée par un facteur que ce cadre omet : »
+- **V5** (`chapitres/12-autre-regime.md`) : « devinette » (calque de guess) → réponse hasardée.
+  - Avant : « tout en récompensant une devinette tombée juste par hasard. »
+  - Après : « tout en récompensant une réponse hasardée qui tombe juste. »
+- **V5** (`chapitres/12-autre-regime.md`) : Idem.
+  - Avant : « sélectionnent ainsi activement la devinette assurée »
+  - Après : « sélectionnent ainsi activement la réponse hasardée avec assurance »
+- **V5** (`chapitres/12-autre-regime.md`) : Idem.
+  - Avant : « *Les erreurs de devinette (dispersion).* »
+  - Après : « *Les erreurs hasardées (dispersion).* »
+- **V5** (`chapitres/12-autre-regime.md`) : Idem.
+  - Avant : « *La répétition attrape efficacement la devinette.* »
+  - Après : « *La répétition attrape efficacement les erreurs hasardées.* »
+- **V5** (`chapitres/12-autre-regime.md`) : Idem.
+  - Avant : « Pour les erreurs de devinette, l’étalement »
+  - Après : « Pour les erreurs hasardées, l’étalement »
+- **V5** (`chapitres/12-autre-regime.md`) : Idem.
+  - Avant : « partage entre devinette dispersée et erreur constante »
+  - Après : « partage entre erreur hasardée et erreur constante »
+- **V5 (PC)** (`chapitres/12-autre-regime.md`) : Idem.
+  - Avant : « sélectionnent la devinette assurée. »
+  - Après : « sélectionnent la réponse hasardée avec assurance. »
+- **V5 (PC)** (`chapitres/12-autre-regime.md`) : Idem.
+  - Avant : « contre les erreurs de devinette qui dispersent les réponses »
+  - Après : « contre les erreurs hasardées, qui dispersent les réponses »
+- **V5** (`chapitres/13-synthese-deux-axes.md`) : « erreurs de devinette » → « erreurs hasardées » (2 occurrence(s)).
+- **V5** (`chapitres/15-erosion-verifications.md`) : « erreurs de devinette » → « erreurs hasardées » (1 occurrence(s)).
+- **V5** (`chapitres/99-conclusion.md`) : « erreurs de devinette » → « erreurs hasardées » (1 occurrence(s)).
+- **G1-12** (`chapitres/13-synthese-deux-axes.md`) : L'apport extérieur fait d'abord passer l'erreur dans la colonne signalée ; la montée suppose de réviser le cadre (FD § 10).
+  - Avant : « ne fait remonter une erreur de la ligne du bas vers la ligne du haut. Une pertinence nouvelle ne peut entrer que du dehors, par l’avertissement d’un tiers ou par l’épreuve du réel (@sec:ch07-deux-voies). »
+  - Après : « ne fait passer la cause d’une erreur de la ligne du bas à la ligne du haut. Une pertinence nouvelle ne peut entrer que du dehors, par l’avertissement d’un tiers ou par l’épreuve du réel (@sec:ch07-deux-voies) : l’apport extérieur rend d’abord l’omission signalée, et c’est seulement en révisant le ca »
+- **G1-12 (PC)** (`chapitres/13-synthese-deux-axes.md`) : « les deux cas » ne pouvait désigner les composants appris, sans formalisme.
+  - Avant : « dans les deux cas, le formalisme déplace la colonne, jamais la ligne. »
+  - Après : « de manière générale, le formalisme, là où il existe, déplace la colonne, jamais la ligne. »
+- **ch13 T4 (PC)** (`chapitres/13-synthese-deux-axes.md`) : PC aligné sur le corps (deux voies extérieures ; la génération n'accélère pas l'épreuve).
+  - Avant : « ne s’automatise pas et reste liée au contact avec le monde. »
+  - Après : « ne s’accélère pas par la seule génération automatique et reste liée à un apport extérieur au cadre, celui d’une autre discipline ou le contact avec le monde. »
+- **R8 ®** (`chapitres/13-synthese-deux-axes.md`) : « avant l'action ».
+  - Avant : « On appelle **erreur signalée** une erreur que contredit au moins un comparateur, et **erreur silencieuse** une erreur que rien ne contredit. »
+  - Après : « On appelle **erreur signalée** une erreur que contredit au moins un comparateur avant l’action, et **erreur silencieuse** une erreur que rien ne contredit avant l’action. »
+- **ch13 T11** (`chapitres/13-synthese-deux-axes.md`) : Référent de « cette partie » ambigu.
+  - Avant : « en annonçant que la synthèse de cette partie déplierait »
+  - Après : « en annonçant que le présent chapitre déplierait »
+- **ch13 T14** (`chapitres/13-synthese-deux-axes.md`) : « contrôleur » est un terme du registre ; ici, l'organe de commande.
+  - Avant : « associe à un contrôleur complexe ou non certifié un petit module »
+  - Après : « associe à une loi de commande complexe ou non certifiée un petit module »
+- **ch13 T14** (`chapitres/13-synthese-deux-axes.md`) : Idem.
+  - Avant : « Tant que le contrôleur principal — »
+  - Après : « Tant que la loi de commande principale — »
+- **ch13 T14** (`chapitres/13-synthese-deux-axes.md`) : Idem.
+  - Avant : « les millions de paramètres du contrôleur appris »
+  - Après : « les millions de paramètres de la loi de commande apprise »
+- **V7** (`chapitres/13-synthese-deux-axes.md`) : « orientés ».
+  - Avant : « et alignés par les mêmes préférences »
+  - Après : « et orientés par les mêmes préférences »
+- **V9** (`chapitres/13-synthese-deux-axes.md`) : Nom de la théorie.
+  - Avant : « En appliquant la théorie générale des contrôles »
+  - Après : « En appliquant la théorie des contrôles »
+- **V18** (`chapitres/13-synthese-deux-axes.md`) : Référent de « l'intérieur ».
+  - Avant : « *La ligne est fixée par le cadre et ne se voit pas de l’intérieur.* »
+  - Après : « *La ligne est fixée par le cadre et ne se voit pas de l’intérieur du cadre.* »
+- **V18 (PC)** (`chapitres/13-synthese-deux-axes.md`) : Idem.
+  - Avant : « et ne peut être inspectée de l’intérieur ; »
+  - Après : « et ne peut être inspectée de l’intérieur du cadre ; »
+- **p3 T6 + R6** (`parties/partie-3.md`) : « appliquée mécaniquement » = respect vérifié par une machine (ch. 10) ; portée de la vérification en amont.
+  - Avant : « et pour peu qu’elle soit appliquée mécaniquement, on peut contrôler un composant une fois pour toutes, avant sa mise en service, et ce contrôle vaut pour toutes ses exécutions futures. »
+  - Après : « et pour peu que son respect soit vérifié mécaniquement, on peut contrôler un composant une fois pour toutes, avant sa mise en service, et ce que ce contrôle établit vaut pour toutes ses exécutions futures. »
+- **p3 T8** (`parties/partie-3.md`) : La cause de la perte, sans laquelle l'exemple n'illustre pas l'adresse.
+  - Avant : « comme lors de la perte de la sonde *Mars Climate Orbiter*. »
+  - Après : « comme lors de la perte de la sonde *Mars Climate Orbiter*, due à une confusion d’unités à une interface spécifiée. »
+- **p3 T4** (`parties/partie-3.md`) : Comme le PC du ch. 11.
+  - Avant : « Les consignes, l’ajustement sur des préférences humaines et les tests de référence orientent le modèle »
+  - Après : « Les consignes, l’ajustement sur des préférences humaines et l’optimisation des scores aux tests de référence orientent le modèle »
+- **p3 T7** (`parties/partie-3.md`) : « à défaut » : pour les autres tâches.
+  - Avant : « ou bien les placer sur chaque sortie, une à une. »
+  - Après : « ou bien, à défaut, contrôler chaque sortie, une à une. »
+- **p3 T3** (`parties/partie-3.md`) : Inventer lorsqu'on l'interroge sur des faits rares (FD § 10).
+  - Avant : « est conduit à inventer des faits rares. »
+  - Après : « est conduit à inventer lorsqu’on l’interroge sur des faits rares dans ses données. »
+- **p3 T1 + V18** (`parties/partie-3.md`) : De l'intérieur du cadre (FD).
+  - Avant : « et ne peut pas être examinée de l’intérieur ; »
+  - Après : « et ne peut pas être examinée de l’intérieur du cadre ; »
+- **p3 T2** (`parties/partie-3.md`) : Le superlatif n'est pas étayé ; FD : « new in kind ».
+  - Avant : « des erreurs du type le plus délicat : »
+  - Après : « des erreurs d’un type nouveau : »
+- **p3 T4 (ch13)** (`parties/partie-3.md`) : Comme le PC du ch. 13.
+  - Avant : « et qui ne s’automatise pas. »
+  - Après : « et que la seule génération automatique n’accélère pas. »
