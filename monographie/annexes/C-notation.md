@@ -5,7 +5,8 @@
 | Symbole | Signification | Introduit |
 |:--------------------|:------------------------------------------------|:------------|
 | Pr(·), Pr(B \| A) | probabilité ; probabilité conditionnelle de B sachant A | chapitre [-@sec:ch01] |
-| A ∩ (…) → B | règle à conditions sous-entendues : (…) désigne l’arrière-plan non énoncé | chapitre [-@sec:ch01] |
+| A ∩ (…) → B | règle à arrière-plan tacite : A rassemble les conditions énoncées, (…) l’arrière-plan tacite | chapitre [-@sec:ch01] |
+| 𝒯 | arrière-plan tacite, désigné dans le texte (noté (…) dans les formules) | chapitre [-@sec:ch01] |
 | X, x | variables représentées dans le cadre ; leurs valeurs | chapitre [-@sec:ch02] |
 | p | probabilité d’échec estimée par le décideur | chapitre [-@sec:ch04] |
 | L, ΔU | perte en cas d’échec ; gain en cas de succès (par rapport à l’option sûre) | chapitre [-@sec:ch04] |

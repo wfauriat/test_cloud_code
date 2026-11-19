@@ -19,6 +19,9 @@ Termes définis dans l’ouvrage, avec leur équivalent anglais usuel et le chap
 **appariement des probabilités** (angl. *probability matching*)
 :   Tendance à réagir aux alertes à une fréquence calquée sur leur fiabilité perçue. Voir le chapitre [-@sec:ch09].
 
+**arrière-plan tacite** (angl. *background (unstated conditions)*)
+:   Ensemble ouvert des conditions qu’une règle n’énonce pas et dont dépend sa vérité ; noté (…) dans les formules, 𝒯 dans le texte. Voir le chapitre [-@sec:ch01].
+
 **bac à sable** (angl. *sandbox*)
 :   Environnement isolé où les actions n’ont aucun effet extérieur, et où l’on peut donc interroger le monde à peu de frais. Voir le chapitre [-@sec:ch17].
 
@@ -38,7 +41,7 @@ Termes définis dans l’ouvrage, avec leur équivalent anglais usuel et le chap
 :   Accord entre la distribution des énoncés produits par un modèle et celle de ses données d’entraînement ; elle entraîne l’invention de faits rares. Voir le chapitre [-@sec:ch12].
 
 **chaîne** (angl. *chain*)
-:   Composition en série : chaque composant tient pour acquis le résultat du précédent ; les angles morts s’additionnent. Voir le chapitre [-@sec:ch08].
+:   Composition en série : chaque composant tient pour acquis le résultat du précédent ; les angles morts se cumulent. Voir le chapitre [-@sec:ch08].
 
 **changement de régime** (angl. *regime flip*)
 :   Basculement simultané, au sommet de la pile, de ce qui est promis, de la forme de l’échec et de ce que trouve l’enquête. Voir le chapitre [-@sec:ch12].
@@ -68,10 +71,10 @@ Termes définis dans l’ouvrage, avec leur équivalent anglais usuel et le chap
 :   Composition en parallèle : deux composants se prononcent sur la même affirmation et l’on relève leurs désaccords ; seul l’angle mort commun subsiste. Voir le chapitre [-@sec:ch08].
 
 **décision unique** (angl. *one-shot decision*)
-:   Décision prise une seule fois, sans série d’essais, et dont la réponse du monde n’arrive qu’après l’acte. Voir le chapitre [-@sec:ch04].
+:   Décision prise sans série d’essais comparables, si bien qu’une issue malheureuse ne peut être compensée par d’autres cas : la réponse du monde n’arrive qu’après l’acte, trop tard pour le corriger. Voir le chapitre [-@sec:ch04].
 
 **déduction, induction** (angl. *deduction, induction*)
-:   Inférence nécessaire à partir de prémisses ; généralisation à partir de régularités observées. L’une et l’autre ne valent que « pourvu que » leurs conditions soient remplies. Voir le chapitre [-@sec:ch01].
+:   Inférence nécessaire à partir de prémisses ; généralisation à partir de régularités observées. L’une et l’autre ne garantissent leur conclusion que « pourvu que » leurs conditions soient remplies. Voir le chapitre [-@sec:ch01].
 
 **défaillance de mode commun** (angl. *common-mode failure*)
 :   Défaillance simultanée de protections redondantes, sous l’effet d’une cause qu’elles partagent. Voir le chapitre [-@sec:ch07].
@@ -86,7 +89,7 @@ Termes définis dans l’ouvrage, avec leur équivalent anglais usuel et le chap
 :   Situation où des produits de qualités différentes deviennent indiscernables et se vendent au même prix. Voir le chapitre [-@sec:ch15].
 
 **erreur signalée, erreur silencieuse** (angl. *signalled, silent error*)
-:   Erreur que contredit au moins un comparateur ; erreur que rien ne contredit. Voir le chapitre [-@sec:ch13].
+:   Erreur que contredit au moins un comparateur avant l’action ; erreur que rien ne contredit avant l’action. Voir le chapitre [-@sec:ch13].
 
 **erreurs injectées** (angl. *seeded errors*)
 :   Erreurs introduites volontairement dans ce que l’on soumet à la relecture, pour mesurer combien passent au travers. Voir le chapitre [-@sec:ch18].
@@ -125,10 +128,10 @@ Termes définis dans l’ouvrage, avec leur équivalent anglais usuel et le chap
 :   Exercice consistant à supposer que le projet a échoué et à écrire pourquoi, avant de l’engager. Voir le chapitre [-@sec:ch18].
 
 **prise en compte** (angl. *uptake*)
-:   Fait que quelqu’un prenne acte d’un désaccord et ait l’autorité pour agir en conséquence. Voir le chapitre [-@sec:ch06].
+:   Fait qu’un désaccord parvienne à quelqu’un qui à la fois en prend acte et a l’autorité pour agir en conséquence. Voir le chapitre [-@sec:ch06].
 
 **probabilité d’échappement** (angl. *escape probability*)
-:   Probabilité qu’une affirmation fausse débouche sur une action sans avoir été contredite à temps. Voir le chapitre [-@sec:ch06].
+:   Probabilité qu’une affirmation fausse débouche sur une action sans qu’un désaccord ait été détecté et pris en compte à temps. Voir le chapitre [-@sec:ch06].
 
 **problème du cadre** (angl. *frame problem*)
 :   Impossibilité de spécifier à l’avance tout ce qui est pertinent ; né en intelligence artificielle, il est pris ici dans un sens épistémologique général. Voir le chapitre [-@sec:ch02].
@@ -161,7 +164,7 @@ Termes définis dans l’ouvrage, avec leur équivalent anglais usuel et le chap
 :   Probabilité d’échec au-delà de laquelle l’option risquée cesse d’être préférable : p∗ = ΔU / (ΔU + L). Voir le chapitre [-@sec:ch04].
 
 **sévérité** (angl. *severity*)
-:   Un contrôle réussi n’est probant que dans la mesure où il aurait échoué si l’affirmation avait été fausse (Mayo). Voir le chapitre [-@sec:ch09].
+:   Un contrôle passé sans alerte n’est probant que dans la mesure où il aurait donné l’alerte si l’affirmation avait été fausse (Mayo). Voir le chapitre [-@sec:ch09].
 
 **signal coûteux** (angl. *costly signal*)
 :   Indice crédible parce qu’il coûte à produire ; il perd sa valeur quand il devient gratuit. Voir le chapitre [-@sec:ch15].
@@ -188,7 +191,7 @@ Termes définis dans l’ouvrage, avec leur équivalent anglais usuel et le chap
 :   Proportion des alertes qui correspondent à de vraies erreurs. Voir le chapitre [-@sec:ch09].
 
 **vérification en amont** (angl. *front-loaded verification*)
-:   Contrôle d’un composant fait une fois, par rapport à sa spécification, et valable pour toutes ses exécutions futures. Voir le chapitre [-@sec:ch10].
+:   Contrôle d’un composant fait une fois, par rapport à sa spécification, et qui porte sur le composant plutôt que sur chacune de ses sorties : ce qu’il établit vaut pour toutes ses exécutions futures. Voir le chapitre [-@sec:ch10].
 
 **vérification, validation** (angl. *verification, validation*)
 :   Résoudre correctement le problème tel qu’il est posé ; poser un problème qui représente assez fidèlement la réalité pour l’usage prévu. Voir le chapitre [-@sec:ch13].

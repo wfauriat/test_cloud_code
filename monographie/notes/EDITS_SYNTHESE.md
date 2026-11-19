@@ -180,3 +180,28 @@ On la mesure par $\Pr(\bar{A} \mid E)$, la probabilité que le contrôle donne l
 - **R4** (`parties/partie-2.md`) : Formulation de la sévérité (p2 T8).
   - Avant : « Un contrôle réussi n’apporte une preuve que dans la mesure où il aurait échoué si l’affirmation avait été fausse. »
   - Après : « Un contrôle passé sans alerte n’apporte une preuve que dans la mesure où il aurait donné l’alerte si l’affirmation avait été fausse. »
+- **R1 ®** (`commun/registre_termes.md`) : « ne valent que » lu comme validité.
+  - Avant : « L’une et l’autre ne valent que « pourvu que » leurs conditions soient remplies. »
+  - Après : « L’une et l’autre ne garantissent leur conclusion que « pourvu que » leurs conditions soient remplies. »
+- **R3 ®** (`commun/registre_termes.md`) : Critère discriminant de la décision unique.
+  - Avant : « Décision prise une seule fois, sans série d’essais, et dont la réponse du monde n’arrive qu’après l’acte. »
+  - Après : « Décision prise sans série d’essais comparables, si bien qu’une issue malheureuse ne peut être compensée par d’autres cas : la réponse du monde n’arrive qu’après l’acte, trop tard pour le corriger. »
+- **R11 ®** (`commun/registre_termes.md`) : Le désaccord doit parvenir à qui en prend acte et a l'autorité.
+  - Avant : « Fait que quelqu’un prenne acte d’un désaccord et ait l’autorité pour agir en conséquence. »
+  - Après : « Fait qu’un désaccord parvienne à quelqu’un qui à la fois en prend acte et a l’autorité pour agir en conséquence. »
+- **G1-4 ®** (`commun/registre_termes.md`) : Échappement : contradiction ignorée comprise.
+  - Avant : « Probabilité qu’une affirmation fausse débouche sur une action sans avoir été contredite à temps. »
+  - Après : « Probabilité qu’une affirmation fausse débouche sur une action sans qu’un désaccord ait été détecté et pris en compte à temps. »
+- **R7 ®** (`commun/registre_termes.md`) : « se cumulent ».
+  - Avant : « les angles morts s’additionnent. »
+  - Après : « les angles morts se cumulent. »
+- **R4 ®** (`commun/registre_termes.md`) : Sévérité.
+  - Avant : « Un contrôle réussi n’est probant que dans la mesure où il aurait échoué si l’affirmation avait été fausse (Mayo). »
+  - Après : « Un contrôle passé sans alerte n’est probant que dans la mesure où il aurait donné l’alerte si l’affirmation avait été fausse (Mayo). »
+- **R6 ®** (`commun/registre_termes.md`) : Vérification en amont : porte sur le composant, vaut dans la mesure de ce qu'elle établit.
+  - Avant : « Contrôle d’un composant fait une fois, par rapport à sa spécification, et valable pour toutes ses exécutions futures. »
+  - Après : « Contrôle d’un composant fait une fois, par rapport à sa spécification, et qui porte sur le composant plutôt que sur chacune de ses sorties : ce qu’il établit vaut pour toutes ses exécutions futures. »
+- **R8 ®** (`commun/registre_termes.md`) : « avant l'action ».
+  - Avant : « Erreur que contredit au moins un comparateur ; erreur que rien ne contredit. »
+  - Après : « Erreur que contredit au moins un comparateur avant l’action ; erreur que rien ne contredit avant l’action. »
+- **N1 ®** (`commun/registre_termes.md`) : nouveau terme « arrière-plan tacite » (ch. 1) ; ligne de notation $A \cap (\dots) \rightarrow B$ mise à jour ; notation $\mathcal{T}$ ajoutée.

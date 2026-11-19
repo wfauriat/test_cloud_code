@@ -18,7 +18,8 @@ Source unique de la terminologie et des notations de la monographie. Le glossair
 | représentation | picture | Construction (mesures, catégories, équations, probabilités) d’après laquelle un agent agit ; c’est à l’action que le monde répond, non à la représentation. | sec:ch02 | def:representation |
 | cadre | frame | Spécification finie à l’intérieur de laquelle un raisonnement opère : variables, catégories, classe de modèles et objectif retenus. Il est choisi avant toute inférence. | sec:ch02 | def:cadre |
 | problème du cadre | frame problem | Impossibilité de spécifier à l’avance tout ce qui est pertinent ; né en intelligence artificielle, il est pris ici dans un sens épistémologique général. | sec:ch02 | |
-| déduction, induction | deduction, induction | Inférence nécessaire à partir de prémisses ; généralisation à partir de régularités observées. L’une et l’autre ne valent que « pourvu que » leurs conditions soient remplies. | sec:ch01 | |
+| déduction, induction | deduction, induction | Inférence nécessaire à partir de prémisses ; généralisation à partir de régularités observées. L’une et l’autre ne garantissent leur conclusion que « pourvu que » leurs conditions soient remplies. | sec:ch01 | |
+| arrière-plan tacite | background (unstated conditions) | Ensemble ouvert des conditions qu’une règle n’énonce pas et dont dépend sa vérité ; noté (…) dans les formules, 𝒯 dans le texte. | sec:ch01 | |
 | rapport de vraisemblance | likelihood ratio | Rapport des probabilités d’une observation sous deux hypothèses ; il multiplie la cote de l’une contre l’autre. | sec:ch01 | |
 | score logarithmique | logarithmic score | Surprise d’une issue, −ln Pr(issue), sous la prévision qui lui attribuait la probabilité Pr. | sec:ch01 | |
 | mondes possibles | possible worlds | Situations compatibles avec ce que l’on sait ; une probabilité dit quel poids accorder à chacune. | sec:ch03 | |
@@ -28,7 +29,7 @@ Source unique de la terminologie et des notations de la monographie. Le glossair
 | utilité espérée subjective (UES) | subjective expected utility (SEU) | Règle de décision de Savage : choisir l’acte dont l’utilité espérée est la plus élevée, calculée avec ses propres probabilités. | sec:ch04 | |
 | seuil p∗ | threshold p∗ | Probabilité d’échec au-delà de laquelle l’option risquée cesse d’être préférable : p∗ = ΔU / (ΔU + L). | sec:ch04 | |
 | rapport des enjeux | stakes ratio L/ΔU | Rapport de la perte en cas d’échec au gain en cas de succès, tous deux mesurés par rapport à l’option sûre. | sec:ch04 | |
-| décision unique | one-shot decision | Décision prise une seule fois, sans série d’essais, et dont la réponse du monde n’arrive qu’après l’acte. | sec:ch04 | |
+| décision unique | one-shot decision | Décision prise sans série d’essais comparables, si bien qu’une issue malheureuse ne peut être compensée par d’autres cas : la réponse du monde n’arrive qu’après l’acte, trop tard pour le corriger. | sec:ch04 | |
 | incertitude aléatoire | aleatory uncertainty | Variabilité que l’on traite comme irréductible entre des répétitions jugées identiques. | sec:ch05 | |
 | incertitude épistémique | epistemic uncertainty | Manque de connaissance sur des paramètres ou des sous-modèles, réductible par des données ou un modèle plus fin. | sec:ch05 | |
 | incertitude ontologique | ontological uncertainty | Doute sur la pertinence même des variables, des catégories et de la classe de modèles retenues. | sec:ch05 | |
@@ -37,17 +38,17 @@ Source unique de la terminologie et des notations de la monographie. Le glossair
 | contrôle | check | Confrontation d’une affirmation à un comparateur censé concorder avec elle. | sec:ch06 | def:controle |
 | comparateur | comparator | Ce à quoi l’on confronte une affirmation : une autre affirmation, un texte fixé à l’avance ou une observation du monde. | sec:ch06 | def:comparateur |
 | se tromper autrement | fail differently | Pour une cause d’erreur donnée, un comparateur se trompe autrement qu’une affirmation si cette cause ne les fausse pas tous deux de la même manière. | sec:ch06 | |
-| prise en compte | uptake | Fait que quelqu’un prenne acte d’un désaccord et ait l’autorité pour agir en conséquence. | sec:ch06 | def:prise-en-compte |
+| prise en compte | uptake | Fait qu’un désaccord parvienne à quelqu’un qui à la fois en prend acte et a l’autorité pour agir en conséquence. | sec:ch06 | def:prise-en-compte |
 | taux d’erreur | error rate | Probabilité qu’une affirmation soit fausse. | sec:ch06 | |
-| probabilité d’échappement | escape probability | Probabilité qu’une affirmation fausse débouche sur une action sans avoir été contredite à temps. | sec:ch06 | def:echappement |
+| probabilité d’échappement | escape probability | Probabilité qu’une affirmation fausse débouche sur une action sans qu’un désaccord ait été détecté et pris en compte à temps. | sec:ch06 | def:echappement |
 | défaillance de mode commun | common-mode failure | Défaillance simultanée de protections redondantes, sous l’effet d’une cause qu’elles partagent. | sec:ch07 | |
 | dérive de distribution | distribution shift | Changement, en exploitation, d’un facteur resté constant pendant la collecte des données ; les contrôles fondés sur ces données ne pouvaient pas le voir. | sec:ch07 | |
 | angle mort | blind spot | Ensemble des causes d’erreur qu’un composant (personne, équipe, programme, modèle) est incapable de percevoir. | sec:ch08 | def:angle-mort |
-| chaîne | chain | Composition en série : chaque composant tient pour acquis le résultat du précédent ; les angles morts s’additionnent. | sec:ch08 | |
+| chaîne | chain | Composition en série : chaque composant tient pour acquis le résultat du précédent ; les angles morts se cumulent. | sec:ch08 | |
 | contrôle croisé | cross-check | Composition en parallèle : deux composants se prononcent sur la même affirmation et l’on relève leurs désaccords ; seul l’angle mort commun subsiste. | sec:ch08 | |
 | blanchiment | laundering | Perte des conditions d’un résultat au moment où il change de mains : un résultat conditionnel arrive en aval comme un fait établi. | sec:ch08 | def:blanchiment |
 | producteur, contrôleur | producer, checker | Celui qui produit une affirmation ; celui qui la contrôle. | sec:ch08 | |
-| sévérité | severity | Un contrôle réussi n’est probant que dans la mesure où il aurait échoué si l’affirmation avait été fausse (Mayo). | sec:ch09 | def:severite |
+| sévérité | severity | Un contrôle passé sans alerte n’est probant que dans la mesure où il aurait donné l’alerte si l’affirmation avait été fausse (Mayo). | sec:ch09 | def:severite |
 | taux de base | base rate | Fréquence d’une condition dans la population examinée, avant tout test. | sec:ch09 | |
 | sensibilité | sensitivity | Probabilité qu’un contrôle signale une erreur quand il y en a une. | sec:ch09 | |
 | taux de fausses alertes | false-alarm rate | Probabilité qu’un contrôle signale une erreur quand il n’y en a pas. | sec:ch09 | |
@@ -55,7 +56,7 @@ Source unique de la terminologie et des notations de la monographie. Le glossair
 | appariement des probabilités | probability matching | Tendance à réagir aux alertes à une fréquence calquée sur leur fiabilité perçue. | sec:ch09 | |
 | composant spécifié | specified (stated) component | Composant dont quelqu’un a écrit les règles et qu’on peut doter d’une spécification vérifiable, c’est-à-dire d’un contrat. | sec:ch10 | def:composant-specifie |
 | contrat | contract | Engagement écrit d’un composant : ce qu’il exige de l’appelant (précondition) et ce qu’il garantit en retour (postcondition). | sec:ch10 | |
-| vérification en amont | front-loaded verification | Contrôle d’un composant fait une fois, par rapport à sa spécification, et valable pour toutes ses exécutions futures. | sec:ch10 | |
+| vérification en amont | front-loaded verification | Contrôle d’un composant fait une fois, par rapport à sa spécification, et qui porte sur le composant plutôt que sur chacune de ses sorties : ce qu’il établit vaut pour toutes ses exécutions futures. | sec:ch10 | |
 | adresse (d’une défaillance) | address (of a failure) | Endroit précis où une spécification écrite, ou qu’on aurait pu écrire, a été enfreinte. | sec:ch10 | |
 | composant appris | learned component | Composant dont les règles ont été ajustées sur des exemples et n’existent que sous forme de paramètres. | sec:ch11 | def:composant-appris |
 | consigne | prompt | Texte soumis à un modèle de langage pour orienter sa réponse (*prompt*). | sec:ch11 | |
@@ -66,7 +67,7 @@ Source unique de la terminologie et des notations de la monographie. Le glossair
 | calibration générative | generative calibration | Accord entre la distribution des énoncés produits par un modèle et celle de ses données d’entraînement ; elle entraîne l’invention de faits rares. | sec:ch12 | |
 | omission structurelle | structural omission | Facteur absent de la représentation. | sec:ch12 | |
 | omission de saillance | salience omission | Facteur représenté mais non mobilisé pour la question posée. | sec:ch12 | |
-| erreur signalée, erreur silencieuse | signalled, silent error | Erreur que contredit au moins un comparateur ; erreur que rien ne contredit. | sec:ch13 | |
+| erreur signalée, erreur silencieuse | signalled, silent error | Erreur que contredit au moins un comparateur avant l’action ; erreur que rien ne contredit avant l’action. | sec:ch13 | |
 | vérification, validation | verification, validation | Résoudre correctement le problème tel qu’il est posé ; poser un problème qui représente assez fidèlement la réalité pour l’usage prévu. | sec:ch13 | |
 | agent | agent | Modèle de langage qui poursuit un but en boucle : planifier, appeler un outil, lire le résultat, recommencer. | sec:ch14 | |
 | signe révélateur | tell | Marque visible de l’incertitude de celui qui produit un résultat : hésitation, précautions de langage, forme approximative. | sec:ch15 | |
@@ -85,7 +86,8 @@ Source unique de la terminologie et des notations de la monographie. Le glossair
 | Symbole | Signification | Introduit |
 | :-- | :-- | :-- |
 | Pr(·), Pr(B \| A) | probabilité ; probabilité conditionnelle de B sachant A | sec:ch01 |
-| A ∩ (…) → B | règle à conditions sous-entendues : (…) désigne l’arrière-plan non énoncé | sec:ch01 |
+| A ∩ (…) → B | règle à arrière-plan tacite : A rassemble les conditions énoncées, (…) l’arrière-plan tacite | sec:ch01 |
+| 𝒯 | arrière-plan tacite, désigné dans le texte (noté (…) dans les formules) | sec:ch01 |
 | X, x | variables représentées dans le cadre ; leurs valeurs | sec:ch02 |
 | p | probabilité d’échec estimée par le décideur | sec:ch04 |
 | L, ΔU | perte en cas d’échec ; gain en cas de succès (par rapport à l’option sûre) | sec:ch04 |
