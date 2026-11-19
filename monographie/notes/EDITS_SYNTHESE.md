@@ -608,3 +608,196 @@ Les règles dont il s’agit sont les instructions du programme elles-mêmes ; l
 - **V11** (`parties/partie-4.md`) : Collocation.
   - Avant : « comment trancher une décision qui ne se jouera qu’une fois »
   - Après : « comment prendre une décision qui ne se jouera qu’une fois »
+- **G1-7** (`chapitres/17-decisions-sans-appel.md`) : Distinguer le poids du jugement de prudence (croît avec les enjeux ; ART) et la marge qui suffit à renverser la décision (décroît quand p* tend vers 0).
+  - Avant : « Ce jugement doit peser d’autant plus lourd que les enjeux sont élevés, »
+  - Après : « Ce jugement doit être d’autant plus exigeant que le rapport des enjeux est élevé, »
+- **G1-7** (`chapitres/17-decisions-sans-appel.md`) : Idem ; un seul nom pour L/ΔU.
+  - Avant : « *La marge a un prix, d’autant plus faible que les enjeux sont asymétriques.* »
+  - Après : « *La marge a un prix, d’autant plus faible, comparé à la perte évitée, que le rapport des enjeux est élevé.* »
+- **G1-7** (`chapitres/17-decisions-sans-appel.md`) : Idem.
+  - Avant : « *Plus les enjeux sont lourds, plus la marge nécessaire est mince.* »
+  - Après : « *Plus le rapport des enjeux est élevé, plus la marge qui suffit à renverser la décision est mince.* »
+- **G1-8** (`chapitres/17-decisions-sans-appel.md`) : Quatre issues annoncées : le cinquième libellé sort de l'item 3, dont il ne remplit pas la condition.
+  - Avant : « le renoncement évite un danger que le cadre ne voyait pas. Lorsque $p \ge p^\ast$ dès l’origine, comme pour M. X, on parlera simplement de *renoncement justifié*. »
+  - Après : « le renoncement évite un danger que le cadre ne voyait pas. »
+- **G1-8** (`chapitres/17-decisions-sans-appel.md`) : Idem : le cas M. X présenté après la liste (étiquette du tableau généré).
+  - Avant : « Ce manque à gagner est le prix visible de la marge d’humilité.
+
+Le bloc formel suivant »
+  - Après : « Ce manque à gagner est le prix visible de la marge d’humilité.
+
+Le troisième quadrant comprend aussi le cas où $p \ge p^\ast$ dès l’origine, comme pour M. X : on renonce alors sans avoir besoin de marge, et l’on parlera de *renoncement justifié*.
+
+Le bloc formel suivant »
+- **G1-8** (`chapitres/17-decisions-sans-appel.md`) : Légende : même quadrant.
+  - Avant : « à l’issue *sauvé par la marge*.](figures/ch17-decisions.pdf) »
+  - Après : « à l’issue *sauvé par la marge*, qui appartient au même quadrant que le *renoncement justifié*.](figures/ch17-decisions.pdf) »
+- **ch17 T3 (PC)** (`chapitres/17-decisions-sans-appel.md`) : Le corps rend la protection conditionnelle.
+  - Avant : « elle protège une décision unique du piège silencieux, »
+  - Après : « elle peut protéger une décision unique du piège silencieux, »
+- **ch17 T4 (PC)** (`chapitres/17-decisions-sans-appel.md`) : Le verrou s'ajoute à la marge, non à la calibration.
+  - Avant : « appelle en outre un verrou, »
+  - Après : « appelle, en plus d’une marge d’humilité, un verrou, »
+- **ch17 T5 (PC)** (`chapitres/17-decisions-sans-appel.md`) : Aligné sur l'encadré nuance.
+  - Avant : « qu’aucune règle interne ne sait lire. »
+  - Après : « qu’aucun contrôle interne ne sait lire. »
+- **ch17 T6** (`chapitres/17-decisions-sans-appel.md`) : Portée : dans ce modèle (verrous, comparateurs, bacs à sable viennent ensuite).
+  - Avant : « *La marge d’humilité est le seul levier du décideur contre ce que le cadre omet.* »
+  - Après : « *Dans ce modèle, la marge d’humilité est le seul levier du décideur contre ce que le cadre omet.* »
+- **G1-22 (PC)** (`chapitres/17-decisions-sans-appel.md`) : Étape manquante du raisonnement (FD § 9.4).
+  - Avant : « - Toute action étant aussi une question posée au monde, on explore librement dans un bac à sable, où la réponse est peu coûteuse et réversible, »
+  - Après : « - Toute action étant aussi une question posée au monde, mieux vaut la poser là où la réponse est peu coûteuse et réversible : on explore librement dans un bac à sable, »
+- **R9** (`chapitres/17-decisions-sans-appel.md`) : Une réponse ne s'« efface » pas ; mot du registre.
+  - Avant : « là où elle coûterait trop cher ou ne pourrait être effacée. »
+  - Après : « là où elle coûterait trop cher ou serait irréversible. »
+- **R9** (`chapitres/17-decisions-sans-appel.md`) : Idem.
+  - Avant : « coûterait trop cher ou ne pourrait plus être effacée. »
+  - Après : « coûterait trop cher ou serait irréversible. »
+- **R9** (`chapitres/17-decisions-sans-appel.md`) : Ce qu'interroge un bac à sable.
+  - Avant : « où l’on peut donc interroger le monde à peu de frais.
+::: »
+  - Après : « où l’on peut donc interroger le monde à peu de frais.
+:::
+
+Le monde qu’on y interroge est réel lorsqu’il est lui-même calculatoire (le compilateur, les tests, une base de données d’essai) ; ailleurs, le bac à sable n’interroge que ce qu’il reproduit. »
+- **V14** (`chapitres/17-decisions-sans-appel.md`) : Glose à la première occurrence.
+  - Avant : « et propose quatre questions à poser devant tout chiffre assuré. »
+  - Après : « et propose quatre questions à poser devant tout chiffre assuré, c’est-à-dire présenté avec assurance, sans ses conditions. »
+- **V4** (`chapitres/17-decisions-sans-appel.md`) : « couche » réservé à la pile ; la couche nommée.
+  - Avant : « confier l’autorité d’agir à la couche qui offre le moins de garanties, »
+  - Après : « confier l’autorité d’agir à la couche de la pile qui offre le moins de garanties, le modèle de langage, »
+- **V20** (`chapitres/17-decisions-sans-appel.md`) : Les cinq conditions énumérées (le lecteur cherchait la cinquième).
+  - Avant : « le verrou se lit à travers les cinq conditions du @sec:ch06 (@sec:ch06-cinq-conditions). »
+  - Après : « le verrou se lit à travers les cinq conditions de détection du @sec:ch06 : existence, différence, comparabilité, arrivée à temps et prise en compte (@sec:ch06-cinq-conditions). »
+- **N1** (`chapitres/17-decisions-sans-appel.md`) : (…) nu en prose.
+  - Avant : « La question fait réapparaître l’arrière-plan $(\dots)$ et »
+  - Après : « La question fait réapparaître l’arrière-plan tacite $\mathcal{T}$ et »
+- **N3** (`chapitres/17-decisions-sans-appel.md`) : Modèle situé dans la série.
+  - Avant : « que nous appellerons M2, avec ses hypothèses »
+  - Après : « que nous appellerons M2 (le deuxième des modèles formels du livre, présentés au @sec:ch00-architecture), avec ses hypothèses »
+- **V4** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « ### Qui : partager l’interface et comprendre une couche au-dessous { »
+  - Après : « ### Qui : partager l’interface et comprendre le niveau situé dessous { »
+- **V4** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « tout en *comprenant au moins une couche au-dessous*. »
+  - Après : « tout en *comprenant le niveau situé sous cette interface*. »
+- **V4** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « un contrôleur incapable de lire une couche au-dessous de ce qu’il approuve »
+  - Après : « un contrôleur incapable de lire le niveau situé sous ce qu’il approuve »
+- **V4** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « ne pratiquent plus la couche inférieure »
+  - Après : « ne pratiquent plus le niveau inférieur »
+- **V4** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « tant d’heures de spécialistes capables de lire une couche au-dessous. »
+  - Après : « tant d’heures de spécialistes capables de lire le niveau situé sous l’interface. »
+- **V4** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « maîtrise la couche au-dessous nécessaire »
+  - Après : « maîtrise le niveau sous-jacent nécessaire »
+- **V4** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « confiée à des contrôleurs incapables de lire une couche au-dessous. »
+  - Après : « confiée à des contrôleurs incapables de lire le niveau situé sous l’interface. »
+- **V4** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « parce qu’ils ne comprennent pas la couche située sous l’interface »
+  - Après : « parce qu’ils ne comprennent pas le niveau situé sous l’interface »
+- **V4** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « Une revue incapable de lire la couche inférieure »
+  - Après : « Une revue incapable de lire le niveau inférieur »
+- **V4 + ch18 T5** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « Il garantit la *différence* et la *comparabilité* en confiant le contrôle à des personnes qui partagent l’interface et lisent une couche au-dessous, »
+  - Après : « Il soutient la *différence* et la *comparabilité* en confiant le contrôle à des personnes qui partagent l’interface et lisent le niveau situé dessous, »
+- **V4** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « capable de comprendre la couche sous-jacente, »
+  - Après : « capable de comprendre le niveau sous-jacent, »
+- **V4 (PC)** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « quelqu’un qui partage l’interface et lit une couche au-dessous »
+  - Après : « quelqu’un qui partage l’interface et lit le niveau situé dessous »
+- **ch18 T7** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « *Les conditions sont-elles énoncées de sorte que les deux puissent être comparés ?* »
+  - Après : « *L’affirmation et le comparateur peuvent-ils être comparés : les conditions de l’affirmation sont-elles énoncées ?* »
+- **ch18 T7** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « 3. Les conditions sont-elles énoncées de sorte que les deux puissent être comparés ? »
+  - Après : « 3. L’affirmation et le comparateur peuvent-ils être comparés : les conditions de l’affirmation sont-elles énoncées ? »
+- **ch18 T18** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « ne fait pas sortir du cercle du prêteur unique (@sec:ch16-meme-preteur) »
+  - Après : « ne fait pas sortir du cercle du prêteur unique, le modèle commun auquel tous empruntent (@sec:ch16-meme-preteur) »
+- **V2** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « ### Exiger que toute affirmation porte son statut { »
+  - Après : « ### Exiger que toute affirmation porte son état de vérification { »
+- **V2** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « affiche son *statut*. Celui-ci dit au minimum »
+  - Après : « affiche son *état de vérification*. Celui-ci dit au minimum »
+- **V2** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « déclarer le statut de ses résultats »
+  - Après : « déclarer l’état de vérification de ses résultats »
+- **V2** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « le statut écrit glisse à son tour »
+  - Après : « l’état de vérification écrit glisse à son tour »
+- **V2** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « avec leur statut déclaré et leurs conditions »
+  - Après : « avec leur état de vérification déclaré et leurs conditions »
+- **V2** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « l’obligation de déclarer statut et conditions »
+  - Après : « l’obligation de déclarer état de vérification et conditions »
+- **V2** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « son statut et sa provenance jusqu’au point d’usage »
+  - Après : « son état de vérification et sa provenance jusqu’au point d’usage »
+- **V2 (PC)** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « en exigeant le statut de chaque résultat »
+  - Après : « en exigeant l’état de vérification de chaque résultat »
+- **V2** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « L’organisation : indépendance, statut, historique et mesure { »
+  - Après : « L’organisation : indépendance, état de vérification, historique et mesure { »
+- **V15** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « ne propose ni code de règles ni méta-procédure »
+  - Après : « ne propose ni recueil de règles ni méta-procédure »
+- **V16** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « alors que l’automatisation les enchaîne, les érode et les corrèle (@sec:partie-4) »
+  - Après : « alors que l’automatisation les met en chaîne, en retire certains et corrèle ceux qui restent (@sec:partie-4) »
+- **G1-19 (PC)** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « débordent le cadre de l’outil, jamais celui de la personne, »
+  - Après : « débordent le cadre de l’outil, jamais celui de la personne qui les forme, »
+- **V20 + S2** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « ne tient à lui seul les cinq barrages du @sec:ch06 »
+  - Après : « ne tient à lui seul les cinq conditions de détection du @sec:ch06 »
+- **V20 + S2** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « (existence d’un comparateur, capacité à se tromper autrement, comparabilité, arrivée à temps, prise en compte). Chaque niveau consolide plusieurs barrages »
+  - Après : « (existence, différence, comparabilité, arrivée à temps, prise en compte). Chaque niveau consolide plusieurs conditions »
+- **S2** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « Comme les cinq barrages qu’ils protègent, »
+  - Après : « Comme les cinq conditions qu’ils protègent, »
+- **S2 (PC)** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « disent lequel des cinq barrages fait défaut. »
+  - Après : « disent laquelle des cinq conditions fait défaut. »
+- **V20** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « Ce geste agit sur deux des cinq conditions (@sec:ch06-cinq-conditions). »
+  - Après : « Ce geste agit sur deux des cinq conditions de détection (existence, différence, comparabilité, arrivée à temps, prise en compte ; @sec:ch06-cinq-conditions). »
+- **N1** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « variation de l’arrière-plan $(\dots)$ (@eq:ch01-regle) »
+  - Après : « variation de l’arrière-plan tacite $\mathcal{T}$ (@eq:ch01-regle) »
+- **S1 (4e pratique)** (`chapitres/18-remede-trois-niveaux.md`) : voir DECISIONS_SYNTHESE / SYNTHESE (ch. 18)
+  - Avant : « la quatrième transpose des méthodes déjà pratiquées dans deux domaines. »
+  - Après : « la quatrième s’appuie sur des méthodes déjà pratiquées dans deux domaines, mais sa transposition ici reste une proposition. »
+- **V16** (`parties/partie-5.md`) : « enchaîner » lu « entraver » ; formule de la conclusion.
+  - Avant : « et l’automatisation enchaîne, érode et corrèle nos contrôles. »
+  - Après : « et l’automatisation met nos contrôles en chaîne, en retire certains et corrèle ceux qui restent. »
+- **V15** (`parties/partie-5.md`) : Calque de rulebook.
+  - Avant : « Elle ne propose ni code de règles ni procédure »
+  - Après : « Elle ne propose ni recueil de règles ni procédure »
+- **G1-22 + R9 + p5 T1** (`parties/partie-5.md`) : Étape manquante (FD § 9.4) ; « cette réponse » (ch. 17) ; « irréversible » (registre).
+  - Avant : « Comme toute action est aussi une question posée au monde, on peut explorer librement dans un bac à sable, où la réponse est rapide, peu coûteuse et réversible, et réserver les verrous aux frontières où elle coûterait trop cher ou ne pourrait être effacée. »
+  - Après : « Toute action étant aussi une question posée au monde, mieux vaut la poser là où la réponse est rapide, peu coûteuse et réversible : on peut explorer librement dans un bac à sable, et réserver les verrous aux frontières où cette réponse coûterait trop cher ou serait irréversible. »
+- **G1-19 + p5 T3** (`parties/partie-5.md`) : Forme explicite du corps du ch. 18.
+  - Avant : « Ces comparateurs débordent le cadre de l’outil, jamais celui de la personne. »
+  - Après : « Ces comparateurs débordent le cadre de l’outil, jamais celui de la personne qui les forme. »
+- **V4 + p5 T8** (`parties/partie-5.md`) : Niveau de compétence, non couche de la pile.
+  - Avant : « (quelqu’un qui comprend une couche au-dessous de ce qu’il approuve) »
+  - Après : « (quelqu’un qui partage l’interface et comprend le niveau situé sous ce qu’il approuve) »
+- **V2 + p5 T9** (`parties/partie-5.md`) : « état de vérification ».
+  - Avant : « exiger que chaque résultat déclare son statut, »
+  - Après : « exiger que chaque résultat déclare son état de vérification (exploratoire ou établi, ce qui a été contrôlé et par qui, sous quelles hypothèses), »
+- **V20** (`parties/partie-5.md`) : Nom fixé de la grille.
+  - Avant : « qui reprennent les cinq conditions de la détection. »
+  - Après : « qui reprennent les cinq conditions de détection. »
+- **p5 T6** (`parties/partie-5.md`) : « ces critères » sans antécédent (ch. 18 : « ces questions »).
+  - Avant : « Reste à soumettre le livre lui-même à ces critères : »
+  - Après : « Reste à poser ces questions au livre lui-même : »
