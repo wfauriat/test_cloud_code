@@ -1,0 +1,135 @@
+% preambule.tex — monograph preamble, included by pandoc's LaTeX template
+% (header-includes: after babel and fonts, before hyperref).
+% Owned by the maintainer. Builders never edit this file.
+
+% ---------------------------------------------------------------- French
+% French spacing is produced by the Lua filter (identical in PDF and HTML);
+% babel-french's own automatic spacing is switched off to avoid doubling.
+\ifdefined\frenchsetup
+  \frenchsetup{AutoSpacePunctuation=false, SmallCapsFigTabCaptions=false}
+\fi
+% citeproc's French locale writes ordinals with modifier letters (« 2ᵉ éd. », « 1ʳᵉ éd. »),
+% which TeX Gyre Pagella lacks (they would vanish from the PDF): set them as superscripts.
+\usepackage{newunicodechar}
+\newunicodechar{ᵉ}{\textsuperscript{e}}
+\newunicodechar{ʳ}{\textsuperscript{r}}
+
+% ---------------------------------------------------------------- Packages
+% Link anchors named by an internal counter, not by section numbers: the preface's sections
+% and chapter 0's both number 0.x, and with number-based names every link to a chapter 0
+% section (TOC, bookmarks, \ref) landed in the preface. hyperref is loaded after this file.
+\PassOptionsToPackage{hypertexnames=false}{hyperref}
+\usepackage{etoolbox}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{amsthm}
+\usepackage{thmtools}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{microtype}
+
+% ---------------------------------------------------------------- Colours
+\definecolor{cOutils}{HTML}{4A5A6A}
+\definecolor{cFormel}{HTML}{3A4BC8}
+\definecolor{cExemple}{HTML}{0A8273}
+\definecolor{cCas}{HTML}{A35F00}
+\definecolor{cNuance}{HTML}{A8336E}
+\definecolor{cQuestion}{HTML}{555555}
+
+% ---------------------------------------------------------------- Six blocks
+% \begin{blocXXX}{optional title} ... \end{blocXXX}  (emitted by the Lua filter)
+\tcbset{
+  monobloc/.style={
+    enhanced, breakable, sharp corners, boxrule=0pt, leftrule=2.2pt,
+    left=8pt, right=6pt, top=4pt, bottom=4pt, before skip=10pt, after skip=10pt,
+    fonttitle=\sffamily\bfseries\small, coltitle=black, attach title to upper,
+    after title={\par\smallskip}, parbox=false
+  }
+}
+\newcommand{\definirbloc}[3]{% env name, displayed name, colour
+  \newtcolorbox{#1}[1]{monobloc,
+    colback=#3!5!white, colframe=#3,
+    title={\textcolor{#3}{#2}\notblank{##1}{\ --- \normalfont\itshape ##1}{}}}}
+\definirbloc{blocoutils}{Boîte à outils}{cOutils}
+\definirbloc{blocformel}{Noyau formel}{cFormel}
+\definirbloc{blocexemple}{Exemple quantitatif}{cExemple}
+\definirbloc{bloccas}{Étude de cas}{cCas}
+\definirbloc{blocnuance}{Nuance et discussion ouverte}{cNuance}
+\definirbloc{blocquestion}{Question à se poser}{cQuestion}
+
+% ---------------------------------------------------------------- Statements
+% Numbered globally, in order of appearance (matches the filter's HTML numbering).
+\declaretheoremstyle[
+  spaceabove=10pt, spacebelow=10pt, headfont=\bfseries, bodyfont=\normalfont,
+  notefont=\bfseries\itshape, notebraces={(}{)}, headpunct={.}, postheadspace=0.6em
+]{monoenonce}
+\declaretheorem[name=Proposition, style=monoenonce]{proposition}
+\declaretheorem[name=Définition, style=monoenonce]{definition}
+% Epistemic status line, mandatory for propositions (spec §13.3)
+\newcommand{\statut}[1]{\hfill{\small\sffamily statut~: \textit{#1}}\par\smallskip}
+
+% ---------------------------------------------------------------- Draft markers
+\newcommand{\averifier}[1]{{\sffamily\footnotesize\colorbox{yellow!45}{[à vérifier~: #1]}}}
+% citation of a candidate reference (commun/biblio_a_verifier.bib), not yet verified
+\newcommand{\referenceaverifier}[1]{#1\textsuperscript{\textcolor{cCas}{\sffamily\bfseries ?}}}
+\newcommand{\figureabsente}[1]{%
+  \fbox{\parbox[c][4cm][c]{0.8\linewidth}{\centering\sffamily\small
+    Figure à générer\\[2pt]\texttt{\detokenize{#1}}}}}
+
+% ---------------------------------------------------------------- Captions & numbering
+% Figures, tables (and equations) always carry the chapter number, chapter 0 included,
+% so that PDF and HTML numbering agree (the filter numbers HTML the same way).
+\renewcommand*{\thefigure}{\thechapter.\arabic{figure}}
+\renewcommand*{\thetable}{\thechapter.\arabic{table}}
+\renewcommand*{\captionformat}{\nobreakspace:\ }
+\AtBeginDocument{\renewcommand{\tablename}{Tableau}\renewcommand{\figurename}{Figure}}
+% Unnumbered chapters (preface, conclusion): the filter makes their sections unnumbered and
+% calls \numerotationlocale{<tag>} before the chapter, so figures, tables and equations are
+% numbered 1, 2… as in HTML (with distinct PDF anchors); \numerotationchapitre, called before
+% every numbered chapter, restores the chapter-prefixed numbering saved at \begin{document}.
+\makeatletter
+\AtBeginDocument{%
+  \let\mono@thefigure\thefigure \let\mono@thetable\thetable \let\mono@theequation\theequation
+  \let\mono@theHfigure\theHfigure \let\mono@theHtable\theHtable
+  \let\mono@theHequation\theHequation}
+\newcommand*{\numerotationlocale}[1]{%
+  \setcounter{figure}{0}\setcounter{table}{0}\setcounter{equation}{0}%
+  \renewcommand*{\thefigure}{\arabic{figure}}\renewcommand*{\thetable}{\arabic{table}}%
+  \renewcommand*{\theequation}{\arabic{equation}}%
+  \renewcommand*{\theHfigure}{#1.\arabic{figure}}\renewcommand*{\theHtable}{#1.\arabic{table}}%
+  \renewcommand*{\theHequation}{#1.\arabic{equation}}}
+\newcommand*{\numerotationchapitre}{%
+  \let\thefigure\mono@thefigure \let\thetable\mono@thetable \let\theequation\mono@theequation
+  \let\theHfigure\mono@theHfigure \let\theHtable\mono@theHtable
+  \let\theHequation\mono@theHequation}
+\makeatother
+
+% ---------------------------------------------------------------- Front matter
+% Pandoc's template opens the front matter before the title and closes it with \mainmatter
+% right after the table of contents. The preface (filter, class .avant-propos) reopens it
+% with \reprendreliminaires, which carries on the roman page numbers of the TOC; a second
+% \frontmatter would restart them at i (duplicate page numbers and PDF anchors).
+% KOMA's \frontmatter and \mainmatter clear the page, then call \pagenumbering, which
+% resets the counter: the hook keeps the number the next page would have had.
+\newcounter{pagesuivante}
+\AddToHook{cmd/pagenumbering/before}{\setcounter{pagesuivante}{\value{page}}}
+\newcommand{\reprendreliminaires}{%
+  \edef\pagereprise{\arabic{pagesuivante}}%
+  \frontmatter
+  \setcounter{page}{\pagereprise}}
+
+% ---------------------------------------------------------------- Parts
+% Pandoc loads French through \babelprovide (babel-fr.ini), whose \partname is « partie »:
+% the part page would read « partie I ». The HTML output writes « Partie I ».
+\renewcommand*{\partformat}{Partie~\thepart\autodot}
+% A part's introduction (parties/partie-N.md) follows its part page as ordinary text
+% (filter, pass 6), so its length is free; the part's first chapter opens a new page.
+\newenvironment{introductionpartie}{%
+  \thispagestyle{plain}\vspace*{3\baselineskip}}{\par}
+
+% ---------------------------------------------------------------- Layout
+\setcounter{tocdepth}{1}
+\setlength{\emergencystretch}{1.5em}  % absorbs near-miss overfull lines in narrow table columns
+\KOMAoptions{parskip=false}
+\setlength{\parindent}{1.2em}

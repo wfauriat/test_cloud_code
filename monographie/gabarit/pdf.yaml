@@ -1,0 +1,28 @@
+# pdf.yaml — LaTeX output (pandoc writes build/livre.tex; latexmk compiles with LuaLaTeX).
+to: latex
+standalone: true
+include-in-header:
+  - gabarit/preambule.tex
+toc: true
+variables:
+  documentclass: scrbook
+  classoption:
+    - paper=a4
+    - fontsize=11pt
+    - twoside
+    - open=any
+    - headings=small
+    - numbers=noendperiod
+  mainfont: TeX Gyre Pagella
+  mathfont: TeX Gyre Pagella Math
+  sansfont: TeX Gyre Heros
+  monofont: TeX Gyre Cursor
+  colorlinks: true
+  linkcolor: "black"
+  urlcolor: "cFormel"
+  citecolor: "cFormel"
+  # The Lua filter turns figures inside blocks into raw LaTeX, so pandoc sees no Image
+  # and would skip the template's graphics setup. Forcing it keeps
+  # \setkeys{Gin}{…,keepaspectratio}: pandoc writes width=…,height=\textheight for a
+  # width-only image, and without keepaspectratio the figure is stretched to page height.
+  graphics: true

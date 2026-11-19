@@ -1,0 +1,40 @@
+/* livre.css — HTML edition of the monograph drafts. Owned by the maintainer. */
+:root {
+  --ink: #1d232b; --muted: #5a6573; --paper: #fdfcf9; --line: #d9dde2;
+  --outils: #4a5a6a; --formel: #3a4bc8; --exemple: #0a8273; --cas: #a35f00; --nuance: #a8336e; --question: #555;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --ink: #e6e9ee; --muted: #a3adba; --paper: #16191d; --line: #333a43;
+    --outils: #9fb0c2; --formel: #8e9cff; --exemple: #4cc2b0; --cas: #e0a14c; --nuance: #e07bae; --question: #b5b5b5; }
+}
+html { background: var(--paper); }
+body {
+  color: var(--ink); background: var(--paper);
+  font: 17px/1.6 "TeX Gyre Pagella", "Palatino Linotype", Palatino, Georgia, serif;
+  max-width: 44rem; margin: 0 auto; padding: 2rem 1rem 6rem; hyphens: auto;
+}
+h1, h2, h3 { font-family: "TeX Gyre Heros", "Helvetica Neue", Arial, sans-serif; line-height: 1.25; }
+h1 { margin-top: 3.5rem; font-size: 1.8rem; }
+h2 { margin-top: 2.2rem; font-size: 1.3rem; }
+.numero { color: var(--muted); font-weight: 400; }
+.partie { border-top: 3px solid var(--ink); margin-top: 4rem; padding-top: 1rem; }
+.partie > h1 { margin-top: 0; font-size: 2.1rem; }
+.bloc { border-left: 3px solid var(--c, var(--line)); background: color-mix(in srgb, var(--c, var(--line)) 7%, transparent);
+  padding: .6rem 1rem; margin: 1.2rem 0; }
+.bloc-titre { font-family: "TeX Gyre Heros", Arial, sans-serif; font-size: .88rem; color: var(--c); margin-bottom: .3rem; }
+.outils { --c: var(--outils); } .formel { --c: var(--formel); } .exemple-quantitatif { --c: var(--exemple); }
+.cas { --c: var(--cas); } .nuance { --c: var(--nuance); } .question { --c: var(--question); }
+.enonce { border: 1px solid var(--line); border-radius: 4px; padding: .6rem 1rem; margin: 1.2rem 0; }
+.enonce-titre { font-weight: 700; }
+.statut { font-family: "TeX Gyre Heros", Arial, sans-serif; font-size: .82rem; color: var(--muted); text-align: right; }
+.a-verifier { background: #fff1a8; color: #3a3000; font-size: .85em; padding: 0 .2em; }
+.ref-a-verifier::after { content: "?"; color: var(--cas); font: 700 .7em "TeX Gyre Heros", Arial, sans-serif; vertical-align: super; }
+.figure-absente { border: 1px dashed var(--muted); padding: 2rem; text-align: center; color: var(--muted); }
+figure { margin: 1.5rem 0; } figcaption { font-size: .9rem; color: var(--muted); }
+table { border-collapse: collapse; margin: 1rem 0; font-size: .92rem; min-width: 60%; }
+th, td { border-bottom: 1px solid var(--line); padding: .3rem .6rem; text-align: left; }
+caption { caption-side: top; font-size: .9rem; color: var(--muted); text-align: left; padding-bottom: .3rem; }
+math[display="block"] { margin: .8rem 0; }
+span.equation { display: flex; align-items: center; justify-content: center; gap: 2.5rem; margin: .8rem 0; }
+nav#TOC { font-family: "TeX Gyre Heros", Arial, sans-serif; font-size: .9rem; }
+a { color: var(--formel); }

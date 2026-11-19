@@ -1,0 +1,38 @@
+# livre.yaml — chapter order of the monograph (pandoc defaults file).
+# Owned by the maintainer. Shared settings: gabarit/commun.yaml.
+metadata:
+  title: "Agir d’après une représentation du monde"
+  subtitle: "Cadre, contrôles et décision, de l’informatique classique à l’IA"
+  author: "W. Fauriat"
+input-files:
+  - chapitres/00-avant-propos.md
+  - chapitres/00-cartographier.md
+  - parties/partie-1.md
+  - chapitres/01-outils-logique-probabilite.md
+  - chapitres/02-cadre.md
+  - chapitres/03-mondes-possibles.md
+  - chapitres/04-decider.md
+  - parties/partie-2.md
+  - chapitres/05-trois-incertitudes.md
+  - chapitres/06-detecter-une-erreur.md
+  - chapitres/07-cadre-cause-commune.md
+  - chapitres/08-independance-chaines.md
+  - chapitres/09-severite-echappement.md
+  - parties/partie-3.md
+  - chapitres/10-couches-basses.md
+  - chapitres/11-regle-tiree-des-donnees.md
+  - chapitres/12-autre-regime.md
+  - chapitres/13-synthese-deux-axes.md
+  - parties/partie-4.md
+  - chapitres/14-chaines-qui-agissent.md
+  - chapitres/15-erosion-verifications.md
+  - chapitres/16-angles-morts-collectifs.md
+  - parties/partie-5.md
+  - chapitres/17-decisions-sans-appel.md
+  - chapitres/18-remede-trois-niveaux.md
+  - chapitres/99-conclusion.md
+  - annexes/A-outils.md
+  - annexes/B-glossaire.md
+  - annexes/C-notation.md
+  - annexes/D-parametres.md
+  - annexes/Z-bibliographie.md

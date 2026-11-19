@@ -1,0 +1,352 @@
+% biblio_a_verifier.bib — CANDIDATE references, NOT yet verified against the primary source.
+%
+% Workflow (maintainer):
+%   - builders may cite these keys directly; the citation renders normally, marked with an orange "?",
+%     and `make verifier` lists every use;
+%   - to verify: check the entry (authors, title, venue, year, pages) AND the claim it supports
+%     (field `averifier`, never printed), fix the entry, then MOVE it to biblio.bib. No chapter edit needed.
+% Details were entered from memory and may contain errors: nothing here is to be trusted before checking.
+% The points to check per reference come from content_spec/00_global.md, section 8.
+
+% ====================================================================== Frame, logic, probability (ch. 1-3)
+@incollection{mccarthy1969,
+  author = {McCarthy, John and Hayes, Patrick J.},
+  title = {Some philosophical problems from the standpoint of artificial intelligence},
+  booktitle = {Machine Intelligence 4}, editor = {Meltzer, Bernard and Michie, Donald},
+  publisher = {Edinburgh University Press}, year = {1969}, pages = {463--502},
+  averifier = {origine du problème du cadre (ch. 2, 12)}
+}
+@incollection{dennett1984,
+  author = {Dennett, Daniel C.},
+  title = {Cognitive wheels: the frame problem of {AI}},
+  booktitle = {Minds, Machines and Evolution}, editor = {Hookway, Christopher},
+  publisher = {Cambridge University Press}, year = {1984}, pages = {129--151},
+  averifier = {exemple du robot et de la bombe sur le chariot (ch. 2, 12)}
+}
+@book{korzybski1933,
+  author = {Korzybski, Alfred}, title = {Science and Sanity},
+  publisher = {International Non-Aristotelian Library}, year = {1933},
+  averifier = {forme exacte de « the map is not the territory » (ch. 2)}
+}
+@book{pearl1988,
+  author = {Pearl, Judea}, title = {Probabilistic Reasoning in Intelligent Systems},
+  publisher = {Morgan Kaufmann}, year = {1988},
+  averifier = {analogie du champ de mines pour le raisonnement à exceptions : formulation et page (ch. 2)}
+}
+@book{pearl2009,
+  author = {Pearl, Judea}, title = {Causality: Models, Reasoning, and Inference}, edition = {2},
+  publisher = {Cambridge University Press}, year = {2009},
+  averifier = {calcul causal relatif à un graphe donné (ch. 2)}
+}
+@book{vovk2005,
+  author = {Vovk, Vladimir and Gammerman, Alex and Shafer, Glenn},
+  title = {Algorithmic Learning in a Random World}, publisher = {Springer}, year = {2005},
+  averifier = {garantie de couverture sous échangeabilité (ch. 2)}
+}
+@article{angelopoulos2023,
+  author = {Angelopoulos, Anastasios N. and Bates, Stephen},
+  title = {Conformal prediction: a gentle introduction},
+  journal = {Foundations and Trends in Machine Learning}, volume = {16}, number = {4}, pages = {494--591}, year = {2023},
+  averifier = {référence d'introduction à la prédiction conforme (ch. 2)}
+}
+@book{russell2021,
+  author = {Russell, Stuart and Norvig, Peter},
+  title = {Artificial Intelligence: A Modern Approach}, edition = {4}, publisher = {Pearson}, year = {2021},
+  averifier = {présentation des mondes possibles (logique vs probabilités) : chapitre et page (ch. 3)}
+}
+@book{definetti1974,
+  author = {de Finetti, Bruno}, title = {Theory of Probability}, volume = {1},
+  publisher = {Wiley}, year = {1974},
+  averifier = {probabilité subjective (ch. 3)}
+}
+@book{savage1954,
+  author = {Savage, Leonard J.}, title = {The Foundations of Statistics},
+  publisher = {Wiley}, year = {1954},
+  averifier = {utilité espérée subjective (ch. 3, 4, 17)}
+}
+@book{jaynes2003,
+  author = {Jaynes, Edwin T.}, title = {Probability Theory: The Logic of Science},
+  publisher = {Cambridge University Press}, year = {2003},
+  averifier = {probabilité comme logique du plausible (ch. 3)}
+}
+@book{lindley2006,
+  author = {Lindley, Dennis V.}, title = {Understanding Uncertainty},
+  publisher = {Wiley}, year = {2006},
+  averifier = {probabilité comme jugement (ch. 3)}
+}
+@article{gneiting2007,
+  author = {Gneiting, Tilmann and Raftery, Adrian E.},
+  title = {Strictly proper scoring rules, prediction, and estimation},
+  journal = {Journal of the American Statistical Association}, volume = {102}, number = {477},
+  pages = {359--378}, year = {2007},
+  averifier = {règles de score propres (ch. 3) ; ajout suggéré, absent des sources}
+}
+
+% ====================================================================== Uncertainty, regress (ch. 5, 7)
+@book{knight1921,
+  author = {Knight, Frank H.}, title = {Risk, Uncertainty and Profit},
+  publisher = {Houghton Mifflin}, year = {1921},
+  averifier = {incertitude knightienne (ch. 5)}
+}
+@article{wynne1992,
+  author = {Wynne, Brian},
+  title = {Uncertainty and environmental learning: reconceiving science and policy in the preventive paradigm},
+  journal = {Global Environmental Change}, volume = {2}, number = {2}, pages = {111--127}, year = {1992},
+  averifier = {typologie de l'incertitude, ignorance (ch. 5)}
+}
+@article{walker2003,
+  author = {Walker, Warren E. and Harremoës, Poul and Rotmans, Jan and van der Sluijs, Jeroen P. and van Asselt, Marjolein B. A. and Janssen, Peter and Krayer von Krauss, Martin P.},
+  title = {Defining uncertainty: a conceptual basis for uncertainty management in model-based decision support},
+  journal = {Integrated Assessment}, volume = {4}, number = {1}, pages = {5--17}, year = {2003},
+  averifier = {incertitude ontologique / niveaux d'incertitude (ch. 5)}
+}
+@book{lempert2003,
+  author = {Lempert, Robert J. and Popper, Steven W. and Bankes, Steven C.},
+  title = {Shaping the Next One Hundred Years: New Methods for Quantitative, Long-Term Policy Analysis},
+  publisher = {RAND}, year = {2003},
+  averifier = {incertitude profonde (ch. 5)}
+}
+@book{russell1912,
+  author = {Russell, Bertrand}, title = {The Problems of Philosophy},
+  publisher = {Williams and Norgate}, year = {1912},
+  averifier = {le poulet nourri chaque jour (chapitre « On induction ») : formulation exacte (ch. 5)}
+}
+@book{hume1748,
+  author = {Hume, David}, title = {An Enquiry Concerning Human Understanding}, year = {1748},
+  averifier = {problème de l'induction ; édition à citer (ch. 7)}
+}
+@book{goodman1955,
+  author = {Goodman, Nelson}, title = {Fact, Fiction, and Forecast},
+  publisher = {Harvard University Press}, year = {1955},
+  averifier = {« grue » (« vleu ») ; traduction française éventuelle (ch. 7)}
+}
+@article{wolpert1997,
+  author = {Wolpert, David H. and Macready, William G.},
+  title = {No free lunch theorems for optimization},
+  journal = {IEEE Transactions on Evolutionary Computation}, volume = {1}, number = {1}, pages = {67--82}, year = {1997},
+  averifier = {énoncé des théorèmes « no free lunch » (ch. 7)}
+}
+@book{sutton2018,
+  author = {Sutton, Richard S. and Barto, Andrew G.},
+  title = {Reinforcement Learning: An Introduction}, edition = {2}, publisher = {MIT Press}, year = {2018},
+  averifier = {exploration (ch. 7)}
+}
+@article{lazer2014,
+  author = {Lazer, David and Kennedy, Ryan and King, Gary and Vespignani, Alessandro},
+  title = {The parable of {Google} {Flu}: traps in big data analysis},
+  journal = {Science}, volume = {343}, number = {6176}, pages = {1203--1205}, year = {2014},
+  averifier = {chronologie et ampleur des erreurs de Google Flu Trends (ch. 7)}
+}
+
+% ====================================================================== Checks, independence, severity (ch. 5-9)
+@techreport{rogers1986,
+  author = {{Presidential Commission on the Space Shuttle Challenger Accident}},
+  title = {Report to the President}, institution = {Washington, D.C.}, year = {1986},
+  averifier = {objection des ingénieurs au lancement par temps froid ; décision finale (ch. 5, 6)}
+}
+@book{tufte1997,
+  author = {Tufte, Edward R.}, title = {Visual Explanations},
+  publisher = {Graphics Press}, year = {1997},
+  averifier = {graphique des joints toriques : vols montrés, tendance de température masquée (ch. 5, 6)}
+}
+@article{knightleveson1986,
+  author = {Knight, John C. and Leveson, Nancy G.},
+  title = {An experimental evaluation of the assumption of independence in multiversion programming},
+  journal = {IEEE Transactions on Software Engineering}, volume = {SE-12}, number = {1}, pages = {96--109}, year = {1986},
+  averifier = {27 versions ; défaillances corrélées sur les entrées difficiles (ch. 8)}
+}
+@article{levins1966,
+  author = {Levins, Richard},
+  title = {The strategy of model building in population biology},
+  journal = {American Scientist}, volume = {54}, number = {4}, pages = {421--431}, year = {1966},
+  averifier = {citation « our truth is the intersection of independent lies » : texte exact et page (ch. 8)}
+}
+@article{orzack1993,
+  author = {Orzack, Steven Hecht and Sober, Elliott},
+  title = {A critical assessment of {Levins's} The strategy of model building in population biology (1966)},
+  journal = {The Quarterly Review of Biology}, volume = {68}, number = {4}, pages = {533--546}, year = {1993},
+  averifier = {critique de la robustesse de Levins (ch. 8)}
+}
+@incollection{wimsatt1981,
+  author = {Wimsatt, William C.},
+  title = {Robustness, reliability, and overdetermination},
+  booktitle = {Scientific Inquiry and the Social Sciences}, editor = {Brewer, Marilynn B. and Collins, Barry E.},
+  publisher = {Jossey-Bass}, year = {1981}, pages = {124--163},
+  averifier = {analyse de robustesse (ch. 8)}
+}
+@book{mayo1996,
+  author = {Mayo, Deborah G.}, title = {Error and the Growth of Experimental Knowledge},
+  publisher = {University of Chicago Press}, year = {1996},
+  averifier = {critère de sévérité : définition (ch. 9)}
+}
+@book{mayo2018,
+  author = {Mayo, Deborah G.}, title = {Statistical Inference as Severe Testing},
+  publisher = {Cambridge University Press}, year = {2018},
+  averifier = {critère de sévérité, formulation récente (ch. 9)}
+}
+@article{bliss1995,
+  author = {Bliss, James P. and Gilson, Richard D. and Deaton, John E.},
+  title = {Human probability matching behaviour in response to alarms of varying reliability},
+  journal = {Ergonomics}, volume = {38}, number = {11}, pages = {2300--2312}, year = {1995},
+  averifier = {appariement des probabilités face aux alarmes (ch. 9)}
+}
+
+% ====================================================================== Computing stack (ch. 10)
+@article{hoare1969,
+  author = {Hoare, C. A. R.}, title = {An axiomatic basis for computer programming},
+  journal = {Communications of the ACM}, volume = {12}, number = {10}, pages = {576--580}, year = {1969},
+  averifier = {triplet de Hoare (ch. 10)}
+}
+@article{meyer1992,
+  author = {Meyer, Bertrand}, title = {Applying ``design by contract''},
+  journal = {Computer}, volume = {25}, number = {10}, pages = {40--51}, year = {1992},
+  averifier = {programmation par contrat (ch. 10)}
+}
+@article{dijkstra1972,
+  author = {Dijkstra, Edsger W.}, title = {The humble programmer},
+  journal = {Communications of the ACM}, volume = {15}, number = {10}, pages = {859--866}, year = {1972},
+  averifier = {« testing shows the presence, not the absence of bugs » : source exacte (EWD249, 1970, ou ce texte) (ch. 10)}
+}
+@techreport{mco1999,
+  author = {{Mars Climate Orbiter Mishap Investigation Board}},
+  title = {Phase {I} Report}, institution = {NASA}, year = {1999},
+  averifier = {fichier SM_FORCES ; lbf·s contre N·s ; facteur ≈ 4,45 ; perte le 23 septembre 1999 ; causes organisationnelles (ch. 0, 8, 10)}
+}
+
+% ====================================================================== Machine learning (ch. 11-13)
+@inproceedings{sculley2015,
+  author = {Sculley, D. and Holt, Gary and Golovin, Daniel and Davydov, Eugene and Phillips, Todd and Ebner, Dietmar and Chaudhary, Vinay and Young, Michael and Crespo, Jean-François and Dennison, Dan},
+  title = {Hidden technical debt in machine learning systems},
+  booktitle = {Advances in Neural Information Processing Systems 28}, year = {2015}, pages = {2503--2511},
+  averifier = {données comme dépendance non maîtrisée (ch. 11)}
+}
+@techreport{dellacqua2023,
+  author = {Dell'Acqua, Fabrizio and McFowland, Edward and Mollick, Ethan R. and Lifshitz-Assaf, Hila and Kellogg, Katherine and Rajendran, Saran and Krayer, Lisa and Candelon, François and Lakhani, Karim R.},
+  title = {Navigating the jagged technological frontier: field experimental evidence of the effects of {AI} on knowledge worker productivity and quality},
+  institution = {Harvard Business School}, type = {Working Paper}, number = {24-013}, year = {2023},
+  averifier = {758 consultants ; +12,2 % de tâches, 25,1 % plus vite, ≈ 40 % de qualité ; −19 points hors frontière (ch. 11, 12)}
+}
+@misc{nostalgebraist2020,
+  author = {{nostalgebraist}}, title = {Interpreting {GPT}: the logit lens},
+  howpublished = {LessWrong}, year = {2020},
+  averifier = {source web : acceptabilité pour une monographie ; éventuelle référence publiée alternative (ch. 11)}
+}
+@misc{mata2023,
+  title = {Mata v. Avianca, Inc.}, howpublished = {No. 22-cv-1461 (PKC), S.D.N.Y.}, year = {2023},
+  averifier = {date de l'ordonnance de sanctions (juin 2023) ; faits (ch. 0, 11)}
+}
+@misc{moffatt2024,
+  title = {Moffatt v. Air Canada}, howpublished = {2024 BCCRT 149, Civil Resolution Tribunal of British Columbia}, year = {2024},
+  averifier = {absence de preuve sur la technologie du chatbot ; source de la déclaration ultérieure d'Air Canada (ch. 11)}
+}
+@incollection{goodhart1975,
+  author = {Goodhart, Charles A. E.}, title = {Problems of monetary management: the {U.K.} experience},
+  booktitle = {Papers in Monetary Economics}, publisher = {Reserve Bank of Australia}, year = {1975},
+  averifier = {loi de Goodhart, formulation d'origine (ch. 11)}
+}
+@article{strathern1997,
+  author = {Strathern, Marilyn}, title = {`Improving ratings': audit in the {British} {University} system},
+  journal = {European Review}, volume = {5}, number = {3}, pages = {305--321}, year = {1997},
+  averifier = {formulation « when a measure becomes a target » (ch. 11)}
+}
+@inproceedings{christiano2017,
+  author = {Christiano, Paul F. and Leike, Jan and Brown, Tom and Martic, Miljan and Legg, Shane and Amodei, Dario},
+  title = {Deep reinforcement learning from human preferences},
+  booktitle = {Advances in Neural Information Processing Systems 30}, year = {2017},
+  averifier = {RLHF (ch. 11)}
+}
+@inproceedings{ouyang2022,
+  author = {Ouyang, Long and others},
+  title = {Training language models to follow instructions with human feedback},
+  booktitle = {Advances in Neural Information Processing Systems 35}, year = {2022},
+  averifier = {RLHF appliqué aux modèles de langage ; liste complète des auteurs (ch. 11)}
+}
+@inproceedings{kalai2024,
+  author = {Kalai, Adam Tauman and Vempala, Santosh S.},
+  title = {Calibrated language models must hallucinate},
+  booktitle = {Proceedings of the 56th Annual ACM Symposium on Theory of Computing (STOC)}, year = {2024}, pages = {160--171},
+  averifier = {énoncé de la borne (taux de singletons, « monofacts ») et hypothèses (ch. 12)}
+}
+@misc{kalai2025,
+  author = {Kalai, Adam Tauman and Nachum, Ofir and Vempala, Santosh S. and Zhang, Edwin},
+  title = {Why language models hallucinate}, howpublished = {arXiv preprint arXiv:2509.04664}, year = {2025},
+  averifier = {notation des évaluations : « je ne sais pas » noté comme une erreur (ch. 12)}
+}
+@article{farquhar2024,
+  author = {Farquhar, Sebastian and Kossen, Jannik and Kuhn, Lorenz and Gal, Yarin},
+  title = {Detecting hallucinations in large language models using semantic entropy},
+  journal = {Nature}, volume = {630}, pages = {625--630}, year = {2024},
+  averifier = {portée : confabulations détectées, erreurs constantes non détectées (ch. 12)}
+}
+@article{sha2001,
+  author = {Sha, Lui}, title = {Using simplicity to control complexity},
+  journal = {IEEE Software}, volume = {18}, number = {4}, pages = {20--28}, year = {2001},
+  averifier = {architecture Simplex (ch. 13)}
+}
+@inproceedings{demoura2021,
+  author = {de Moura, Leonardo and Ullrich, Sebastian},
+  title = {The {Lean} 4 theorem prover and programming language},
+  booktitle = {Automated Deduction -- CADE 28}, series = {Lecture Notes in Computer Science}, volume = {12699},
+  pages = {625--635}, publisher = {Springer}, year = {2021},
+  averifier = {noyau de confiance de Lean (ch. 13)}
+}
+
+% ====================================================================== Automation, collective (ch. 14-16)
+@misc{sec2013knight,
+  author = {{U.S. Securities and Exchange Commission}},
+  title = {In the Matter of Knight Capital Americas {LLC}}, howpublished = {Release No. 70694}, year = {2013},
+  averifier = {≈ 45 minutes ; plus de 460 millions de dollars ; code dormant réactivé (ch. 14)}
+}
+@article{bainbridge1983,
+  author = {Bainbridge, Lisanne}, title = {Ironies of automation},
+  journal = {Automatica}, volume = {19}, number = {6}, pages = {775--779}, year = {1983},
+  averifier = {ironie de l'automatisation (ch. 15)}
+}
+@misc{becker2025,
+  author = {Becker, Joel and Rush, Nate and Barnes, Elizabeth and Rein, David},
+  title = {Measuring the impact of early-2025 {AI} on experienced open-source developer productivity},
+  howpublished = {arXiv preprint arXiv:2507.09089}, year = {2025},
+  averifier = {≈ 19 % plus lents mesuré, ≈ 20 % plus rapides estimé après coup ; outils et période (ch. 0, 15)}
+}
+@article{spence1973,
+  author = {Spence, Michael}, title = {Job market signaling},
+  journal = {The Quarterly Journal of Economics}, volume = {87}, number = {3}, pages = {355--374}, year = {1973},
+  averifier = {signal coûteux (ch. 15)}
+}
+@article{akerlof1970,
+  author = {Akerlof, George A.},
+  title = {The market for ``lemons'': quality uncertainty and the market mechanism},
+  journal = {The Quarterly Journal of Economics}, volume = {84}, number = {3}, pages = {488--500}, year = {1970},
+  averifier = {marché des voitures d'occasion (ch. 15)}
+}
+@misc{sharma2023,
+  author = {Sharma, Mrinank and others}, title = {Towards understanding sycophancy in language models},
+  howpublished = {arXiv preprint arXiv:2310.13548}, year = {2023},
+  averifier = {complaisance des modèles ; publication ICLR 2024 ; ajout suggéré, absent des sources (ch. 15)}
+}
+@article{shumailov2024,
+  author = {Shumailov, Ilia and Shumaylov, Zakhar and Zhao, Yiren and Papernot, Nicolas and Anderson, Ross and Gal, Yarin},
+  title = {{AI} models collapse when trained on recursively generated data},
+  journal = {Nature}, volume = {631}, pages = {755--759}, year = {2024},
+  averifier = {effondrement des modèles (ch. 16)}
+}
+
+% ====================================================================== Remedies (ch. 18)
+@misc{ue2015tip,
+  author = {{Commission européenne}},
+  title = {Règlement d'exécution ({UE}) 2015/1998 de la Commission du 5 novembre 2015 fixant des mesures détaillées pour la mise en œuvre des normes de base communes dans le domaine de la sûreté de l'aviation civile},
+  howpublished = {Journal officiel de l'Union européenne, L 299}, year = {2015},
+  averifier = {exigence de projection d'images de menaces fictives (TIP) ; lien avec la formation des agents (ch. 18)}
+}
+@article{demillo1978,
+  author = {DeMillo, Richard A. and Lipton, Richard J. and Sayward, Frederick G.},
+  title = {Hints on test data selection: help for the practicing programmer},
+  journal = {Computer}, volume = {11}, number = {4}, pages = {34--41}, year = {1978},
+  averifier = {test par mutation (ch. 18)}
+}
+@inproceedings{lewis2020,
+  author = {Lewis, Patrick and others},
+  title = {Retrieval-augmented generation for knowledge-intensive {NLP} tasks},
+  booktitle = {Advances in Neural Information Processing Systems 33}, year = {2020},
+  averifier = {génération augmentée par récupération ; liste complète des auteurs (ch. 18)}
+}

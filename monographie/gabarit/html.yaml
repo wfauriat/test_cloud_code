@@ -1,0 +1,11 @@
+# html.yaml — single self-contained HTML page, for reading and sharing drafts.
+to: html5
+standalone: true
+embed-resources: true
+toc: true
+toc-depth: 2
+html-math-method:
+  method: mathml
+css:
+  - gabarit/livre.css
+number-sections: false   # numbering is added by the filter (same scheme as the PDF)

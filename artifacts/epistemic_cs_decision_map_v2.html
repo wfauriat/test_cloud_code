@@ -1,0 +1,2096 @@
+<title>Acting Through a Picture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: a pannable, zoomable map. The root card sits in the middle; four territories branch
+   left and right as an outline tree; cards unfold in place and the camera follows.
+   v2: source tags on every idea card, amendment drawers, guide with sources, propositions, vocabulary. */
+:root {
+  --paper: #E6EBEF;   /* canvas ground: cool map paper */
+  --grid: #BFC9D3;    /* dot grid */
+  --card: #FFFFFF;
+  --ink: #141C26;
+  --muted: #586475;
+  --line: #D2D9E1;
+  --wash: #F1F4F7;    /* drawer ground */
+  --epistemics: #3A4BC8; /* indigo: 1. Epistemics & the frame */
+  --stack: #0A8273;      /* teal:   2. Computing stack & AI */
+  --automation: #A35F00; /* ochre:  3. Automation & chains */
+  --decisions: #A8336E;  /* plum:   4. Decisions, risk & checks */
+  --danger: #C92A2A;
+  --ok: #1B7F5C;
+  --shadow: 0 1px 2px rgba(20, 28, 38, .06), 0 12px 32px -16px rgba(20, 28, 38, .30);
+  --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0D1218; --grid: #233040; --card: #161E28; --ink: #E3E9F0; --muted: #95A2B3;
+    --line: #2A3644; --wash: #1D2733; --epistemics: #93A0FF; --stack: #4FCDB9; --automation: #EEAD4A;
+    --decisions: #F07DB7; --danger: #FF7B7B; --ok: #56D6A9;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 14px 34px -16px rgba(0,0,0,.7);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0D1218; --grid: #233040; --card: #161E28; --ink: #E3E9F0; --muted: #95A2B3;
+  --line: #2A3644; --wash: #1D2733; --epistemics: #93A0FF; --stack: #4FCDB9; --automation: #EEAD4A;
+  --decisions: #F07DB7; --danger: #FF7B7B; --ok: #56D6A9;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 14px 34px -16px rgba(0,0,0,.7);
+  color-scheme: dark;
+}
+
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  margin: 0; overflow: hidden; background: var(--paper); color: var(--ink);
+  font-family: var(--f-body); font-size: 14px; -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--epistemics); outline-offset: 2px; }
+
+/* ---------- canvas ---------- */
+.viewport {
+  position: fixed; inset: 0; overflow: hidden; touch-action: none; cursor: grab;
+  background-image: radial-gradient(circle, var(--grid) 1.1px, transparent 1.5px);
+  background-size: 28px 28px;
+  user-select: none; -webkit-user-select: none;
+}
+.viewport.panning { cursor: grabbing; }
+.world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.links { position: absolute; left: 0; top: 0; width: 1px; height: 1px; overflow: visible; pointer-events: none; }
+.links .zone { stroke: none; }
+.links .edge { fill: none; stroke-width: 2; stroke-linecap: round; vector-effect: non-scaling-stroke; opacity: .55; }
+
+/* ---------- cards ---------- */
+.card {
+  --c: var(--ink);
+  position: absolute; left: 0; top: 0; box-sizing: border-box;
+  background: var(--card); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
+  transition: opacity .35s ease, box-shadow .25s ease, border-color .25s ease;
+  cursor: default;
+}
+.card.enter { opacity: 0; }
+.card.dim { opacity: .22; }
+.card.hl { border-color: var(--c); box-shadow: 0 0 0 2px color-mix(in srgb, var(--c) 50%, transparent), var(--shadow); }
+.t-epistemics { --c: var(--epistemics); }
+.t-stack { --c: var(--stack); }
+.t-automation { --c: var(--automation); }
+.t-decisions { --c: var(--decisions); }
+
+.hd { padding: 16px 18px 12px; cursor: pointer; }
+.eyebrow {
+  font-family: var(--f-mono); font-size: 11px; font-weight: 500; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--c); margin: 0 0 6px;
+}
+.card h2 {
+  font-family: var(--f-display); font-weight: 700; font-size: 21px; line-height: 1.15;
+  letter-spacing: -.01em; margin: 0 0 8px; text-wrap: balance;
+}
+.gist { margin: 0; font-size: 15px; line-height: 1.5; }
+.card p { text-wrap: pretty; }
+
+.foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 8px 10px 8px 18px; border-top: 1px solid var(--line);
+}
+.fbtn {
+  display: inline-flex; align-items: center; gap: 8px; border: 0; background: none; cursor: pointer;
+  font-family: var(--f-mono); font-size: 12px; font-weight: 500; color: var(--c);
+  padding: 6px 8px; margin-left: -8px; border-radius: 8px; flex: none;
+}
+.fbtn:hover { background: color-mix(in srgb, var(--c) 10%, transparent); }
+.fbtn .pm {
+  width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid currentColor; position: relative; flex: none;
+}
+.fbtn .pm::before, .fbtn .pm::after {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 8px; height: 1.5px; background: currentColor;
+  transform: translate(-50%, -50%); transition: transform .25s ease;
+}
+.fbtn .pm::after { transform: translate(-50%, -50%) rotate(90deg); }
+.fbtn[aria-expanded="true"] .pm::after { transform: translate(-50%, -50%) rotate(0deg); }
+.fr { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
+.fx { font-family: var(--f-mono); font-size: 12px; color: var(--muted); letter-spacing: .12em; white-space: nowrap; }
+.src { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: 3px; }
+.src b {
+  font-family: var(--f-mono); font-size: 10px; font-weight: 600; letter-spacing: .04em; color: var(--muted);
+  border: 1px solid var(--line); border-radius: 4px; padding: 1px 4px;
+}
+.src b.prop { border-style: dashed; }
+
+/* root card: inverted */
+.d0 { background: var(--ink); color: var(--card); border-color: transparent; border-radius: 22px; }
+.d0 .hd { padding: 26px 28px 8px; cursor: default; }
+.d0 .eyebrow { color: color-mix(in srgb, var(--card) 70%, transparent); }
+.d0 h2 { font-size: 38px; font-weight: 800; line-height: 1.03; letter-spacing: -.02em; margin-bottom: 14px; }
+.d0 .gist { font-size: 15.5px; color: color-mix(in srgb, var(--card) 88%, transparent); line-height: 1.52; }
+.root-x { padding: 8px 28px 26px; display: grid; gap: 16px; }
+.hints { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; font-family: var(--f-mono); font-size: 12.5px; line-height: 1.45; color: color-mix(in srgb, var(--card) 72%, transparent); }
+.hints b { color: var(--card); font-weight: 500; }
+.root-x .go {
+  justify-self: start; border: 0; cursor: pointer; border-radius: 10px; padding: 10px 14px;
+  background: var(--card); color: var(--ink); font-weight: 600; font-size: 14px;
+}
+
+/* territory cards */
+.d1 { background: color-mix(in srgb, var(--c) 11%, var(--card)); border-color: color-mix(in srgb, var(--c) 40%, transparent); border-radius: 18px; }
+.d1 .hd { padding: 20px 22px 14px; }
+.d1 h2 { font-size: 28px; font-weight: 800; color: var(--c); letter-spacing: -.02em; }
+.d1 .foot { border-top-color: color-mix(in srgb, var(--c) 25%, transparent); padding-left: 22px; }
+
+/* angle cards */
+.d2 h2 { font-size: 21px; }
+.d2.is-exp { border-color: color-mix(in srgb, var(--c) 45%, var(--line)); }
+
+/* idea cards */
+.d3 h2 { font-size: 18.5px; }
+.d3 .gist { font-size: 14.5px; color: var(--ink); }
+.d3.is-open { border-color: color-mix(in srgb, var(--c) 45%, var(--line)); }
+.more { padding: 0 18px 4px; }
+.body p { margin: 0 0 10px; font-size: 14.3px; line-height: 1.58; color: var(--ink); }
+.body { padding-top: 10px; border-top: 1px dashed var(--line); }
+.body ul, .body ol, .drawer ul, .drawer ol { margin: 0 0 10px; padding-left: 1.25em; display: grid; gap: 5px; }
+.body li { font-size: 14.1px; line-height: 1.52; padding-left: 2px; }
+.drawer li { font-size: 13.6px; line-height: 1.5; padding-left: 2px; }
+.body li::marker, .drawer li::marker { color: var(--c); font-family: var(--f-mono); font-size: 12px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 12px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+  font-family: var(--f-mono); font-size: 11.5px; padding: 5px 10px 5px 8px; border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--c) 35%, var(--line)); background: var(--card);
+}
+.chip .g { color: var(--c); font-weight: 600; width: 1em; text-align: center; }
+.chip:hover { border-color: var(--c); }
+.chip[aria-expanded="true"] { background: color-mix(in srgb, var(--c) 13%, var(--card)); border-color: var(--c); }
+.drawer { background: var(--wash); border-radius: 10px; padding: 11px 14px 12px; margin: 0 0 12px; }
+.drawer.k-revised { background: color-mix(in srgb, var(--c) 6%, var(--wash)); border: 1px dashed color-mix(in srgb, var(--c) 45%, var(--line)); }
+.drawer .dl {
+  font-family: var(--f-mono); font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--c); margin: 0 0 6px;
+}
+.drawer p { margin: 0 0 8px; font-size: 13.8px; line-height: 1.55; }
+.drawer p:last-child, .drawer ul:last-child, .drawer ol:last-child { margin-bottom: 0; }
+.body code, .drawer code, .gist code {
+  font-family: var(--f-mono); font-size: 12.3px; background: color-mix(in srgb, var(--c) 10%, var(--card));
+  padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere;
+}
+.drawer.k-ask p { font-family: var(--f-display); font-size: 16px; font-weight: 500; line-height: 1.38; }
+.xref {
+  border: 0; background: none; padding: 0; cursor: pointer; color: var(--c); font: inherit; font-weight: 500;
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px;
+}
+.xref::after { content: " \2197"; font-size: .85em; }
+
+/* small tables and the 2x2 grid inside cards */
+.mt-wrap { overflow-x: auto; margin: 2px 0 12px; }
+.mt { width: 100%; border-collapse: collapse; font-size: 12.3px; line-height: 1.35; }
+.mt th, .mt td { text-align: left; vertical-align: top; padding: 5px 8px 5px 0; border-bottom: 1px solid var(--line); }
+.mt th { font-family: var(--f-mono); font-size: 10.5px; font-weight: 500; letter-spacing: .05em; text-transform: uppercase; color: var(--c); }
+.mt td:first-child { font-weight: 500; }
+.mt caption { caption-side: bottom; text-align: left; font-size: 11.5px; color: var(--muted); padding-top: 6px; }
+.g2 { display: grid; grid-template-columns: 4.4em minmax(0, 1fr) minmax(0, 1fr); gap: 4px; margin: 2px 0 12px; font-size: 12.3px; line-height: 1.35; }
+.g2 > div { background: var(--wash); border-radius: 7px; padding: 7px 8px; min-width: 0; }
+.g2 > .h { background: none; padding: 2px 2px 0; font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .05em; text-transform: uppercase; color: var(--c); }
+.g2 > .silent { background: color-mix(in srgb, var(--danger) 11%, var(--wash)); }
+
+/* semantic zoom: when far away, a large label replaces the fine print */
+.far {
+  position: absolute; inset: 0; display: none; align-items: center; justify-content: center; text-align: center;
+  padding: 6%; box-sizing: border-box; border-radius: inherit; background: inherit; color: var(--c);
+  font-family: var(--f-display); font-weight: 700; line-height: 1.05; letter-spacing: -.01em;
+  font-size: min(calc(var(--ft) * var(--inv, 1) * 1px), var(--fcap)); overflow: hidden; pointer-events: none;
+}
+.d0 .far { color: var(--card); --ft: 22; --fcap: 64px; }
+.d1 .far { --ft: 20; --fcap: 72px; }
+.d2 .far { --ft: 15; --fcap: 46px; }
+.d3 .far { --ft: 13; --fcap: 40px; }
+.world.is-far .far { display: flex; }
+
+.card.spot { box-shadow: 0 0 0 3px var(--c), var(--shadow); }
+@media (prefers-reduced-motion: no-preference) {
+  .card.spot { animation: spot 1.6s ease-out 1; }
+  @keyframes spot { 0% { box-shadow: 0 0 0 16px color-mix(in srgb, var(--c) 0%, transparent), var(--shadow); }
+                    30% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--c) 35%, transparent), var(--shadow); }
+                    100% { box-shadow: 0 0 0 3px var(--c), var(--shadow); } }
+}
+
+/* ---------- interactive labs ---------- */
+.lab { display: grid; gap: 9px; font-size: 13px; }
+.lab-presets { display: flex; flex-wrap: wrap; gap: 5px; }
+.lab-pbtn {
+  border: 1px solid color-mix(in srgb, var(--c) 35%, var(--line)); background: var(--card); color: var(--ink);
+  border-radius: 6px; padding: 4px 8px; font-family: var(--f-mono); font-size: 11px; cursor: pointer;
+}
+.lab-pbtn:hover, .lab-pbtn.active { background: var(--c); color: var(--card); border-color: var(--c); }
+.lab-ctl, .lab-world { display: grid; gap: 6px; font-family: var(--f-mono); font-size: 11.5px; }
+.lab-ctl label, .lab-world label { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 8px; }
+.lab-ctl input[type="range"], .lab-world input[type="range"] { grid-column: 1 / -1; width: 100%; accent-color: var(--c); margin: 0; }
+.lab-ctl output, .lab-world output { font-variant-numeric: tabular-nums; font-weight: 600; }
+.lab-world {
+  border: 1px dashed color-mix(in srgb, var(--c) 45%, var(--line)); border-radius: 8px; padding: 8px 10px 10px;
+  background: color-mix(in srgb, var(--c) 5%, transparent);
+}
+.lab-world .wl { font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--c); }
+.lab-out {
+  background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px;
+  display: grid; gap: 6px; font-family: var(--f-mono); font-size: 12px;
+}
+.lab-kv { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.lab-kv span { min-width: 0; }
+.lab-kv b { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lab-verdict {
+  padding: 6px 8px; border-radius: 6px; font-family: var(--f-body); font-weight: 600; font-size: 12.5px; line-height: 1.4;
+  background: var(--wash); color: var(--muted);
+}
+.lab-verdict.bad { background: color-mix(in srgb, var(--danger) 14%, transparent); color: var(--danger); }
+.lab-verdict.good { background: color-mix(in srgb, var(--ok) 14%, transparent); color: var(--ok); }
+.lab-verdict.warn { background: color-mix(in srgb, var(--automation) 15%, transparent); color: var(--automation); }
+.lab-note { font-size: 12.5px !important; color: var(--muted); line-height: 1.45 !important; margin: 0 !important; }
+.lab-q { font-family: var(--f-display); font-size: 15px; font-weight: 500; line-height: 1.35; margin: 0 !important; }
+.lab-samples { font-size: 12px; overflow-wrap: anywhere; }
+.nw-bars { display: grid; gap: 3px; margin: 2px 0; }
+.nw-row { display: grid; grid-template-columns: 7.8em 1fr 3.2em; align-items: center; gap: 8px; font-family: var(--f-mono); font-size: 11.5px; }
+.nw-bar { height: 9px; background: color-mix(in srgb, var(--c) 12%, transparent); border-radius: 3px; overflow: hidden; }
+.nw-bar i { display: block; height: 100%; background: var(--c); border-radius: 3px; transition: width .25s ease; }
+.nw-p { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+.nw-pick { border: 0; border-radius: 7px; padding: 6px 11px; background: var(--c); color: var(--card); cursor: pointer; font-weight: 600; font-size: 12.5px; justify-self: start; }
+
+/* ---------- overlay UI ---------- */
+.ui {
+  position: fixed; z-index: 5; background: color-mix(in srgb, var(--card) 94%, transparent);
+  border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+}
+.brand {
+  top: calc(env(safe-area-inset-top, 0px) + 14px); left: max(16px, env(safe-area-inset-left, 0px));
+  padding: 10px 16px 11px; max-width: calc(100vw - 32px); box-sizing: border-box;
+}
+.brand b { display: block; font-family: var(--f-display); font-weight: 800; font-size: 18px; letter-spacing: -.01em; }
+.brand span { display: block; font-family: var(--f-mono); font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+.pill {
+  top: calc(env(safe-area-inset-top, 0px) + 74px); left: max(16px, env(safe-area-inset-left, 0px));
+  display: flex; align-items: center; gap: 6px; padding: 4px 4px 4px 12px; font-size: 13px;
+  max-width: calc(100vw - 32px); box-sizing: border-box;
+}
+.pill span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tools {
+  top: calc(env(safe-area-inset-top, 0px) + 14px); right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; gap: 6px; padding: 6px;
+}
+.btn {
+  height: 34px; padding: 0 12px; border-radius: 9px; border: 1px solid transparent; background: transparent;
+  font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; color: var(--ink);
+}
+.btn:hover { background: var(--wash); }
+.btn.primary { background: var(--ink); color: var(--card); }
+.btn.primary:hover { background: color-mix(in srgb, var(--ink) 86%, var(--card)); }
+.btn[disabled] { opacity: .4; cursor: default; }
+.zoombar {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); left: max(16px, env(safe-area-inset-left, 0px));
+  display: flex; align-items: center; gap: 2px; padding: 5px;
+}
+.zoombar .btn { min-width: 34px; padding: 0 10px; font-size: 16px; }
+.zoombar .btn.txt { font-size: 13px; }
+.zl { font-family: var(--f-mono); font-size: 12px; min-width: 3.4em; text-align: center; font-variant-numeric: tabular-nums; color: var(--muted); }
+.minimap {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); right: max(16px, env(safe-area-inset-right, 0px));
+  width: 210px; height: 132px; padding: 0; overflow: hidden; cursor: crosshair; touch-action: none;
+}
+.minimap canvas { display: block; width: 100%; height: 100%; }
+
+.guide {
+  top: calc(env(safe-area-inset-top, 0px) + 70px); right: max(16px, env(safe-area-inset-right, 0px));
+  width: min(400px, calc(100vw - 32px)); max-height: calc(100% - 100px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  overflow: auto; box-sizing: border-box; padding: 18px 18px 12px; z-index: 6;
+  background: var(--card); overscroll-behavior: contain;
+}
+.guide h3 { font-family: var(--f-display); font-size: 20px; font-weight: 800; margin: 0; }
+.guide h4 {
+  font-family: var(--f-mono); font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted); margin: 20px 0 8px;
+}
+.guide p { font-size: 13.5px; line-height: 1.5; margin: 0 0 10px; color: var(--muted); }
+.ghead { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.paths { display: grid; gap: 6px; }
+.path {
+  text-align: left; border: 1px solid var(--line); background: var(--card); border-radius: 11px; padding: 10px 12px;
+  cursor: pointer; display: grid; gap: 3px;
+}
+.path:hover { border-color: var(--ink); }
+.path b { font-size: 14px; font-weight: 600; }
+.path span { font-size: 13px; color: var(--muted); line-height: 1.4; }
+.path i { font-style: normal; font-family: var(--f-mono); font-size: 11px; color: var(--muted); }
+.labs { display: grid; gap: 6px; }
+.lablink {
+  text-align: left; border: 1px solid var(--line); border-left: 3px solid var(--c); background: var(--card);
+  border-radius: 11px; padding: 9px 12px; cursor: pointer; display: grid; gap: 3px; color: var(--ink);
+}
+.lablink:hover { border-color: var(--c); background: color-mix(in srgb, var(--c) 7%, var(--card)); }
+.lablink b { font-size: 14px; font-weight: 600; display: flex; gap: 7px; align-items: baseline; }
+.lablink b::before { content: "\25B8"; color: var(--c); }
+.lablink span { font-size: 13px; color: var(--muted); line-height: 1.4; }
+.lablink i { font-style: normal; font-family: var(--f-mono); font-size: 11px; color: var(--c); }
+.toc { display: grid; gap: 12px; }
+.toc-t { display: flex; align-items: center; gap: 8px; font-family: var(--f-display); font-weight: 700; font-size: 15px; color: var(--c); border: 0; background: none; padding: 0; cursor: pointer; text-align: left; }
+.toc-t::before { content: ""; width: 9px; height: 9px; border-radius: 3px; background: var(--c); flex: none; }
+.toc ul { list-style: none; margin: 4px 0 0; padding: 0 0 0 17px; display: grid; gap: 2px; }
+.toc li button { border: 0; background: none; padding: 3px 0; cursor: pointer; font-size: 13.5px; text-align: left; color: var(--ink); }
+.toc li button:hover { color: var(--c); text-decoration: underline; }
+.gsec { border-top: 1px solid var(--line); margin-top: 16px; }
+.gsec > summary {
+  cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center;
+  font-family: var(--f-mono); font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted); padding: 12px 0 8px;
+}
+.gsec > summary::-webkit-details-marker { display: none; }
+.gsec > summary::after { content: "+"; font-size: 15px; color: var(--ink); }
+.gsec[open] > summary::after { content: "\2212"; }
+.srcs, .props { display: grid; gap: 10px; margin: 2px 0 8px; }
+.srow { display: grid; grid-template-columns: 2.8em minmax(0, 1fr); gap: 10px; align-items: start; font-size: 13px; line-height: 1.42; }
+.srow .k {
+  font-family: var(--f-mono); font-weight: 600; font-size: 11.5px; border: 1px solid var(--line); border-radius: 5px;
+  padding: 3px 0; text-align: center; color: var(--ink); background: var(--card); cursor: pointer;
+}
+.srow .k.prop { border-style: dashed; }
+.srow .k:hover { border-color: var(--ink); }
+.srow i { font-style: italic; color: var(--ink); }
+.srow span { color: var(--muted); }
+.prow { display: grid; grid-template-columns: 1.4em minmax(0, 1fr); gap: 8px; font-size: 13px; line-height: 1.45; }
+.prow .pn { font-family: var(--f-mono); font-weight: 600; color: var(--ink); }
+.prow .pt, .gloss dt button {
+  display: block; border: 0; background: none; padding: 0; cursor: pointer; text-align: left;
+  font-weight: 600; font-size: 13.5px; color: var(--ink);
+}
+.prow .pt:hover, .gloss dt button:hover { text-decoration: underline; }
+.prow .pd { color: var(--muted); }
+.gloss { margin: 2px 0 8px; display: grid; gap: 2px; }
+.gloss dt { margin: 6px 0 0; }
+.gloss dd { margin: 1px 0 0; font-size: 13px; line-height: 1.45; color: var(--muted); }
+.keys { list-style: none; padding: 0; margin: 0 0 12px; display: grid; gap: 5px; font-size: 13px; color: var(--muted); }
+.keys kbd { font-family: var(--f-mono); font-size: 11.5px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; padding: 1px 5px; color: var(--ink); background: var(--wash); }
+.opt { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; line-height: 1.4; cursor: pointer; margin-bottom: 10px; }
+.opt input { margin-top: 2px; accent-color: var(--ink); }
+
+.tour {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); left: 50%; transform: translateX(-50%);
+  width: min(650px, calc(100vw - 32px)); box-sizing: border-box; padding: 12px 14px 12px 18px;
+  display: grid; grid-template-columns: 1fr auto; gap: 4px 14px; align-items: center; background: var(--card);
+}
+.tour-meta { grid-column: 1 / -1; display: flex; gap: 10px; font-family: var(--f-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.tour-meta b { color: var(--ink); font-weight: 500; }
+.tour-note { margin: 0; font-size: 14.5px; line-height: 1.42; min-width: 0; }
+.tour-nav { display: flex; gap: 4px; }
+
+@media (max-width: 760px) {
+  .minimap { display: none; }
+  body.touring .zoombar { display: none; }
+  .tour { grid-template-columns: 1fr; }
+  .tour-nav { justify-content: flex-end; }
+}
+@media (max-width: 560px) {
+  .brand span { display: none; }
+  .brand { padding: 9px 12px; }
+  .brand b { font-size: 16px; }
+  .pill { top: calc(env(safe-area-inset-top, 0px) + 62px); }
+  .tools { top: auto; bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); }
+  .tools .wide, .zl { display: none; }
+  body.touring .tools { display: none; }
+  .guide { top: calc(env(safe-area-inset-top, 0px) + 66px); max-height: calc(100% - 150px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card, .nw-bar i, .fbtn .pm::before, .fbtn .pm::after { transition: none; }
+}
+</style>
+
+<div class="viewport" id="vp">
+  <div class="world" id="world">
+    <svg class="links" id="links" aria-hidden="true"><g id="zones"></g><g id="edges"></g></svg>
+  </div>
+</div>
+
+<div class="ui brand" id="brand">
+  <b>Acting Through a Picture</b>
+  <span>The frame problem, the computing stack, automation &amp; the theory of checks</span>
+</div>
+
+<div class="ui pill" id="filter" hidden>
+  <span>Highlighting <b id="filter-t"></b></span>
+  <button class="btn" id="filter-x" type="button" aria-label="Clear the highlight">&times;</button>
+</div>
+
+<div class="ui tools" id="tools">
+  <button class="btn primary" id="b-guide" type="button" aria-expanded="false" aria-controls="guide">Perspectives &amp; guide</button>
+  <button class="btn" id="b-overview" type="button" title="Fold everything back to the overview">Overview</button>
+  <button class="btn wide" id="b-all" type="button" title="Open every angle at once">Show all threads</button>
+</div>
+
+<div class="ui zoombar" id="zoombar">
+  <button class="btn" id="b-out" type="button" aria-label="Zoom out">&minus;</button>
+  <span class="zl" id="zl" aria-live="off">100%</span>
+  <button class="btn" id="b-in" type="button" aria-label="Zoom in">+</button>
+  <button class="btn txt" id="b-fit" type="button" title="Fit everything on screen (F)">Fit</button>
+</div>
+
+<div class="ui minimap" id="minimap" title="Map overview: click or drag to move"><canvas id="mm"></canvas></div>
+
+<aside class="ui guide" id="guide" hidden aria-label="Guide">
+  <div class="ghead"><h3>Perspectives &amp; guide</h3><button class="btn" id="b-gclose" type="button">Close</button></div>
+  <h4>Pick a perspective</h4>
+  <p>Guided routes through the four territories, by where you enter the problem from, or by how its claims were amended.</p>
+  <div class="paths" id="paths"></div>
+  <h4>Jump to a territory or angle</h4>
+  <div class="toc" id="toc"></div>
+  <h4>Interactive labs</h4>
+  <p>Sliders and scenarios you can play with. Each link opens its card with the lab already unfolded.</p>
+  <div class="labs" id="labs"></div>
+  <details class="gsec" open>
+    <summary>Sources &amp; tags</summary>
+    <p>Each idea card names the texts it draws on. Click a tag to highlight its cards across the map. Dashed tags mark proposed amendments the author has not yet checked; the &Delta; drawers on the cards say what was amended.</p>
+    <div class="srcs" id="srcs"></div>
+  </details>
+  <details class="gsec">
+    <summary>The five propositions</summary>
+    <p>The first is close to a tautology; the other four are argued, not proven.</p>
+    <div class="props" id="props"></div>
+  </details>
+  <details class="gsec">
+    <summary>Vocabulary</summary>
+    <dl class="gloss" id="gloss"></dl>
+  </details>
+  <details class="gsec">
+    <summary>Moving around</summary>
+    <ul class="keys">
+      <li>Drag anywhere to pan. Scroll, pinch or <kbd>+</kbd> <kbd>&minus;</kbd> to zoom.</li>
+      <li>Click a card to unfold it. Inside, chips open the formal core, a concrete case, an analogy, an interactive lab, the catch, the amendment (&Delta;) or a diagnostic question.</li>
+      <li><kbd>F</kbd> fits the map, <kbd>Esc</kbd> closes panels and tours, <kbd>&larr;</kbd> <kbd>&rarr;</kbd> step through a guided path.</li>
+    </ul>
+    <label class="opt"><input type="checkbox" id="opt-follow" checked> Move the camera to follow what I open</label>
+  </details>
+  <details class="gsec">
+    <summary>About this map</summary>
+    <p>Version 2, 18 November 2026. An explorable map of one line of research. A talk (TK) seeds it; an article (FP) states the frame argument; an essay (WG) adds the computing stack and its learned top layer; a second essay (FD) re-reads both as a theory of checks. An external critique (CR) and a review of that critique and of this map's first version (RV) are folded in and tagged as such.</p>
+    <p>All written sources except CR come out of one collaboration between the author and Claude models. By the map's own Proposition 4, their agreement is weak evidence; where they depart from one another is the informative part. Numbers in the labs are illustrative.</p>
+  </details>
+</aside>
+
+<div class="ui tour" id="tour" hidden role="region" aria-label="Guided path">
+  <div class="tour-meta"><b id="tour-name"></b><span id="tour-count"></span></div>
+  <p class="tour-note" id="tour-note"></p>
+  <div class="tour-nav">
+    <button class="btn" id="t-prev" type="button">&larr; Back</button>
+    <button class="btn primary" id="t-next" type="button">Next &rarr;</button>
+    <button class="btn" id="t-end" type="button">End</button>
+  </div>
+</div>
+
+<noscript><p style="position:fixed;inset:auto 16px 16px;background:var(--card);color:var(--ink);padding:16px;border-radius:12px">This interactive map needs JavaScript to run.</p></noscript>
+
+<script>
+(() => {
+'use strict';
+
+/* =====================================================================
+   CONTENT
+   Four territories: left (side -1) 1 epistemics, 2 stack; right (side 1) 3 automation, 4 decisions.
+   Drawer kinds: formal, example, analogy, try (lab), catch, revised (amendment), ask.
+   Inline markup: {{node-id|label}} links to another card, **strong**, *emphasis*.
+   Blocks are separated by a blank line; lines starting with "- " or "1. " become lists;
+   blocks starting with <div> or <table> pass through as HTML.
+   src: source keys (see SOURCES).
+   ===================================================================== */
+
+const TERRITORY = {
+  epistemics: '1 · Epistemics & the frame',
+  stack: '2 · Computing stack & AI',
+  automation: '3 · Automation & chains',
+  decisions: '4 · Decisions, risk & checks'
+};
+
+const SOURCES = {
+  TK: ['Talk draft (TED-style, in French)', 'W. Fauriat; written without a model. Its thesis: «courir après la “bonne réponse”, c’est pas la “bonne” attitude», chasing the right answer is not the right attitude.'],
+  FP: ['The frame problem in quantitative practice', 'W. Fauriat, arXiv preprint, 2026. Finite specification, three kinds of uncertainty, the regress, epistemic humility.'],
+  WG: ['Where the Guarantees End', 'W. Fauriat, essay, draft 2, July 2026. Contracts in the computing stack, the learned top layer, where to place the verifying step.'],
+  FD: ['Failing Differently', 'Essay written by Claude (Fable 5.2) at W. Fauriat’s request, November 2026; self-labelled exploratory. The frame problem re-read as a theory of checks.'],
+  CR: ['External critique', 'Gemini 4 Argon, November 2026. Proposed extensions and objections, not yet checked by the author.'],
+  RV: ['Review of the critique and of map v1', 'Claude Opus 5.5, 18 November 2026. Proposed amendments, not yet checked by the author.']
+};
+const PROPOSED = new Set(['CR', 'RV']);
+
+const DATA = {
+  id: 'root',
+  title: 'Acting Through a Picture',
+  short: 'Acting Through a Picture',
+  gist: `We act on a finite picture of the world, and the world answers the action, not the picture. One argument across four territories: how a frame bounds every inference, how classical software earned guarantees that learned models give up, what automation does to error detection, and what can still tell us we are wrong in time.`,
+  children: [
+
+  /* =============================================================
+     TERRITORY 1: EPISTEMICS & THE FRAME
+     ============================================================= */
+  { id: 'epistemics', theme: 'epistemics', side: -1,
+    title: '1. Epistemics & the frame',
+    short: '1. Epistemics',
+    gist: `What can be concluded from hypotheses and data: why deduction and induction both run inside a finite specification, why error bars cannot show what that specification omits, and why no reasoner can audit its own frame from within.`,
+    children: [
+
+    { id: 'picture', title: 'Reasoning inside a constructed picture', short: 'Constructed picture',
+      gist: `We never touch the world directly; we act on a simplified picture of what matters. The world does not consult the picture before answering.`,
+      children: [
+        { id: 'map-territory', src: 'FP TK', title: 'The world answers the action, not the picture',
+          gist: `We decide on what we think might happen, never on what will happen. Yet what we decide changes what happens.`,
+          body: `Any rational endeavour has a target, a world, and a gap between them. To close the gap we build a representation (measurements, categories, equations, probabilities) and act on that construction.\n\nPut bluntly, reality does not care what we expect: «le réel se moque de nos anticipations». A sailor who puts the chance of breaking at 5% is not facing a 5% crossing: the mast breaks or it holds. The 5% describes the sailor's judgment under a chosen frame, not a property of the sea. It still decides what the sailor does, and the decision shapes what happens next. See {{seu-sailboat-roulette|the sailboat race}}.`,
+          analogy: `Korzybski: the map is not the territory. With an operational twist: you steer by the map, but the hull meets the territory's rocks.`,
+          example: `A sailor weighs taking a satellite phone on a sea crossing and puts the chance of needing it at 20%. The crossing happens once; the phone is used or it is not. The world resolves to one outcome along an axis the picture had spread over a distribution.`,
+          ask: `In your current project, which numbers describe measured properties of the world, and which describe the team's degree of belief inside its chosen model?` },
+
+        { id: 'relevance-frame', src: 'TK FP', title: 'Relevance, exceptions & the frame',
+          gist: `Before any inference can run, a reasoner must settle what matters: which conditions to state, and which to leave in an unstated background.`,
+          body: `Water boils at 100 °C: three observations agree, so we generalise a rule. A colleague tests it at 101 °C and nothing boils: the water was heavily salted. We refine: *pure* water at 100 °C. Another test at 104 °C, no boiling: the vessel was sealed, like a pressure cooker. We refine again: pure water, at atmospheric pressure, at 100 °C. And on the summit of Mont Blanc, water boils at about 85 °C.\n\nEvery usable rule therefore has the form <code>A ∩ (…) → B</code>, where <code>(…)</code> hides an open-ended background of unstated conditions. Choosing which conditions to state, and which to leave in <code>(…)</code>, is choosing the **frame**: the finite specification of variables, categories, model class and objective that an inference works inside.`,
+          formal: `Prediction conditions on a finite set <i>X</i> = (<i>X</i><sub>1</sub>, …, <i>X</i><sub><i>k</i></sub>): <code>Pr(Y) = Σ<sub>x</sub> Pr(Y | X = x) · Pr(X = x)</code>. The conditionals carry the modelling work, the weights carry the assumptions, and both sit inside a choice of which <i>X</i> to consider. That choice comes before the calculus and is circular: to know what to include, you already need a view of what matters.`,
+          analogy: `Pearl (1988) likens reasoning with exceptions to crossing a minefield: most steps are harmless, but some are devastating. Rules such as “birds fly” or “smoke suggests fire” have exceptions nobody can list in full.`,
+          catch: `Stating more conditions makes rules longer and more brittle; stating fewer leaves silent exceptions waiting for the day the background shifts. No setting removes both risks.` },
+
+        { id: 'deduction-induction', src: 'FP TK', title: 'Formality does not lift the limit',
+          gist: `Deductive necessity and inductive generalisation are both conditional on a frame. Rigour inside a frame never certifies the frame.`,
+          body: `It is tempting to think the frame problem afflicts only messy pattern-fitting, and that deduction escapes it. It does not.\n\n*Deduction* delivers true conclusions **provided** its axioms, boundary conditions and idealisations hold. *Induction* carries past regularities forward **provided** the new context is similar enough to the observed one. Both guarantees are real and both are conditional: on the description in one case, on the judgment of similarity in the other. Necessity inside a poorly framed problem is only necessity inside a poor frame.`,
+          formal: `Pearl's causal calculus (<i>d</i>-separation, <code>do(·)</code>, identification theorems) is deductive relative to a specified causal graph; the calculus does not certify the graph. Conformal prediction guarantees finite-sample coverage relative to exchangeability between calibration and deployment data; the method does not certify exchangeability.`,
+          example: `A clinical prediction model validated on one cohort degrades when deployed where disease severity or diagnostic coding has shifted. It was correct relative to its frame; the frame was applied to a population it did not cover.`,
+          catch: `Challenged on an applied failure, a formal discipline's reflex is to formalise further. That moves the framing choice one level up; it does not remove it ({{meta-nfl|the regress}}).` },
+
+        { id: 'bayesian-judgment', src: 'TK FP', title: 'Possible worlds & probability as judgment',
+          gist: `Instead of chasing the single right answer, probabilistic reasoning weighs the possible worlds compatible with what we know.`,
+          body: `Russell and Norvig draw the contrast: logical assertions say which possible worlds are ruled out; probabilistic assertions say how probable the remaining worlds are. Read this way, <code>Pr(B | A) = Pr(B ∩ A) / Pr(A)</code> is the share of the worlds where <i>A</i> holds in which <i>B</i> holds too: the share of the situations hidden in <code>(…)</code> where the rule works.\n\nThe practical consequence: stop chasing “the right answer” and reason *in reverse* («raisonner à l'envers»). Ask what could be hiding in <code>(…)</code>, what could vary, and which variations would flip the conclusion. Probability is then a tool for judgment under background knowledge (de Finetti, Savage, Jaynes, Lindley). “Subjective” does not mean arbitrary; it names where the inference is anchored.`,
+          catch: `Reasoning in reverse is not inventing far-fetched scenarios. It means listing the variations of context that are likely, or that cannot reasonably be ruled out, and checking which of them the conclusion is sensitive to.`,
+          ask: `Are we trying to show that our baseline forecast is the right answer, or mapping which variations of context would reverse our decision?` },
+
+        { id: 'neither-right-nor-wrong', src: 'TK FP FD RV', title: 'Neither right nor wrong: a forecast vs. a forecaster',
+          gist: `Mr X says 5%, Mr Y says 0.1%. Before the race neither is right or wrong. One outcome barely settles it; only a track record can.`,
+          body: `Two sailors assess the same light boat and reach different numbers: Mr X puts its chance of breaking at 5%, Mr Y at 0.1%. Who is right? Neither, and not for lack of rigour: each number says what that sailor thinks, given what he took into account.\n\nAfter the race the outcome says something, but less than it seems. If the boat breaks, Mr Y is far more *surprised* than Mr X. If it holds, both saw their likelier outcome happen, and the result barely tells them apart. One outcome grades a forecaster weakly; many outcomes, scored with proper scoring rules and checked for calibration, grade him well. That is why {{calibrate-vs-gate|calibration needs repetition}}.`,
+          formal: `Surprise is the logarithmic score, <code>−ln Pr(outcome)</code>. Boat breaks: Mr X scores −ln 0.05 ≈ 3.0, Mr Y −ln 0.001 ≈ 6.9, and the outcome favours X's judgment by a likelihood ratio of 0.05 / 0.001 = 50. Boat holds: 0.95 / 0.999 ≈ 0.95, almost no information. Each uneventful morning is weak evidence, which is how the turkey grew confident.`,
+          example: `A forecast of “70% chance of rain” is not refuted by one dry day. A forecaster whose 70% days turn out rainy about 70% of the time over a year is calibrated; one whose 70% days are rainy 40% of the time is not.`,
+          ask: `When a forecast in your organisation “turned out wrong”, did anyone check whether it was a bad forecast, or a good one meeting its less likely outcome?` }
+      ] },
+
+    { id: 'three-uncertainties', title: 'Three uncertainties & measured disagreement', short: 'Three uncertainties',
+      gist: `Quantitative methods price variability and parameter doubt inside a chosen model class. What the frame omits produces no disagreement, so no error bars.`,
+      children: [
+        { id: 'aleatory-epistemic', src: 'FP FD', title: 'Aleatory vs. epistemic is a modelling choice',
+          gist: `Aleatory uncertainty is scatter treated as irreducible; epistemic uncertainty is what more data or finer modelling could shrink. The analyst chooses the boundary.`,
+          body: `Engineering uncertainty quantification and risk analysis split within-frame uncertainty in two. *Aleatory*: variability across replicates treated as identical, represented by distributions and propagated (Monte Carlo). *Epistemic*: lack of knowledge about parameters or sub-models, reducible by data or refinement.\n\nThe split is functional, not metaphysical. A die roll is aleatory if you do not measure the throw, epistemic if you do. Where to stop refining is the analyst's decision, not a property of the world.`,
+          formal: `Over an admitted set of hypotheses Θ, predictive variance splits as <code>Var(Y) = E<sub>θ</sub>[Var(Y | θ)] + Var<sub>θ</sub>(E[Y | θ])</code>. The first term is the aleatory part (average spread of replicates under each admitted hypothesis); the second is the epistemic part (spread of what the admitted hypotheses predict).`,
+          catch: `Both terms are averages over the *admitted* set Θ. A hypothesis that was never admitted has no weight in either. That is where the third kind of uncertainty lives.` },
+
+        { id: 'ontological-residue', src: 'FP TK RV', title: 'Ontological uncertainty: the turkey’s blind spot',
+          gist: `The third kind sits upstream: doubt about whether the frame's variables, categories and model class fit the problem at all.`,
+          body: `Called *ontological* (Wynne; Walker et al.), *deep* (Lempert) or *Knightian* (Knight) uncertainty, it is neither “I do not know the value of <i>X</i>” nor “my error bars on <i>Y</i> are wide”. It is “I am not sure <i>X</i>, as I defined it, is the right thing to look at”.\n\nThe emblem is the inductivist turkey. Fed every morning, it grows more confident with each confirming observation, and its confidence peaks on the eve of the holiday. Its statistics were sound; the failure came from something its frame had no category for. (Russell's 1912 original is a chicken whose neck is wrung by the man who fed it every day; the turkey is a later retelling.)`,
+          example: `Pre-2008 mortgage risk models did not report wide intervals on nationwide correlated defaults; their frame did not contain that coupling, so the scenario did not appear at all.`,
+          catch: `For a single reasoner checking its own work, this kind of error is structurally silent, which makes it a natural suspect for the most consequential failures. Silence also has inside-the-frame sources: see {{two-axes-matrix|the two-axis map}}.`,
+          revised: `Challenger is easy to read as a pure failure of the frame. The record is mixed. The O-ring chart discussed the night before the launch showed only flights with O-ring damage, which hid the temperature trend that all 23 earlier flights reveal: a frame problem in the data. But engineers did object to launching in the cold and were overruled: an uptake problem, in which a comparator existed and the uncertainty it expressed was suppressed. See {{five-conditions|the five conditions}}.` },
+
+        { id: 'variance-disagreement', src: 'FD', title: 'Error bars measure disagreement',
+          gist: `Proposition 3: a statement of uncertainty summarises how far the members of a specified set of alternatives disagree. An omitted factor produces no disagreement.`,
+          body: `Why does what falls outside the frame not appear as wider error bars, but not appear at all? Because every quantitative uncertainty is computed from *disagreement* within a specified ensemble: replicates for the aleatory spread; posterior draws, ensemble members or bootstrap fits for the epistemic spread.\n\nAn alternative that was never admitted contributes no disagreement. A factor that varied unrecorded while the data were taken is already in the bars, as scatter put down to chance. A factor that stayed constant is nowhere.`,
+          formal: `The admitted predictions <code>f<sub>θ</sub>(x)</code>, θ ∈ Θ, take only the recorded variables <i>x</i> as input, so any spread computed from them is blind to the present value of an omitted factor <i>z</i>. If <i>z</i> varied while the data were collected, it widened the aleatory term without being named; if it was constant, it left no trace.`,
+          analogy: `Ten committee members who all read the same incomplete briefing note agree unanimously. Their agreement measures the note's consistency, not whether page 2 was missing. See {{layer1-attitude|widening the set of alternatives on purpose}}.`,
+          catch: `Read this way, ontological uncertainty is not a third quantity awaiting its own formula. It is the part of possible error about which every admitted alternative is silent.` },
+
+        { id: 'within-frame-defenses', src: 'FP FD', title: 'Why robustness tools and safety factors stay inside',
+          gist: `Sensitivity analysis, model averaging and safety factors widen the set of alternatives considered, while leaving them one shared frame.`,
+          body: `Each practice has built defences against error: engineers apply safety factors; statisticians run prior-sensitivity analysis and Bayesian model averaging; machine-learning practitioners score inputs for being out of distribution.\n\nThese tools are indispensable within their scope. But a safety factor of 1.5 on a load assumes that the failure modes on the analyst's list are the relevant ones, and that what is missing from the list resembles what is on it. Perturbing parameters inside a model class never relaxes the class; averaging over a specified set of models never reaches a model outside it.`,
+          example: `An engineer computes that a support bracket carries its design load with a margin of 1.8. If the bracket will serve in a corrosive atmosphere and corrosion appears nowhere in the model, neither a parameter sweep nor the margin addresses corrosion.`,
+          catch: `Treating bounded within-frame robustness as if it priced the frame lulls a team into thinking the ontological risk has already been paid for.` }
+      ] },
+
+    { id: 'self-audit', title: 'The impossibility of self-audit', short: 'No self-audit',
+      gist: `A reasoner cannot audit its own frame from within, and no second-order procedure dissolves the regress. New relevance enters only from outside.`,
+      children: [
+        { id: 'frame-common-cause', src: 'FD CR', title: 'The frame is a common cause (Proposition 2a)',
+          gist: `Every check a reasoner computes from its own frame shares that frame, and is blind to whatever the frame omits.`,
+          body: `Safety engineers call it *common-mode failure*: two backup pumps fed by one power supply are not two protections against a power cut. Proposition 2a says the frame problem is the limiting case of the same thing for reasoning.\n\nA reasoner *can* usefully check itself: a re-derivation, a re-run or a resample catches slips of arithmetic, coding and sampling. What it cannot do is detect, with any comparator computed inside its frame, an error caused by a factor the frame omits. With respect to that factor, all its internal checks are copies of one another. (A *comparator* is whatever a claim is compared with: see {{five-conditions|Proposition 1}}.)`,
+          formal: `Let the outcome be <code>g(x, z)</code>, with <i>x</i> represented in the frame and <i>z</i> omitted. A claim <code>f<sub>1</sub>(x)</code> and a comparator <code>f<sub>2</sub>(x)</code> computed inside the frame are functions of <i>x</i> alone. Whether they agree is fixed once <i>x</i> is fixed, so, given <i>x</i>, their agreement carries no information about the error <code>g(x, z) − f<sub>1</sub>(x)</code>: the likelihood ratio is 1.`,
+          analogy: `Checking a finite-element calculation of a bracket with a hand calculation that makes the same idealisations: the two agree to three decimals, and both ignore corrosion.` },
+
+        { id: 'limits-of-data', src: 'FD WG', title: 'When observations catch frame errors (Proposition 2b)',
+          gist: `Held-out data and cross-validation register an omitted factor only if it varied while the data were collected, and only through what the frame records.`,
+          body: `Observations come from the world, not from the frame, so they *can* carry the imprint of an omitted factor <i>z</i>. Proposition 2b names two limits.\n\nFirst, <i>z</i> must have *varied* while the observations were taken. If it stayed constant, its effect was absorbed into whatever was fitted or validated, and every check passes until <i>z</i> moves in deployment: *distribution shift*. Second, even when <i>z</i> varied, its effect shows only where it moves something the frame records, and there it appears as unexplained scatter, with nothing to say what caused it.`,
+          example: `Google Flu Trends estimated influenza prevalence from search queries, well, for years. Then search behaviour changed, and its estimates went badly wrong while it kept producing them the same way (Lazer et al., 2014). Load tests on new brackets in a dry laboratory say nothing about five years in salt air.`,
+          analogy: `A trial-and-error agent learning to disarm a device records each wire's position but not its colour. It can cut the red wire in a thousand simulated trials and learn nothing about colour.` },
+
+        { id: 'meta-nfl', src: 'FP', title: 'The meta-level no-free-lunch',
+          gist: `Why not formalise a second-order procedure that tests whether the frame is adequate? Because that procedure is itself a finite frame.`,
+          body: `Confronted with framing limits, the methodologist's instinct is to build a meta-procedure that selects or audits frames. The argument forecloses this. Any such procedure must specify what to check, what counts as passing and which alternatives to search: a finite specification one level up, with the same problem.\n\nWolpert and Macready's no-free-lunch theorems formalise a shadow of this: averaged over all possible problems, no algorithm beats another; any advantage comes from assumptions about the problem class, and imposing those assumptions *is* choosing a frame.`,
+          formal: `Hume (1748): induction rests on a uniformity assumption that induction cannot certify without circularity. Goodman (1955): the *respects* in which the future is taken to resemble the past (“green” or “grue”) are themselves an upstream choice.`,
+          catch: `“We just need better methodology” defers the framing choice. It never derives it from nowhere.` },
+
+        { id: 'two-routes-in', src: 'FP FD', title: 'How new relevance enters a frame',
+          gist: `A frame cannot open itself from within. New relevance enters by two routes: being told by someone outside it, or running into the world.`,
+          body: `If a frame cannot audit itself, how do frames ever improve? Only through contact with something outside them:\n\n1. *Being told*: another witness, another discipline, an adversarial reviewer whose frame contains what yours omits.\n2. *Finding out*: exploring and experimenting, so that unmodelled reality pushes back on an action (Sutton and Barto).\n\nBeing told is finding out at second hand: what another reasoner tells you was paid for by someone's earlier contact with the world. Both routes are sources of comparators: see {{four-sources|the four sources}}.`,
+          catch: `Exploration is not free: what to explore is itself frame-dependent, and some explorations are ruled out by cost, risk or irreversibility. Hence a working maxim: explore where it is cheap, reversible and supported by some intuition of what might be learned ({{sandboxes-and-gates|sandboxes and gates}}).`,
+          ask: `When did your model class or problem formulation last change fundamentally? Did the trigger come from an internal metric, an outside critic, or a failure in the field?` }
+      ] }
+    ] },
+
+  /* =============================================================
+     TERRITORY 2: THE COMPUTING STACK & THE AI INVERSION
+     ============================================================= */
+  { id: 'stack', theme: 'stack', side: -1,
+    title: '2. Computing stack & the AI inversion',
+    short: '2. Stack & AI',
+    gist: `How classical computing built reliable silence out of explicit contracts checked in advance, and what changes when machine learning moves the specification into the data.`,
+    children: [
+
+    { id: 'earned-silence', title: 'How the stack below earned its silence', short: 'Earned silence',
+      gist: `From voltages to databases, classical computing scales because each layer exposes an explicit, checkable contract.`,
+      children: [
+        { id: 'bits-to-composition', src: 'WG', title: 'From dumb determinism to deep composition',
+          gist: `A bit is a physical state plus an agreement on how to read it. Everything above, from compilers to payroll, is composition.`,
+          body: `At the bottom of the stack sit elementary operations: add, compare, move, jump. Individually trivial; also blindingly fast and, absent hardware fault, deterministic: the same inputs give the same outputs, on another machine, a decade later.\n\nThere is no special ingredient on the way up from silicon to an operating system or a flight controller. What makes composition survivable at that scale is that each layer hides its machinery behind an exact promise.`,
+          analogy: `Shipping containers: the crane and the ship never need to know what is inside the box, because its dimensions and fittings obey an exact contract.` },
+
+        { id: 'design-by-contract', src: 'WG FD', title: 'Every layer is a stated contract',
+          gist: `Design by contract (Meyer): a component states what it requires of its caller and what it guarantees in return. A specification is a statement.`,
+          body: `TCP promises that bytes arrive in order or not at all. A sort routine promises an ordered permutation of its input. A file system promises that after a successful write and flush, the bytes are on the disk.\n\nThe load-bearing property is that *a specification is a statement*: written in advance, readable by someone who did not write the code, disputable, versionable, and violable. Call a component whose rules were written this way a **stated component**, as opposed to a **learned component**, whose rules were fitted to examples ({{spec-into-data|the inversion}}).`,
+          formal: `Hoare triple: <code>{P} C {Q}</code>. If the caller establishes precondition <i>P</i>, running <i>C</i> establishes postcondition <i>Q</i>.`,
+          catch: `A contract protects only what it states, and only where something enforces it. Units, environments and assumptions left in prose outside the enforced interface can still be {{uncertainty-laundering|laundered}} in classical code.` },
+
+        { id: 'front-loaded-verif', src: 'WG FD', title: 'Front-loaded verification: check the layer once',
+          gist: `Because the promise is a written statement, it can be checked in advance, on the component itself, once for all future runs.`,
+          body: `Nobody stands beside a payroll system watching it add. Because the contracts are statements, verification can be *front-loaded*: types, unit tests, code review, static analysis, fuzzing, and formal proof where the stakes justify it, all check the *component* against its statement before deployment, and the check covers every later call.\n\nDijkstra's limit (testing shows the presence of bugs, never their absence) bounds how much certainty this buys. It does not change the kind of move: work done in advance on the layer, then retired from the runtime.`,
+          analogy: `Load-rating a bridge design before opening it, rather than weighing every vehicle after it has crossed.` },
+
+        { id: 'failure-has-address', src: 'WG CR RV', title: 'Definable divergence: failures have an address',
+          gist: `Classical software fails constantly. But when it does, a stated or statable expectation was contradicted somewhere you can point to.`,
+          body: `On 23 September 1999 the Mars Climate Orbiter was lost on arrival at Mars. Ground software (SM_FORCES) had written thruster impulse in pound-force-seconds where the interface specification required newton-seconds; the navigation software read the numbers as metric, and its estimates of those small forces were off by a factor of about 4.45.\n\nThe investigation also found thin staffing, unescalated anomalies and missing independent checks. But under the organisational causes sat a written specification and the exact place where it was violated. Even in an undocumented codebase, someone can state afterwards what the code *should* have done and locate where it diverged. Post-mortems converge on an address.`,
+          example: `Mars Climate Orbiter Mishap Investigation Board, Phase I report (1999): the root cause named a specific ground software file and the interface specification it contradicted.`,
+          revised: `A written statement is not yet a checked one. The Orbiter's unit requirement lived in a prose interface document; the data file carried bare numbers that no type or schema could reject. Three tiers follow:\n\n- *Enforced* contracts (types, schemas, tests) are checked in advance and automatically.\n- *Written* ones give an address after the fact, but are front-loaded only if someone turns them into a check.\n- *Writable but unwritten* ones give an address after the fact.\n\nA learned component has none of the three, for the component itself.`,
+          ask: `When a component of your pipeline produces a bad result, can you point to the rule it violated, and was that rule enforced by anything other than a document?` }
+      ] },
+
+    { id: 'ml-inversion', title: 'The machine-learning inversion', short: 'The ML inversion',
+      gist: `For seventy years software stopped where our ability to write explicit rules stopped. Machine learning crosses that wall by moving the specification into the data.`,
+      children: [
+        { id: 'spec-into-data', src: 'WG FD', title: 'The specification moves into the data',
+          gist: `Instead of writing the rule, you supply examples and let optimisation fit billions of parameters. You buy reach and spend the guarantee.`,
+          body: `Reading handwriting, judging whether a résumé fits a role, summarising a messy document: these resisted software for decades, not because they were computationally hard but because *nobody could write the rule*.\n\nMachine learning inverts the workflow: examples plus optimisation produce a **learned component**, whose rules exist only as fitted parameters. The gain is *reach*, landing exactly on tasks with no writable specification. The price is twofold: the *guarantee* (the rule fits the examples; nothing promises it fits the world) and *legibility* (billions of parameters cannot be read, diffed or reviewed). The specification did not disappear. It moved into the training data, the objective and the curation choices.`,
+          analogy: `The code-review question changes from “what does line 42 do?” to “who chose the examples, and what did they leave out?” (Sculley et al., 2015, on data as an undisciplined dependency).`,
+          catch: `The certainty was not lost by accident; it was *spent*, to reach tasks that had no writable specification. Asking a learned layer for the guarantees of a stated one is asking it to stop being what was bought.` },
+
+        { id: 'next-token-scale', src: 'WG', title: 'The next-token engine',
+          gist: `A large language model is trained on one objective at industrial scale: predict the next fragment of text. Grammar, facts and reasoning patterns accumulate because they help.`,
+          body: `Hide the next fragment (a *token*) of a document, let the network guess, measure the error, nudge billions of parameters slightly, and repeat trillions of times. Nobody types in the rules of grammar.\n\nThe resulting structure can be watched in small open models. The *logit lens* decodes the model's running guess at each intermediate layer: on “The Eiffel Tower is located in the city of”, early layers offer generic filler, middle layers settle on the right country, and the specific city emerges near the top. Nobody built that staircase; it was kept because it reduced prediction error.`,
+          example: `The reach is real and measured. In a randomised field experiment with 758 BCG consultants (Dell'Acqua et al., 2023), those using GPT-4 on tasks inside its competence completed 12.2% more tasks, 25.1% faster, at quality rated about 40% higher.`,
+          catch: `Because structure accumulated only where it helped predict text, competence has no clean boundary: see {{jagged-frontier-bcg|the jagged frontier}}.` },
+
+        { id: 'plausibility-not-truth', src: 'WG RV', title: 'Fluent and wrong, as designed',
+          gist: `Plausibility is the objective; truth is a frequent correlate. A fluent falsehood is not a component breaking its contract: there was no contract to break.`,
+          body: `A stated component that returns a wrong result contradicts its specification. A learned text model that produces a fluent falsehood contradicts nothing written: a well-formed, confident paragraph is a likely continuation of the prompt, which is what pre-training optimised. Post-training steers toward accuracy and makes such errors rarer; it does not turn the tendency into a guarantee ({{steering-not-spec|steering is not specification}}).\n\nThe consequence: fluency is uniform across right and wrong answers. A single output carries no surface sign of having left the model's competence.`,
+          example: `*Mata v. Avianca* (S.D.N.Y., 2023): lawyers filed a brief citing court decisions that ChatGPT had invented, with plausible case names, citations and quotations, and were sanctioned. Nothing in the text marked the fabricated cases.`,
+          revised: `*Moffatt v. Air Canada* (2024) is often cited as the emblem of a hallucinating chatbot: a website chatbot told a passenger that a bereavement discount could be claimed retroactively, contrary to the airline's policy, and the tribunal held the airline liable. But no evidence about the chatbot's technology was put before the tribunal, and an Air Canada spokesperson later said it predated generative AI. The case shows that an automated answer is the firm's own act. It is not evidence about language models; *Mata v. Avianca* is the cleaner emblem of fabrication.`,
+          catch: `No surface tell, but sometimes a signal underneath: a model guessing an arbitrary fact tends to give different answers when asked again. See {{kalai-vempala-tail|calibration and the long tail}} and {{loss-of-the-tell|the lost tell}}.` },
+
+        { id: 'steering-not-spec', src: 'WG', title: 'Steering is not specification',
+          gist: `System prompts, preference tuning and evaluation suites are real engineering, but they move tendencies; they do not state contracts.`,
+          body: `Modern systems wrap the raw model in system prompts, post-training on human preference judgements (RLHF, reinforcement learning from human feedback), guardrails and benchmark suites. Does this restore the specification?\n\nNot in the sense that matters here. A preference dataset is more examples: data becoming program once more. Steering moves a distribution; it does not state an invariant that can be checked once for all runs. And it inherits Goodhart's law, in Strathern's formulation: a measure adopted as a target ceases to measure what it stood for. That is the mechanism behind reward hacking and sycophancy.`,
+          analogy: `Training a dog versus wiring a circuit breaker. Training makes bad behaviour much rarer; it is not a tripwire.`,
+          catch: `Steering can be excellent and still leave nothing for anyone to read, sign or check in advance.` }
+      ] },
+
+    { id: 'regime-flip', title: 'The regime flip at the top layer', short: 'The regime flip',
+      gist: `Between the classical middle of the stack and its learned top, three properties flip together, and with them what verification can in principle do.`,
+      children: [
+        { id: 'three-flips', src: 'WG RV', title: 'Three properties flip together',
+          gist: `What is promised: contract becomes tendency. How failure presents: divergence becomes fluency. Where the post-mortem lands: an address becomes a distribution.`,
+          body: `Move from a database call to a language-model call and three properties invert at once:\n\n1. **What is promised.** Below: an explicit contract, checkable against a statement. Above: a statistical tendency, measurable in aggregate on a test set and assertable about no single answer.\n2. **How failure presents.** Below: a definable divergence, such as a crash, a failing test, or two representations of one fact that disagree. Above: fluent output, indistinguishable from success at the point of use.\n3. **Where the post-mortem lands.** Below: a line or an interface. Above: a training distribution and an objective. *You cannot merge a patch into a distribution.*`,
+          catch: `The claim is not that learned models fail more often than buggy classical code; often they fail less. Frequency is not the axis. The axis is whether an error is definable against a statement, and whether verification can be done once, in advance.`,
+          revised: `“Below: a definable divergence” should not be read as “below, errors are loud”. Classical software has plenty of silent errors; the Orbiter's unit error ran for months without a decisive alarm. The difference is that a classical error is *definable*: a comparator can be written and applied once, to the component. For a learned component, comparators exist only per task and per output.` },
+
+        { id: 'layer-vs-output', src: 'WG', title: 'Verifying the layer vs. checking outputs one by one',
+          gist: `Below the line you verify the sort routine once, for every list. Above it, only outputs can be checked, one at a time, after they exist.`,
+          body: `Statistical components are not new: spam filters, search ranking and recommendation feeds have been unspecified for decades. But they were fenced inside particular products. A general-purpose language model is *compositional*: arbitrary software calls it through a text interface and passes its output on.\n\nSince the learned layer has no writable specification, the once-for-all move is gone. Verification has to be {{four-sources|rebuilt around the task}} where the task admits a mechanical check, or {{layer2-placement|placed on individual outputs}} before they turn into actions.`,
+          ask: `Where in your architecture does output leave a learned component and enter a system that executes, bills, commits or publishes?` },
+
+        { id: 'jagged-frontier-bcg', src: 'WG CR RV', title: 'The jagged competence frontier',
+          gist: `Model competence does not follow human intuitions of difficulty. Just outside its boundary, AI-assisted experts did worse than unassisted ones.`,
+          body: `In the BCG field experiment with 758 consultants (Dell'Acqua et al., 2023), a separate task was designed to lie just outside GPT-4's competence while looking just as routine. On it, consultants using the model were **19 percentage points less likely** to reach a correct answer than those working without it.\n\nThe frontier is *jagged*: strong on one task, weak on a neighbouring one that looks no harder, and the boundary moves with each model version. From inside the conversation both sides look the same, because the output is equally fluent.`,
+          example: `Dell'Acqua et al. (2023), “Navigating the jagged technological frontier”: fluency plus an invisible competence boundary produced negative value where users relaxed their own checking.`,
+          revised: `An objection: for a language model the frame is rarely a missing variable, since its training text mentions almost everything; failures come from relations among things it does represent. Reply: the frame problem in AI was always about relevance among represented facts (McCarthy and Hayes, 1969; Dennett's robot knew the bomb was on its wagon). Two cases should be kept apart:\n\n- *Structural omission*: the factor is absent from the representation (events after the training cut-off, private data, an unrecorded variable). Proposition 2 holds strictly.\n- *Salience omission*: the factor is represented but not brought to bear on this input. Proposition 2 holds only for comparators that reuse the same weights and the same prompt.\n\nSalience depends on phrasing, which is one reason the frontier is jagged.`,
+          catch: `Mapping the frontier for your own tasks is an ongoing deployment activity. Public benchmarks do not tell you where it runs.` },
+
+        { id: 'kalai-vempala-tail', src: 'WG FD CR RV', title: 'Calibration, the long tail & consistent errors',
+          gist: `A model calibrated to its training distribution must hallucinate on rare arbitrary facts. Some of those errors are caught by asking again; consistent ones are not.`,
+          body: `Kalai and Vempala (2024) proved a lower bound: for *arbitrary* facts, those no regularity can predict (a birth date, a citation, a clause), a language model calibrated to its training distribution must generate falsehoods at a rate close to the share of such facts that appear exactly once in training (the Good–Turing “monofact” rate). Kalai, Nachum, Vempala and Zhang (2025) add that most evaluations score “I don't know” like a wrong answer and below a lucky guess, so training selects for confident guessing.\n\nTwo regimes need separating. A model *guessing* an arbitrary fact spreads its probability over many answers: ask five times and you get several, so a cheap re-run flags the error. A model that is *consistently* wrong (a misconception common in its training text, or post-training that rewards one confident answer) repeats the same falsehood, and the re-run passes it.`,
+          formal: `Roughly: hallucination rate on arbitrary facts ≥ monofact rate − miscalibration − small terms. “Calibrated” here means *generative* calibration: the model's distribution over statements matches the training distribution. Abstaining (“I don't know”) deliberately departs from it.`,
+          try: 'plausibility',
+          revised: `Two senses of “calibration” are easily mixed up. Confidence calibration (“70% means right 70% of the time”) is an honest partial fix; generative calibration entails hallucination, and has to be departed from. The two connect: abstention uses confidence to depart from generative calibration. And it is too strong to say that nothing in the mechanism computes an out-of-competence signal. The spread of repeated samples is such a signal for guessing errors (semantic entropy, Farquhar et al., Nature 2024), though not for consistent ones. The tell did not vanish; it moved from the surface of one answer into the spread of many.`,
+          catch: `Breaking the hallucination equilibrium means training models to abstain and grading abstention above a wrong guess. Public evaluations mostly do not; your own can.` }
+      ] }
+    ] },
+
+  /* =============================================================
+     TERRITORY 3: AUTOMATION & CHAINS
+     ============================================================= */
+  { id: 'automation', theme: 'automation', side: 1,
+    title: '3. Automation & chains',
+    short: '3. Automation',
+    gist: `How complex goals are assembled from chains of simpler steps, how chaining launders uncertainty, and what automation removes from individual and collective error detection.`,
+    children: [
+
+    { id: 'chains-laundering', title: 'Chains, cross-checks & laundering', short: 'Chains & laundering',
+      gist: `Complex goals are reached by passing results from one model or step to the next. How the steps are wired decides whether blind spots add up or cancel.`,
+      children: [
+        { id: 'divide-and-orchestrate', src: 'FP FD', title: 'Complex goals as orchestrated sequences',
+          gist: `Goals too large for one model are decomposed into pipelines of specialised steps, in engineering as in AI.`,
+          body: `In multiphysics engineering (thermal → structural → materials) as in AI workflows (retrieve → summarise → plan → execute code), complex goals are met by assembling simpler modules.\n\nThe higher the goal (“keep the plant safe”, “refactor this repository”, “resolve the customer's dispute”), the less it can be stated formally, while intermediate results move ever faster from one module to the next.`,
+          analogy: `An assembly line where each station does a well-defined local job, and no station sees whether the finished vehicle suits the road it will drive on.` },
+
+        { id: 'series-vs-parallel', src: 'FD CR RV', title: 'Chains vs. cross-checks (Proposition 5)',
+          gist: `In a chain, blind spots add up, plus the errors born at interfaces. In a cross-check, they shrink toward what both components share.`,
+          body: `Call a component's **blind spot** the set of error causes it cannot register. Components combine in two ways that behave oppositely, like series and parallel arrangements in reliability engineering:\n\n- **Chain (series):** each component takes the previous output as given. An error escapes if any link misses it, and errors born at the interfaces belong to no link.\n- **Cross-check (parallel):** two components bear on the same claim and their disagreement is registered. An error escapes only if both miss it, or if the comparison is too coarse to show their disagreement.\n\nA model asked to review its own output looks like a cross-check on the diagram; with respect to its own blind spot it is a copy.`,
+          formal: `Chain: <code>B<sub>chain</sub> ⊇ B<sub>1</sub> ∪ … ∪ B<sub>n</sub> ∪ B<sub>interfaces</sub></code>. Cross-check of producer 1 by checker 2: <code>B<sub>check</sub> = B<sub>1</sub> ∩ (B<sub>2</sub> ∪ B<sub>cmp</sub>)</code>, where <code>B<sub>cmp</sub></code> holds the errors the comparison cannot express. If checks miss independently, <code>P(escape) = Π<sub>i</sub> m<sub>i</sub></code>; for an error whose cause they all share, <code>P(escape) = 1</code> however many there are.`,
+          try: 'chain',
+          revised: `The cross-check rule assumes perfect comparison and uptake. A comparison term relaxes that, but it matters only for errors the checker does register: hence <code>B<sub>1</sub> ∩ (B<sub>2</sub> ∪ B<sub>cmp</sub>)</code>, not <code>(B<sub>1</sub> ∩ B<sub>2</sub>) ∪ B<sub>cmp</sub></code>, which would also count errors the producer catches by itself. And the trade-off (the shared blind spot shrinks with distance while the comparison blind spot grows) suggests an optimal reviewer distance without proving one: that needs assumptions about both curves. The trade-off itself is {{independence-cost-curve|Proposition 4}}.`,
+          catch: `A model checking its own work has <code>B<sub>2</sub> ≈ B<sub>1</sub></code>, so the intersection is nearly the whole blind spot.` },
+
+        { id: 'uncertainty-laundering', src: 'FP FD CR RV', title: 'Laundering at handoffs',
+          gist: `Laundering: dropping a claim's conditions at a handoff, so a conditional result arrives downstream as an unconditional fact.`,
+          body: `What turns a composition into a chain? **Laundering.** A thermal model computes a temperature field under stated boundary assumptions. Handed to a structural model as a bare array, stripped of its conditions and uncertainty, it gives the downstream link nothing to compare with: it can only be taken as given.\n\nBy the end of a five-stage pipeline the output has eight significant digits (or crisp executive prose) and a stack of unpropagated assumptions underneath. In terms of the {{five-conditions|five conditions of detection}}, laundering is a failure of *comparability* at every link.`,
+          example: `The Orbiter's impulse values crossed an interface as bare numbers in a file. The unit (lbf·s rather than N·s) travelled only in a prose document, so nothing at the receiving end could notice the mismatch.`,
+          revised: `Two cousins of laundering are worth naming. Dropping a claim's *units or definitions* defeats comparability just as dropping its assumptions does. Dropping its *provenance* defeats something else: without knowing where a claim came from, nobody can judge whether a second source is independent of it (see {{provenance-laundering|provenance laundering}}).`,
+          ask: `At the handoffs in your workflow, do results travel with their assumptions, units, uncertainty and origin, or as bare numbers and strings?` },
+
+        { id: 'agentic-compounding', src: 'FD WG', title: 'Agents as multi-step chains',
+          gist: `An AI agent running a sequence of tool calls is a chain with as many links as steps, and its errors execute before anyone reads them.`,
+          body: `An *agent* is a language model that pursues a goal through a loop: plan, call a tool, read the result, take the next step. It combines two hazards.\n\nStructurally, an <i>N</i>-step trajectory in which each step builds on the last is an <i>N</i>-link chain: misreadings and framing assumptions propagate. Operationally, the system moves from producing *answers*, which wait for a reader, to taking *actions*, which change state, call services and commit code at once. A wrong answer costs the time it takes to read; a wrong action executes.`,
+          example: `Knight Capital (2012): a deployment error left dormant order-routing code live; in about 45 minutes the firm sent millions of unintended orders and lost over $460 million (SEC, 2013). No language model was involved. The pattern is automated action outrunning oversight, which agents extend to tasks nobody specified.`,
+          catch: `Giving the least-guaranteed layer of the stack the most authority to act inverts the pattern that made the stack safe. See {{sandboxes-and-gates|sandboxes and gates}}.` }
+      ] },
+
+    { id: 'human-erosion', title: 'The silent erosion of human checks', short: 'Erosion of human checks',
+      gist: `Slow analysis produced checks as a by-product of effort. One-step generation removes both the checks the analyst used to make along the way and the visible hesitation of a producer out of its depth.`,
+      children: [
+        { id: 'friction-as-generator', src: 'FP FD', title: 'Friction had a function: it generated comparators',
+          gist: `Slow, step-by-step work made the analyst form expectations and intermediate results that could contradict one another.`,
+          body: `For most of the history of quantitative work, producing a result was slow. While cleaning data, choosing variables and deriving equations, the analyst formed an expectation of what the answer should look like and produced partial versions of it, each able to contradict the next.\n\nFriction, in other words, **generated comparators**: the analyst's *own checks*. Nobody ever drew that loop on a process chart, which is why its disappearance under one-step generation goes unnoticed until an absurd number slips through.`,
+          analogy: `Walking up a ridge versus being dropped on the summit in fog: the walker knows how steep it was, because their legs climbed it.` },
+
+        { id: 'loss-of-the-tell', src: 'FD WG', title: 'The lost tell & the METR sign error',
+          gist: `A person out of their depth hesitates and hedges. A language model writes the same fluent prose either way, and fluency feels like speed even when it slows you down.`,
+          body: `When a colleague is guessing, their uncertainty shows: hesitation, rough structure, hedging. That **tell** prompts others to look harder. A language model's wrong answers come in the same voice and format as its right ones.\n\nFluency also distorts self-assessment. In METR's randomised trial, experienced open-source developers working in their own repositories were **about 19% slower** with early-2025 AI tools, while estimating afterwards that the tools had made them **about 20% faster** (Becker et al., 2025). The number describes particular tools at a particular moment; the durable finding is the sign error.`,
+          example: `Perceived: 20% faster. Measured: 19% slower. Fluent output feels like progress, and perception is not an instrument.`,
+          catch: `*Measure, don't testify.* Self-reported productivity and confidence are not evidence when the tool's output is designed to read well.` },
+
+        { id: 'signaling-collapse', src: 'FD CR RV', title: 'When polish stops failing differently from substance',
+          gist: `Clean prose, neat figures and running code used to be evidence of understanding, because confused work looked confused. That signal has collapsed.`,
+          body: `Reviewers, teachers and managers long relied on the *form* of work as evidence of its quality. In human production, form and substance shared a cause, understanding: when understanding failed, form usually failed with it. Form was a usable comparator because it could fail differently from a careless claim.\n\nNow that fluent text and running code can be had without understanding, form no longer fails when substance does. It is still present; it is no longer a check. In economic terms (Spence; Akerlof), polish was a *costly signal*. When the signal becomes free while checking stays expensive, checked and unchecked work pool together, and cheap unchecked output can drive out expensive checked work.`,
+          analogy: `Akerlof's market for used cars: when buyers cannot tell a sound engine from a lemon by the paint job, the price falls to the average, and owners of sound cars stop selling.`,
+          revised: `The standard way out of a pooling equilibrium is credible disclosure. A common rule that every result states its status (exploratory or established, what was independently checked) is such a disclosure, provided it is audited by a track record and by seeded errors ({{layer3-organization|Layer 3}}). A label nobody audits is cheap talk.` },
+
+        { id: 'bainbridge-prompt-trap', src: 'FD', title: 'Bainbridge’s irony & the two prompt traps',
+          gist: `A person and a model form a cross-check only if the person forms an independent view first, and two mechanisms pull the model toward agreeing.`,
+          body: `Bainbridge (1983) named the *irony of automation*: automating the routine part of a task leaves the operator responsible for the rare failures that need exactly the skills the automation no longer exercises.\n\nIf an analyst only reads the model's draft, there is one representation, read twice. And two mechanisms shrink the difference between user and model:\n\n1. **The prompt transmits the frame.** A model answers within the terms of the question; the more the prompt specifies a solution, the less the answer can contradict it.\n2. **Training toward approval.** Models tuned on user-satisfaction signals drift toward agreeing with the user's premises (sycophancy), which lowers their value as a comparator.`,
+          ask: `When you use a model to check your work, do you hand it the problem, or your solution with a request to look it over?` }
+      ] },
+
+    { id: 'collective-epistemics', title: 'Collective epistemics & shared blind spots', short: 'Collective blind spots',
+      gist: `When a whole community adopts the same models, individual error rates fall while the errors that remain become correlated across authors and reviewers.`,
+      children: [
+        { id: 'rate-vs-escape-shift', src: 'FD CR RV', title: 'Error rate falls, escape probability rises',
+          gist: `Better models make errors rarer. When everyone shares the same model, the errors that remain are shared too, and harder to catch.`,
+          body: `Two quantities must be kept apart: the **error rate**, the probability that a claim is wrong, and the **escape probability**, the probability that a wrong claim reaches an action without being contradicted in time ({{error-times-escape|the decomposition}}).\n\nSuppose each analyst has idiosyncratic blind spots, and all of them consult one model. Against each analyst's own blind spots the model is a real comparator, so the error rate falls. But errors that come from the *model's* blind spots become common to everyone who relies on it, authors and reviewers alike. Peer review turns into a cross-check between near-copies, and the escape probability rises.`,
+          formal: `<code>Risk = P(wrong) × P(escape | wrong)</code>. Rarity belongs to the first factor; correlation governs the second. Whether their product rises or falls is an empirical question, field by field.`,
+          revised: `A second mechanism adds to correlation: as errors become rare, most of a fixed checker's alarms are false, so people stop heeding it. In a simple model this makes the checker decorative (escape probability toward 1) without by itself making total risk rise; total risk rises when correlation rises as well. The {{error-times-escape|escape lab}} lets you separate the two.`,
+          catch: `Nobody routinely measures the escape probability of human–AI review, though the method exists ({{layer3-organization|seeded errors}}).` },
+
+        { id: 'same-lender', src: 'FD', title: 'One lender for all borrowers',
+          gist: `A language model is “being told” industrialised into one store. A borrowed comparator works against the borrower's errors, never against the lender's.`,
+          body: `Another reasoner's objection is cheap because it reuses contact with the world that someone else paid for ({{two-routes-in|being told}}). A model trained on the written record is the extreme case: what many people found out, absorbed into one set of weights.\n\nUsed as a second opinion, it genuinely catches the borrower's own slips. It is worth nothing against the lender's blind spots, and whole communities now borrow from the same few lenders.`,
+          analogy: `Twenty journalists fact-checking each other against the same unverified wire dispatch.` },
+
+        { id: 'provenance-laundering', src: 'CR RV', title: 'Pollution of the epistemic commons',
+          gist: `As model output flows back into the web, the literature and codebases without provenance, copies of one source start to look like independent witnesses.`,
+          body: `Run the same-lender problem forward in time. Model-generated text, code and syntheses re-enter public repositories, papers and the web, often with no mark of how they were produced: *provenance laundering*.\n\nWhen people, and the next generation of models, read that record, copies of the lender's earlier outputs look like independent confirmations. The apparent number of witnesses grows while the number of genuine contacts with the world does not. Models trained on recursively generated data also degrade (Shumailov et al., Nature 2024).`,
+          catch: `Ten sources that all trace back to one model add signatures and almost no evidence: their agreement had little chance to fail ({{severity-bayes|severity}}). Provenance is what lets anyone judge whether a second source fails differently.` },
+
+        { id: 'throughput-hollowing', src: 'FP WG', title: 'The institutional throughput squeeze',
+          gist: `As confident answers become nearly free, organisations starve the resource that has become the bottleneck: independent evaluation.`,
+          body: `The bottleneck has flipped: it is no longer hard to generate answers; it is hard to know which answers are reliable. Yet incentives reward throughput: shipped features, published papers, rapid slide decks.\n\nProducing a confident, fluent answer now costs almost nothing; checking one costs what it always did in domain knowledge, attention and time. Budgets drift toward generation tools and away from evaluators, hollowing out evaluative capacity just as the volume of unchecked claims grows fastest.`,
+          ask: `In your organisation, is evaluative capacity a named number that caps how much is produced, or whatever time is left over?` }
+      ] }
+    ] },
+
+  /* =============================================================
+     TERRITORY 4: DECISIONS, RISK & THE THEORY OF CHECKS
+     ============================================================= */
+  { id: 'decisions', theme: 'decisions', side: 1,
+    title: '4. Decisions, risk & checks',
+    short: '4. Decisions & checks',
+    gist: `How uncertain pictures turn into one-shot decisions with real stakes, what it takes to detect an error in time, and the three layers of a remedy.`,
+    children: [
+
+    { id: 'seu-oneshot', title: 'Deciding on a picture: one-shot stakes', short: 'One-shot decisions',
+      gist: `What we believe decides what we do. When one action carries a catastrophic downside, going ahead requires a failure probability you can justify calling tiny.`,
+      children: [
+        { id: 'seu-sailboat-roulette', src: 'TK RV', title: 'The sailboat race & Russian roulette',
+          gist: `In a one-shot decision with a severe downside, the risky option pays only below a small threshold of believed failure. The world does not consult your belief.`,
+          body: `In a sailing race, each crew chooses between a **light, fast boat** and a **reinforced, slower one**. A breakage at sea means a tow that costs more than the prize. Mr X puts the light boat's chance of breaking at 5%, Mr Y at 0.1%; both put the reinforced boat at 0.01%.\n\nSavage's *subjective expected utility* (SEU) makes the point exact: we decide on what we think, never on what will happen. With gain Δ<i>U</i> if the light boat holds and loss <i>L</i> if it breaks, both relative to the safe choice, the light boat pays when the believed failure probability <i>p</i> is below <i>p</i><sup>∗</sup> = Δ<i>U</i> / (Δ<i>U</i> + <i>L</i>). Mr X and Mr Y can both choose rationally, and choose differently.\n\nPush the stakes to the limit: **Russian roulette**. You would play only if utterly convinced the chamber is empty, or if the prize were immense. And if your conviction came from a frame that missed a loaded chamber, nothing in your reasoning will warn you.`,
+          formal: `Treat the reinforced boat as a sure baseline. Go iff <code>(1−p)·U<sub>win</sub> + p·U<sub>fail</sub> &gt; U<sub>safe</sub></code>, that is iff <i>p</i> &lt; <i>p</i><sup>∗</sup> = (U<sub>win</sub> − U<sub>safe</sub>) / (U<sub>win</sub> − U<sub>fail</sub>) = Δ<i>U</i> / (Δ<i>U</i> + <i>L</i>). As <i>L</i> / Δ<i>U</i> grows, <i>p</i><sup>∗</sup> tends to 0.`,
+          try: 'seu',
+          example: `If Mr Y inspects the light boat before the start and finds a wide crack in the mast, his picture changes, his <i>p</i> jumps above <i>p</i><sup>∗</sup>, and he switches boats. A frame is revised by contact with the world: here, a look at the mast.`,
+          revised: `It is tempting to put the omitted risk into the decision rule: go iff the *true* total risk is below the threshold. But under SEU, rationality is relative to what the decider believes, and the omitted factor is precisely what the decider cannot see. Treating it as a dial the decider can read would make ontological uncertainty a measurable third quantity, which {{variance-disagreement|Proposition 3}} denies. The lab therefore separates what you think from what the world holds, and gives humility its only lever: a deliberate buffer, which is a judgment, not a measurement.`,
+          ask: `For your next irreversible deployment: what is L/ΔU, what threshold p∗ does it imply, and is your failure estimate, plus a buffer for what you may be missing, below it?` },
+
+        { id: 'error-times-escape', src: 'FD CR', title: 'Risk = error rate × escape probability',
+          gist: `An error in a picture costs nothing until someone acts on it. What matters is how often a wrong claim reaches an action uncontradicted.`,
+          body: `Because the world answers the action rather than the picture, a wrong claim does harm only if it reaches an action without being contradicted first:\n\n<code>P(wrong and acted on) = P(wrong) × P(not contradicted in time | wrong)</code>\n\nCall the first factor the **error rate** and the second the **escape probability**. Benchmarks, leaderboards and scaling curves measure the first. The frame argument and safety engineering are about the second. Automation can push the first down while pushing the second up ({{rate-vs-escape-shift|shared blind spots}}).`,
+          formal: `With <i>E</i> = “the claim is wrong” and <i>C</i> = “a check contradicts it before the action”: <code>P(E ∩ ¬C) = P(E) · P(¬C | E)</code>. The two factors are not independent: as <i>P(E)</i> falls, a fixed checker's alarms are more often false, which can lower uptake and so raise <i>P(¬C | E)</i> ({{severity-bayes|the false-alarm trap}}).`,
+          try: 'escape',
+          catch: `A 1% error rate with a 90% escape probability lets 0.9% of claims reach action wrong; a 10% error rate with a 1% escape probability lets 0.1% through. The more accurate producer is the riskier system, nine times over.` },
+
+        { id: 'calibrate-vs-gate', src: 'FD WG', title: 'Calibrate where repeatable; gate where one-shot',
+          gist: `Calibration uses the world as a comparator over many repetitions. For a one-off, irreversible decision, no score replaces a gate.`,
+          body: `When a decision repeats thousands of times against a reasonably stable distribution (triage queues, weather forecasts, credit scoring), *calibration* works: set thresholds, let the system abstain on uncertain cases, compare stated probabilities with observed frequencies, adjust.\n\nA one-shot decision (a sea crossing, a surgical intervention, a major architectural commitment, an irreversible agent action) has no population of trials, and the world's answer arrives after the act. A rate is not a promise about this instance. What protects it is a **gate**, an independent check before the action, plus a deliberate buffer for what the picture may be missing.`,
+          analogy: `A 70% rain forecast lets a commuter tune umbrella habits over a year. A one-time launch needs a go/no-go on every subsystem.`,
+          catch: `Calibration is also the only way to {{neither-right-nor-wrong|grade a forecaster}}; that is why it needs repetition to exist at all.` },
+
+        { id: 'sandboxes-and-gates', src: 'FD WG', title: 'Sandboxes and gates: an architecture for exploration',
+          gist: `Every action is also a question put to the world. Explore freely where the answer is cheap and reversible; gate where it would cost too much.`,
+          body: `Exploring the world is one of the two ways a frame learns what it omitted ({{two-routes-in|being told, finding out}}), yet prudence says automated agents must be restricted. Both hold, because *an action is also a question put to the world*.\n\nA **sandbox** is an isolated environment in which actions have no outside effect: there, asking the world is cheap and reversible, and an agent may explore freely. A **gate** is a point at which an action waits for approval: it marks where the world's answer would be too expensive or irreversible, so another comparator, a person's judgment or a formal check, must stand in for it.`,
+          example: `Coding agents do best where compilers and test suites give an instant, free, reversible answer from a computational world, inside a sandbox.` },
+
+        { id: 'four-questions', src: 'FP FD', title: 'Receiving a confident number',
+          gist: `A number given without its conditions transfers responsibility dressed as information. Four questions anyone can ask, without technical training.`,
+          body: `Most people meet expert and machine claims as recipients: they bear the consequences of a frame they did not choose and cannot audit. They do not need to redo the technical work. They need to know that its *conditions* are part of what is communicated, and to ask for them when they are missing:\n\n1. Under what conditions does this hold?\n2. What would change the number?\n3. What is the most likely way this is wrong?\n4. What was deliberately not modelled?\n\nThe questions require no expertise, only the willingness to hear “we don't know” or “we did not consider that” as substantive answers rather than failures.`,
+          example: `“It will rain tomorrow” is a directive in the costume of information. “70% chance of rain” supports a decision in proportion to the stakes: how much getting wet matters to *you*, which no forecaster's frame contains.`,
+          catch: `When the output comes from an automated system, the questions stay the same but must be put to an institution rather than a person, and the institutional capacity to answer them is what {{throughput-hollowing|throughput pressure}} erodes.`,
+          ask: `The next time a single number reaches you for a decision, can its producer answer the four questions in a few sentences? If not, the number is not ready to carry the decision.` }
+      ] },
+
+    { id: 'theory-of-checks', title: 'The theory of checks & the two-axis map', short: 'Theory of checks',
+      gist: `An error is detected only when a claim meets a comparator that was expected to agree, could fail differently, and is heeded in time.`,
+      children: [
+        { id: 'five-conditions', src: 'FD RV', title: 'Proposition 1 & the five conditions of detection',
+          gist: `To detect an error is to register a disagreement between a claim and a comparator. Five conditions decide whether any check can work.`,
+          body: `A **claim** asserts something about a matter of fact: a model output, a forecast, a measurement report. A **check** compares it with a **comparator** expected to agree with it: another claim, a statement fixed in advance, or an observation of the world. *Proposition 1*: an error is detected only when such a comparison shows a disagreement and someone registers it. For that, five conditions must hold:\n\n1. **Existence:** there is a comparator bearing on the same matter.\n2. **Difference:** it can *fail differently* from the claim, with respect to the cause of the error.\n3. **Comparability:** the two can be brought to a point of comparison, the same quantity with its conditions stated (no {{uncertainty-laundering|laundering}}).\n4. **Timeliness:** the disagreement arrives before the consequences are fixed.\n5. **Uptake:** someone registers it and has the standing to act.`,
+          formal: `If any condition fails, <code>P(detected | wrong) = 0</code> for the errors concerned: their escape probability is 1.`,
+          example: `Challenger shows several failing at once. In the data: the chart examined the night before left out the flights without O-ring damage, which hid the cold-temperature trend (difference and comparability). In the room: engineers who objected to a cold launch were overruled (uptake).`,
+          catch: `A disagreement shows that at least one side is wrong, not which. An agreement shows nothing unless the comparator could have disagreed.` },
+
+        { id: 'severity-bayes', src: 'FD CR RV', title: 'Severity & the false-alarm trap',
+          gist: `A passing check is evidence only to the extent it would have failed had the claim been wrong. And when errors are rare, most alarms are false.`,
+          body: `When a comparator agrees with a claim, Bayes' rule multiplies the odds that the claim is right by <code>P(agree | right) / P(agree | wrong)</code>. If the comparator would have agreed anyway, the ratio is 1: the check adds a signature and no evidence. This is Mayo's **severity** criterion: a check is worth the probability that it would have failed if the claim were wrong.\n\nNow turn to disagreements. If a producer is wrong 1% of the time and a reviewer 10% of the time, independently, then over 90% of their disagreements are cases where the producer was right. As producers improve, a fixed checker's alarms become mostly false.`,
+          formal: `Share of flags that are real errors (positive predictive value): <code>PPV = P(wrong)·s / [P(wrong)·s + (1 − P(wrong))·f]</code>, with <i>s</i> the checker's sensitivity and <i>f</i> its false-alarm rate. Each real error caught costs, on average, <code>1/PPV</code> investigations.`,
+          revised: `It is tempting to say that falling error rates erode uptake by Bayes' rule alone. Bayes fixes the PPV; what people do with low-PPV alarms is behaviour. That behaviour is well documented: most people respond to alarms at a rate matching their reliability (probability matching, Bliss, Gilson and Deaton, 1995), the “cry-wolf” effect. The framework's own answer to a disagreement is neither to ignore it nor to defer, but to *resolve* it with a third comparator, at 1/PPV investigations per real error. Whether to pay that is itself an expected-utility decision, and for {{seu-sailboat-roulette|one-shot, high-stakes acts}} it nearly always is worth paying.`,
+          catch: `To keep uptake as producers improve, a checker must be not only independent but *precise*: its false-alarm rate has to fall roughly as fast as the producer's error rate.` },
+
+        { id: 'independence-cost-curve', src: 'FD RV', title: 'Independence is paid for in comparability (Proposition 4)',
+          gist: `What a claim and its comparator share, neither can check in the other. Yet they must share something to be compared, so the checks worth having tend to be the costly ones.`,
+          body: `There is no comparator independent of everything; independence is always *relative to a class of errors* (Proposition 4). And independence pulls against comparability: a copy is perfectly comparable and useless; an incommensurable view may see what you missed but cannot make its objection land. Ordered by what they share with the claim:\n\n<div class="mt-wrap"><table class="mt"><thead><tr><th>Comparator</th><th>Shares with the claim</th><th>Can catch</th></tr></thead><tbody><tr><td>Same computation, new seed or sample</td><td>Everything but the seed</td><td>Sampling and numerical noise</td></tr><tr><td>Same method, other implementation</td><td>Equations, data, assumptions</td><td>Implementation errors</td></tr><tr><td>Other method, same model</td><td>Variables, assumptions, data</td><td>Errors specific to the method</td></tr><tr><td>Other model of the problem</td><td>The quantity, some data</td><td>Model-form errors, within shared variables</td></tr><tr><td>Experiment, operating experience</td><td>The measured quantity</td><td>Anything that moves it</td></tr><tr><td>Another discipline</td><td>Sometimes not even the quantity</td><td>The widest class, in principle</td></tr></tbody><caption>Cost tends to rise down the table: negligible, low, moderate, high, very high and slow, high plus translation work.</caption></table></div>\n\nFor the bracket: a second run of the calculation sits at the top; a colleague's model with other idealisations in the middle; a load test on an aged part, or a corrosion specialist asking what atmosphere the part will live in, at the bottom. Only the last two can reach corrosion.`,
+          example: `Knight and Leveson (1986): 27 versions of a program, written separately from one specification, failed together on hard inputs far more often than independence predicts. Separate production from a shared statement does not buy independence.`,
+          analogy: `Levins (1966): “our truth is the intersection of independent lies”, provided the lies do not share an assumption (Orzack and Sober, 1993; Wimsatt, 1981).`,
+          revised: `“The cost of a check rises with its independence” is a strong tendency, not a law. Some comparators are cheap *and* different: an outsider's naive question (“what atmosphere will it live in?”), an order-of-magnitude or conservation-law check, a model from another family. Their cost lies in comparability, in making the objection land, which is Proposition 4's point. Hunting for these bargains is part of placing checks.` },
+
+        { id: 'two-axes-matrix', src: 'FD CR RV', title: 'Two axes instead of three kinds',
+          gist: `Cross where an error's cause lies (inside or outside the frame) with whether any comparator disagrees (signalled or silent). Learned components crowd the inside-and-silent cell.`,
+          body: `The three kinds of uncertainty sort errors by where their cause lies, and outside-the-frame errors look like the natural home of the most consequential failures. How learned components fail calls for a second axis: whether any comparator disagrees.\n\n<div class="g2"><div class="h"></div><div class="h">Signalled: a comparator disagrees</div><div class="h">Silent: none does</div><div class="h">Cause inside the frame</div><div>A failing test, a crash, a residual out of bounds, a run that does not converge</div><div class="silent">A fluent wrong answer; a clean number at the end of a laundered chain</div><div class="h">Cause outside</div><div>An anomaly someone notices; a colleague's objection; a drift alarm</div><div class="silent">The turkey's last morning; a scenario no model contained</div></div>\n\nThe consequential failures are those of the silent column, in either row. *The row is decided by the frame and cannot be inspected from inside. The column is decided by what else stands nearby, and can be designed.* No method applied from inside moves an error from the bottom row to the top; adding comparators that fail differently moves errors from right to left.`,
+          formal: `Formality does not change the row: a deduction from a poor description is still inside a poor frame. It does change the column: a frame written as a statement can serve as a comparator for whatever must conform to it, and can be read and challenged by others. Deduction and induction, stated and learned components, are equal as to the adequacy of their frames and unequal as to how their errors can be found.`,
+          revised: `It is tempting to say that classical software kept the inside-and-silent cell nearly empty. Too strong: classical code has many silent errors. What a stated component offers is that the cell *can be emptied in advance*: its comparator can be written and applied once, to the component. For a learned component the cell can only be emptied output by output.`,
+          ask: `Which cell does your current test suite actually cover, and what sits in the two silent cells?` }
+      ] },
+
+    { id: 'three-layer-remedy', title: 'Four sources & the three-layer remedy', short: 'Three-layer remedy',
+      gist: `Where comparators come from, what automation does to each source, and how attitude, placement and organisation combine into one defence.`,
+      children: [
+        { id: 'four-sources', src: 'FD CR RV', title: 'Four sources of comparators',
+          gist: `Comparators come from four sources: a statement made in advance, your own checks, another reasoner, and the world. Automation reshapes each.`,
+          body: `<div class="mt-wrap"><table class="mt"><thead><tr><th>Source</th><th>Stated components</th><th>Learned components</th></tr></thead><tbody><tr><td>A statement made in advance</td><td>Systematic: verified once, in advance</td><td>Absent for the component; rebuildable around tasks that admit a mechanical check</td></tr><tr><td>Your own checks</td><td>Preserved: someone had to write the rules</td><td>Removed by default; restored only if you form a view first</td></tr><tr><td>Another reasoner</td><td>Unaffected</td><td>Cheap, but diluted by volume and correlated across users</td></tr><tr><td>The world</td><td>Unaffected</td><td>Cheap where computational; as slow as ever where physical</td></tr></tbody></table></div>\n\nWhere a task admits a mechanical check, abundant generation becomes a plain benefit: generate many candidates, keep those that pass. A proof checker, a compiler and test suite, a data schema, or a *Simplex* architecture (Sha, 2001), in which a small verified monitor keeps an unverified controller inside a safety envelope, all rebuild a guarantee *around* a learned component. Two limits: a statement checks conformity to itself (whether it says what was meant is a question for the world: verification, not validation), and it must not come from the thing it checks, as when one model writes both the code and its tests.`,
+          example: `Autoformalisation: a model writes a proof in Lean, and Lean's small trusted kernel checks every step. What remains unverified shrinks from a twenty-page derivation to whether the formal statement, and the definitions it relies on, say what the human meant.`,
+          revised: `On Simplex and run-time assurance: the monitor is verified in advance, but the safety envelope rests on a model of the plant, which is itself a frame. Verification moves around the learned component; validation stays where it was. This is why fields whose confidence rests on validation, such as physical simulation, gain least from abundant generation.` },
+
+        { id: 'layer1-attitude', src: 'FD FP TK', title: 'Layer 1: attitude, comparators you supply yourself',
+          gist: `Humility is not the residue left when methods run out. It is the earliest source of comparators, available before any other check runs.`,
+          body: `Before anyone else is involved, the only comparators available are those you make. A person's frame is wider than any model they write down or prompt, so self-made comparators can reach beyond the model's frame:\n\n- Form an order-of-magnitude expectation *before* running the model or reading the draft.\n- Run a **pre-mortem**: assume the system failed badly six months from now, and write down how.\n- Widen the set of possible worlds on purpose: a stress case, a dreary alternative, an “and what if we are missing something” branch ({{seu-sailboat-roulette|the humility buffer}}).\n\nHumility is often cast as what remains when methods run out. The order should be reversed: it is the first source of comparators, and under automation the one that disappears unless kept on purpose. And a change of attitude only holds if it is *collective*; {{layer3-organization|Layer 3}} is what makes it collective.`,
+          catch: `By Proposition 2, self-made comparators reach beyond the model's frame but never beyond your own. That is why this layer is necessary and never sufficient.` },
+
+        { id: 'layer2-placement', src: 'WG FD', title: 'Layer 2: placement, where, who, what, how much',
+          gist: `Where guarantees on the layer end, checks on outputs must be placed deliberately: at regime boundaries, by people who understand one layer below.`,
+          body: `“Keep a human in the loop” is satisfied by anyone who clicks Accept. Placement answers four questions, each tied to a condition of detection:\n\n- **Where (timeliness):** at regime boundaries, where output stops being read and starts being relied on: it executes, commits, bills, publishes, or is quoted downstream as established.\n- **Who (difference and comparability):** someone who shares the interface (the goal, the quantity) and holds an independent understanding *one layer below* it: the code under a generated program, the physics under a computed number.\n- **What:** *output-checking* (“is this answer right?”) and *picture-checking* (“was this task inside the tool's competence at all?”). The second cannot be done by the tool, or by another tool sharing its frame.\n- **How much:** sized to the stakes, along the {{independence-cost-curve|cost of independence}}. Review capacity is a rate, and it should cap production.`,
+          example: `Grounding and citation (retrieval-augmented generation, RAG) does not make a model truthful. It moves claims out of frozen parameters into documents a reviewer can open at the point of use, though a cited source can still fail to support the sentence attached to it.`,
+          catch: `A reviewer who cannot read one layer below the output is not weak oversight but theatre, and worse than none, because it manufactures a signature others will rely on.` },
+
+        { id: 'layer3-organization', src: 'FD WG CR RV', title: 'Layer 3: organisation, independence, status, measurement',
+          gist: `Protect independent evaluative capacity as a budget line, make every claim state its status, keep a track record, and measure escape rates with seeded errors.`,
+          body: `An organisation can have ten review steps on its chart and no comparator in any of them. One test cuts through: *what error could this step catch that the producer could not have caught itself?* If none, the step is a signature.\n\n1. **Size production to independent review capacity**, and count the people able to check each domain, by name.\n2. **Make every result that reaches a decision state its status**: exploratory or established, what was checked independently, under which main assumptions. A rule binding everyone removes the penalty on the team honest enough to state its conditions.\n3. **Keep a track record**: record claims with their conditions, and go back when outcomes are known.\n4. **Measure the escape probability**: route claims or changes with seeded errors through review, and count how many get through.`,
+          revised: `The escape probability can be measured, and in some fields it is measured routinely: aviation security projects fictitious threat images into live X-ray screening (threat image projection) and tracks each screener's hit rate; EU rules attach remedial training to it. Software has mutation testing. Two limits: seeded errors measure escape only for errors someone could imagine, so they must come from a different frame than the reviewers' (a corrosion specialist seeding the structural review); and seeding works best when reviewers cannot tell seeded items from real ones.`,
+          ask: `Five questions before acting on any claim: (1) What is the comparator? (2) How can it fail differently from the claim? (3) Are the claim's conditions stated, so the two can be compared? (4) Does the comparison happen before the action? (5) Who has to listen, and will they?` }
+      ] }
+    ] }
+
+  ]
+};
+
+/* ---------- the five propositions (FD) and the vocabulary ---------- */
+const PROPS = [
+  ['1', 'Detection needs a comparator', 'An error is detected only when the claim is compared with something expected to agree with it, and the two disagree.', 'five-conditions'],
+  ['2', 'The frame is a common cause', '(a) A comparator computed from the frame’s own content cannot detect an error caused by a factor the frame omits. (b) Observations can, only if that factor varied while they were taken, and only through what the frame records.', 'frame-common-cause'],
+  ['3', 'Uncertainty is measured disagreement', 'A quantitative statement of uncertainty summarises how far the members of a specified set of alternatives disagree; an omitted alternative contributes none.', 'variance-disagreement'],
+  ['4', 'Independence is relative, and paid for in comparability', 'A comparator helps against a class of errors to the extent their cause affects it differently. What claim and comparator share, neither can check in the other; and they must share something to be compared.', 'independence-cost-curve'],
+  ['5', 'Chains unite blind spots; cross-checks intersect them', 'In a chain the blind spot contains every component’s, plus errors born at interfaces; in a cross-check it shrinks to what both share, under perfect comparison and uptake.', 'series-vs-parallel']
+];
+
+const GLOSSARY = [
+  ['Frame', 'The finite specification a reasoner works from: which variables, categories, model class and objective count. Chosen before any inference runs.', 'relevance-frame'],
+  ['Picture', 'The constructed representation an agent acts on. The world answers the action, not the picture.', 'map-territory'],
+  ['Possible worlds', 'The situations compatible with what is known. A probability says how they are weighted.', 'bayesian-judgment'],
+  ['Aleatory, epistemic, ontological', 'Variability treated as irreducible; doubt that more data or modelling could reduce; doubt about whether the frame itself fits.', 'ontological-residue'],
+  ['Claim', 'Anything that asserts a matter of fact: a model output, a forecast, a measurement report.', 'five-conditions'],
+  ['Comparator', 'Whatever a claim is compared with: another claim, a statement fixed in advance, or an observation of the world.', 'five-conditions'],
+  ['Check', 'A comparison between a claim and a comparator expected to agree with it.', 'five-conditions'],
+  ['Failing differently', 'A comparator fails differently from a claim, for a given cause of error, when that cause does not make both wrong in the same way.', 'independence-cost-curve'],
+  ['Common-mode failure', 'Redundant protections failing together from a cause they share.', 'frame-common-cause'],
+  ['Error rate', 'The probability that a claim is wrong.', 'error-times-escape'],
+  ['Escape probability', 'The probability that a wrong claim reaches an action without being contradicted in time.', 'error-times-escape'],
+  ['Uptake', 'Someone registers a disagreement and has the standing to act on it.', 'five-conditions'],
+  ['Severity', 'A passing check is evidence only to the extent it would have failed had the claim been wrong (Mayo).', 'severity-bayes'],
+  ['PPV', 'Positive predictive value: the share of a checker’s alarms that are real errors.', 'severity-bayes'],
+  ['Blind spot', 'The set of error causes a component (a person, a team, a code, a model) cannot register.', 'series-vs-parallel'],
+  ['Chain, cross-check', 'Components in series, each taking the previous output as given; or in parallel, two bearing on one claim with their disagreement registered.', 'series-vs-parallel'],
+  ['Laundering', 'Dropping a claim’s conditions at a handoff, so a conditional result arrives as an unconditional one.', 'uncertainty-laundering'],
+  ['Stated component', 'A component whose rules someone wrote, and which can be given a checkable specification: a contract.', 'design-by-contract'],
+  ['Learned component', 'A component whose rules were fitted to examples and exist only as parameters.', 'spec-into-data'],
+  ['Front-loaded verification', 'Checking a component once, against its statement, so that the check covers all future runs.', 'front-loaded-verif'],
+  ['Verification, validation', 'Solving the stated problem right; stating a problem that represents reality well enough for the intended use.', 'four-sources'],
+  ['Tell', 'The visible sign of a producer’s uncertainty: hesitation, hedging, rough form.', 'loss-of-the-tell'],
+  ['Signalled, silent error', 'An error some comparator disagrees with; an error none does.', 'two-axes-matrix'],
+  ['Calibration', 'Stated probabilities match observed frequencies over many cases. Distinct from the generative calibration of Kalai and Vempala.', 'calibrate-vs-gate'],
+  ['SEU, p∗', 'Subjective expected utility (Savage): choose the act with the best expected utility under your own probabilities. p∗ is the failure probability above which the risky act stops paying.', 'seu-sailboat-roulette'],
+  ['Sandbox, gate', 'An environment where actions have no outside effect; a point where an action waits for approval.', 'sandboxes-and-gates'],
+  ['Jagged frontier', 'The uneven, hard-to-predict boundary of a model’s competence (Dell’Acqua et al., 2023).', 'jagged-frontier-bcg'],
+  ['RLHF', 'Reinforcement learning from human feedback: post-training a model on human preference judgements.', 'steering-not-spec'],
+  ['RAG', 'Retrieval-augmented generation: answering from documents fetched at query time, which a reviewer can open.', 'layer2-placement']
+];
+
+/* =====================================================================
+   GUIDED PATHS (PERSPECTIVES)
+   ===================================================================== */
+const PATHS = [
+  { id: 'spine', label: 'The core argument',
+    who: 'The whole arc in nine stops: from acting on a finite picture, through the computing stack and its learned top layer, to the theory of checks.',
+    steps: [
+      ['map-territory', 'We act on a constructed picture; the world answers the action, not the picture.'],
+      ['relevance-frame', 'Every rule hides an open background (…): choosing what to state is choosing the frame.'],
+      ['variance-disagreement', 'Error bars measure disagreement among admitted alternatives; what the frame omits produces none.'],
+      ['frame-common-cause', 'No reasoner can audit its frame from within: the frame is the common cause of all its own checks.'],
+      ['front-loaded-verif', 'Classical software earned its silence: stated contracts let us verify the layer once, for all runs.'],
+      ['spec-into-data', 'Machine learning moves the specification into the data: reach bought, the up-front guarantee spent.'],
+      ['rate-vs-escape-shift', 'Shared models lower the error rate and can raise the escape probability.'],
+      ['two-axes-matrix', 'Two axes: where the cause lies, and whether any comparator disagrees.'],
+      ['layer3-organization', 'The remedy ends in the institution: independence, stated status, measured escape, and five questions.']
+    ] },
+  { id: 'sailboats', label: 'Sailboats, boiling water & possible worlds',
+    who: 'Probability as judgment, reasoning in reverse, and decisions taken once.',
+    steps: [
+      ['map-territory', '«Le réel se moque de nos anticipations»: we decide on what we think, never on what will happen.'],
+      ['relevance-frame', 'Boiling water, two failed tests, Mont Blanc: every rule has the form A ∩ (…) → B.'],
+      ['bayesian-judgment', 'Possible worlds and reasoning in reverse: which hidden variation in (…) would flip the conclusion?'],
+      ['neither-right-nor-wrong', 'Mr X (5%) and Mr Y (0.1%): neither is right or wrong, and one outcome barely tells them apart.'],
+      ['ontological-residue', 'The inductivist turkey: sound statistics, missing category.'],
+      ['seu-sailboat-roulette', 'The race and Russian roulette under SEU. Try the lab: what you think vs. what the world holds.'],
+      ['calibrate-vs-gate', 'Calibration needs repetition; a one-shot crossing needs a gate.'],
+      ['layer1-attitude', 'The attitude this calls for, as the first source of comparators.']
+    ] },
+  { id: 'evolution', label: 'How the claims were amended',
+    who: 'A tour of the Δ drawers: claims that were sharpened, narrowed or corrected. Open the Δ drawer at each stop.',
+    steps: [
+      ['ontological-residue', 'Is the outside-the-frame row where the worst failures live? Δ: Challenger turns out to be a mixed case.'],
+      ['two-axes-matrix', 'A second axis: whether any comparator disagrees. Δ: stated components can empty the silent cell in advance.'],
+      ['failure-has-address', 'Classical failures have an address. Δ: a written specification is not yet a checked one.'],
+      ['plausibility-not-truth', 'Δ: the usual emblem of a hallucinating chatbot was never shown to be generative AI; a cleaner case exists.'],
+      ['kalai-vempala-tail', 'Two senses of calibration. Δ: the tell moved into the spread of answers.'],
+      ['jagged-frontier-bcg', 'Is a language model’s frame a missing variable? Δ: structural vs. salience omission.'],
+      ['seu-sailboat-roulette', 'Decide on what you think. Δ: why the omitted risk cannot enter the decision rule.'],
+      ['severity-bayes', 'Rare errors make alarms false. Δ: Bayes plus behaviour, and the cost of resolving disagreements.'],
+      ['series-vs-parallel', 'A comparison term for cross-checks. Δ: the corrected formula; a trade-off, not a proof.'],
+      ['layer3-organization', 'Measuring escape with seeded errors. Δ: aviation security already does, with limits.']
+    ] },
+  { id: 'engineer', label: 'The engineer: safety factors, chains & V&V',
+    who: 'For builders of physical and safety-critical systems: margins, multiphysics chains, laundering, verification and validation.',
+    steps: [
+      ['within-frame-defenses', 'A safety factor covers anticipated failure modes; it is silent on an omitted factor like corrosion.'],
+      ['uncertainty-laundering', 'The chained-model pattern: numbers crossing thermal, structural and materials interfaces lose their conditions.'],
+      ['failure-has-address', 'Mars Climate Orbiter: an address after the fact, but a prose specification nothing enforced.'],
+      ['frame-common-cause', 'Re-running a calculation under the same idealisations is common-mode checking.'],
+      ['independence-cost-curve', 'Knight and Leveson: separate versions from one specification fail together. Cost tends to rise with independence.'],
+      ['four-sources', 'Verification can be rebuilt around a component; validation remains the slow, physical bottleneck.'],
+      ['layer2-placement', 'Place checks at regime boundaries, with reviewers who understand one layer below.']
+    ] },
+  { id: 'stat-math', label: 'The statistician & the mathematician',
+    who: 'Deduction and induction, probability as judgment, the variance decomposition, the regress, severity.',
+    steps: [
+      ['deduction-induction', 'Deduction (causal graphs, conformal guarantees) is as conditional on its frame as induction.'],
+      ['aleatory-epistemic', 'The aleatory/epistemic split is a modelling choice; total variance averages over admitted hypotheses.'],
+      ['variance-disagreement', 'Proposition 3: uncertainty is measured disagreement; omitted factors contribute none.'],
+      ['meta-nfl', 'Hume, Goodman, Wolpert and Macready: a procedure for auditing frames is itself a frame.'],
+      ['neither-right-nor-wrong', 'Scoring a forecast vs. grading a forecaster: the likelihood ratio of a single outcome.'],
+      ['kalai-vempala-tail', 'Kalai and Vempala: generative vs. confidence calibration, and what a re-run can catch.'],
+      ['severity-bayes', 'Mayo’s severity, the PPV, and what Bayes does and does not say about uptake.']
+    ] },
+  { id: 'cs-ml', label: 'The CS & AI builder: stack to agents',
+    who: 'Contracts and weights, the regime flip, the jagged frontier, agent chains, and rebuilding verification around models.',
+    steps: [
+      ['design-by-contract', 'How the lower stack earned its silence: stated contracts.'],
+      ['three-flips', 'At the top layer: contract → tendency, divergence → fluency, address → distribution.'],
+      ['jagged-frontier-bcg', 'The jagged frontier (+40% quality inside, −19 points just outside); structural vs. salience omission.'],
+      ['kalai-vempala-tail', 'Why calibrated models hallucinate on the long tail, and which errors a re-run catches. Try the lab.'],
+      ['agentic-compounding', 'Agents as multi-step chains whose errors execute.'],
+      ['loss-of-the-tell', 'The lost tell and the METR sign error (19% slower measured, 20% faster felt).'],
+      ['four-sources', 'Rebuilding guarantees around models: tests, proof kernels, Simplex monitors, and their limits.'],
+      ['sandboxes-and-gates', 'Sandboxes where the world answers cheaply; gates where actions cross into consequence.']
+    ] },
+  { id: 'decision-org', label: 'The decision-maker & the institution',
+    who: 'Governance, collapsing signals, throughput pressure, alarm fatigue, and what to ask before acting.',
+    steps: [
+      ['error-times-escape', 'Risk = error rate × escape probability; benchmarks measure only the first. Try the lab.'],
+      ['signaling-collapse', 'When fluent prose and clean code are free, polish stops signalling substance.'],
+      ['bainbridge-prompt-trap', 'Bainbridge’s irony, and how prompts and approval training pull reviews toward agreement.'],
+      ['throughput-hollowing', 'Starving independent evaluation to fund faster generation.'],
+      ['same-lender', 'One lender for all borrowers: shared models, shared blind spots.'],
+      ['layer3-organization', 'Size output to review capacity; state status; keep a track record; seed errors.']
+    ] },
+  { id: 'recipient', label: 'The recipient of a confident number',
+    who: 'For anyone handed a forecast, a model output or an expert figure they cannot audit.',
+    steps: [
+      ['map-territory', 'A number is a judgment made inside a frame someone chose.'],
+      ['neither-right-nor-wrong', 'One outcome cannot tell you who was right; a track record can.'],
+      ['four-questions', 'Four questions anyone can put to a confident number.'],
+      ['plausibility-not-truth', 'Fluent is not checked: a confident tone carries no information about correctness.'],
+      ['signaling-collapse', 'Why polish no longer signals care.'],
+      ['calibrate-vs-gate', 'Where a probability helps you decide, and where only a gate protects you.']
+    ] }
+];
+
+/* =====================================================================
+   ENGINE
+   ===================================================================== */
+
+const WIDTH = [450, 310, 335, 395];   // card width by depth
+const GAPX  = [0, 110, 90, 82];       // horizontal gap before a column of depth d
+const GAPY  = [0, 90, 26, 16];        // vertical gap between siblings of depth d
+const MIN_S = 0.05, MAX_S = 2.4, FAR_S = 0.44;
+const DRAWERS = [
+  ['formal',  '⊢', 'Formal core'],
+  ['example', '→', 'Concrete case'],
+  ['analogy', '≈', 'Analogy'],
+  ['try',     '▸', 'Interactive lab'],
+  ['catch',   '!', 'The catch'],
+  ['revised', 'Δ', 'Amended'],
+  ['ask',     '?', 'Diagnostic'],
+];
+
+const $ = (s, r = document) => r.querySelector(s);
+const vp = $('#vp'), world = $('#world'), zonesG = $('#zones'), edgesG = $('#edges');
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const SVGNS = 'http://www.w3.org/2000/svg';
+
+const state = { follow: true, tour: null, spot: null, touched: false, src: null };
+let booted = false;
+const cam = { x: 0, y: 0, s: 1 };
+const nodes = new Map();
+const all = [];
+
+/* ---------- text formatting: inline marks, then blocks (paragraphs and lists) ---------- */
+function inline(s) {
+  if (!s) return '';
+  const keep = [];
+  s = s.replace(/<code>[\s\S]*?<\/code>/g, m => { keep.push(m); return '\u0001' + (keep.length - 1) + '\u0002'; });
+  s = s
+    .replace(/\{\{([\w-]+)\|([^}]+)\}\}/g, (_, id, l) => `<button type="button" class="xref" data-act="goto" data-id="${id}">${l}</button>`)
+    .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+  return s.replace(/\u0001(\d+)\u0002/g, (_, i) => keep[+i]);
+}
+function blocks(s) {
+  if (!s) return '';
+  return s.split(/\n\n/).map(b => {
+    if (/^<(div|table)\b/.test(b)) return b;
+    let out = '', para = [], list = null, kind = '';
+    const flushP = () => { if (para.length) { out += `<p>${inline(para.join(' '))}</p>`; para = []; } };
+    const flushL = () => { if (list) { out += `<${kind}>${list.map(li => `<li>${inline(li)}</li>`).join('')}</${kind}>`; list = null; } };
+    for (const line of b.split('\n')) {
+      const ul = /^- /.test(line), ol = /^\d+\. /.test(line);
+      if (ul || ol) {
+        const k = ul ? 'ul' : 'ol';
+        flushP();
+        if (list && kind !== k) flushL();
+        if (!list) { list = []; kind = k; }
+        list.push(line.replace(/^(- |\d+\. )/, ''));
+      } else { flushL(); para.push(line); }
+    }
+    flushP(); flushL();
+    return out;
+  }).join('');
+}
+
+/* ---------- build ---------- */
+function register(n, parent, depth) {
+  n.parent = parent; n.depth = depth; n.kids = n.children || [];
+  if (parent && depth > 1) { n.theme = parent.theme; n.side = parent.side; }
+  n.src = typeof n.src === 'string' ? n.src.split(/\s+/) : [];
+  n.expanded = depth < 2; n.open = false; n.shown = false;
+  n.x = n.y = n.tx = n.ty = 0; n.w = WIDTH[depth]; n.h = 0; n.sh = 0;
+  nodes.set(n.id, n); all.push(n);
+  n.kids.forEach(k => register(k, n, depth + 1));
+}
+register(DATA, null, 0);
+
+function eyebrow(n) {
+  if (n.depth === 0) return 'An explorable map of one research line';
+  if (n.depth === 1) return n.side < 0 ? 'Foundations' : 'Composition, risk & control';
+  if (n.depth === 2) return TERRITORY[n.theme];
+  return n.parent.title;
+}
+
+function buildCard(n) {
+  const el = document.createElement('article');
+  el.className = `card d${n.depth} t-${n.theme || 'root'}`;
+  el.dataset.id = n.id;
+  el.style.width = n.w + 'px';
+  el.hidden = true;
+  let h = `<div class="hd"${n.depth ? ' data-act="toggle"' : ''}><p class="eyebrow">${eyebrow(n)}</p><h2>${n.title}</h2>`;
+  if (n.gist) h += `<p class="gist">${inline(n.gist)}</p>`;
+  h += `</div>`;
+  if (n.depth === 0) {
+    h += `<div class="root-x"><ul class="hints">
+      <li><b>Left:</b> 1. Epistemics &amp; the frame &middot; 2. Computing stack &amp; AI</li>
+      <li><b>Right:</b> 3. Automation &amp; chains &middot; 4. Decisions, risk &amp; checks</li>
+      <li><b>Tags</b> such as FP or TK name each idea&rsquo;s source texts; <b>&Delta;</b> marks an amendment. The guide explains both.</li></ul>
+      <button class="go" type="button" data-act="guide">Pick a guided perspective &rarr;</button></div>`;
+  }
+  if (n.depth === 3) {
+    const kinds = DRAWERS.filter(([k]) => n[k]);
+    h += `<div class="more" hidden><div class="body">${blocks(n.body)}</div>`;
+    if (kinds.length) {
+      h += `<div class="chips">` + kinds.map(([k, g, l]) =>
+        `<button type="button" class="chip" data-act="chip" data-k="${k}" aria-expanded="false"><span class="g">${g}</span>${l}</button>`).join('') + `</div>`;
+      h += kinds.map(([k, , l]) => `<div class="drawer k-${k}" data-k="${k}" hidden><p class="dl">${l}</p>${k === 'try' ? widgetHTML(n[k]) : blocks(n[k])}</div>`).join('');
+    }
+    h += `</div>`;
+    n.glyphs = kinds.map(k => k[1]).join(' ');
+  }
+  if (n.depth > 0) {
+    h += `<div class="foot"><button type="button" class="fbtn" data-act="toggle" aria-expanded="false"><span class="pm"></span><span class="fl"></span></button>`;
+    if (n.depth === 3) {
+      h += `<span class="fr">`;
+      if (n.src.length) h += `<span class="src">` + n.src.map(k => `<b class="${PROPOSED.has(k) ? 'prop' : ''}" title="${k}: ${SOURCES[k][0]}">${k}</b>`).join('') + `</span>`;
+      if (n.glyphs) h += `<span class="fx" aria-hidden="true">${n.glyphs}</span>`;
+      h += `</span>`;
+    }
+    h += `</div>`;
+  }
+  h += `<div class="far" aria-hidden="true">${n.short || n.title}</div>`;
+  el.innerHTML = h;
+  n.el = el;
+  world.appendChild(el);
+  if (n.parent) {
+    const p = document.createElementNS(SVGNS, 'path');
+    p.setAttribute('class', 'edge');
+    edgesG.appendChild(p);
+    n.edge = p;
+  }
+  if (n.depth === 1) {
+    const r = document.createElementNS(SVGNS, 'rect');
+    r.setAttribute('class', 'zone');
+    r.setAttribute('rx', '40');
+    zonesG.appendChild(r);
+    n.zone = r;
+  }
+}
+all.forEach(buildCard);
+
+function updateCard(n) {
+  const fb = n.el.querySelector('.fbtn');
+  if (n.depth === 1 || n.depth === 2) {
+    const c = n.kids.length, what = n.depth === 1 ? 'angles' : 'threads';
+    fb.setAttribute('aria-expanded', String(n.expanded));
+    fb.querySelector('.fl').textContent = n.expanded ? `Hide ${what}` : (n.depth === 1 ? `Show ${c} ${what}` : `Open ${c} ${what}`);
+    n.el.classList.toggle('is-exp', n.expanded);
+  } else if (n.depth === 3) {
+    n.el.querySelector('.more').hidden = !n.open;
+    fb.setAttribute('aria-expanded', String(n.open));
+    fb.querySelector('.fl').textContent = n.open ? 'Fold' : 'Unfold';
+    n.el.classList.toggle('is-open', n.open);
+  }
+}
+
+/* ---------- visibility + layout ---------- */
+function isVisible(n) { for (let p = n.parent; p; p = p.parent) if (!p.expanded) return false; return true; }
+
+function syncVisibility() {
+  for (const n of all) {
+    const v = isVisible(n);
+    if (v && !n.shown) {
+      n.shown = true; n.el.hidden = false;
+      const p = n.parent;
+      if (p && p.shown) { n.x = p.x + (p.w - n.w) / 2; n.y = p.y + 10; }
+      if (!reduceMotion && booted) {
+        n.el.classList.add('enter');
+        requestAnimationFrame(() => requestAnimationFrame(() => n.el.classList.remove('enter')));
+      }
+      placeEl(n);
+    } else if (!v && n.shown) {
+      n.shown = false; n.el.hidden = true;
+    }
+    if (n.edge) n.edge.style.display = n.shown ? '' : 'none';
+    updateCard(n);
+  }
+}
+
+const kidsShown = n => (n.expanded ? n.kids.filter(k => k.shown) : []);
+const stackH = ks => ks.reduce((a, k) => a + k.sh, 0) + GAPY[ks[0].depth] * (ks.length - 1);
+function calcSH(n) {
+  const ks = kidsShown(n);
+  ks.forEach(calcSH);
+  n.sh = ks.length ? Math.max(n.h, stackH(ks)) : n.h;
+}
+function place(n, edge, top, dir) {
+  n.tx = dir > 0 ? edge : edge - n.w;
+  n.ty = top;
+  const ks = kidsShown(n);
+  if (!ks.length) return;
+  const ce = dir > 0 ? n.tx + n.w + GAPX[n.depth + 1] : n.tx - GAPX[n.depth + 1];
+  let y = top;
+  for (const k of ks) { place(k, ce, y, dir); y += k.sh + GAPY[k.depth]; }
+}
+
+function layout(anchor) {
+  const vis = all.filter(n => n.shown);
+  for (const n of vis) n.h = n.el.offsetHeight;
+  const root = DATA;
+  root.tx = -root.w / 2; root.ty = -root.h / 2;
+  for (const dir of [-1, 1]) {
+    const ths = kidsShown(root).filter(t => t.side === dir);
+    if (!ths.length) continue;
+    ths.forEach(calcSH);
+    const total = stackH(ths);
+    let y = -total / 2;
+    const edge = dir > 0 ? root.w / 2 + GAPX[1] : -root.w / 2 - GAPX[1];
+    for (const t of ths) { place(t, edge, y, dir); y += t.sh + GAPY[1]; }
+  }
+  if (anchor && anchor.shown) {
+    const dx = anchor.x - anchor.tx, dy = anchor.y - anchor.ty;
+    for (const n of vis) { n.tx += dx; n.ty += dy; }
+  }
+}
+
+function snap() { for (const n of all) { n.x = n.tx; n.y = n.ty; placeEl(n); } }
+function placeEl(n) { n.el.style.transform = `translate(${n.x}px, ${n.y}px)`; }
+
+/* ---------- camera ---------- */
+let fly = null;
+function flyTo(to, dur = 560) {
+  to.s = clamp(to.s, MIN_S, MAX_S);
+  if (reduceMotion || dur === 0) { cam.x = to.x; cam.y = to.y; cam.s = to.s; fly = null; kick(); return; }
+  const cx = innerWidth / 2, cy = innerHeight / 2;
+  fly = {
+    a: { wx: (cx - cam.x) / cam.s, wy: (cy - cam.y) / cam.s, s: cam.s },
+    b: { wx: (cx - to.x) / to.s, wy: (cy - to.y) / to.s, s: to.s },
+    t0: performance.now(), dur,
+  };
+  kick();
+}
+function stepFly(t) {
+  if (!fly) return false;
+  const p = clamp((t - fly.t0) / fly.dur, 0, 1), e = ease(p);
+  const cx = innerWidth / 2, cy = innerHeight / 2;
+  const s = Math.exp(lerp(Math.log(fly.a.s), Math.log(fly.b.s), e));
+  cam.s = s; cam.x = cx - lerp(fly.a.wx, fly.b.wx, e) * s; cam.y = cy - lerp(fly.a.wy, fly.b.wy, e) * s;
+  if (p >= 1) fly = null;
+  return true;
+}
+function zoomAt(px, py, ns) {
+  ns = clamp(ns, MIN_S, MAX_S);
+  cam.x = px - (px - cam.x) * ns / cam.s;
+  cam.y = py - (py - cam.y) * ns / cam.s;
+  cam.s = ns;
+}
+
+const brand = $('#brand'), tools = $('#tools'), zoombar = $('#zoombar'), tourEl = $('#tour'), guide = $('#guide'), pill = $('#filter');
+function safe() {
+  const vw = innerWidth, vh = innerHeight;
+  const tb = tools.getBoundingClientRect(), bb = brand.getBoundingClientRect();
+  let top = bb.bottom + 14;
+  if (tb.top < vh / 2) top = Math.max(top, tb.bottom + 14);
+  if (!pill.hidden) top = Math.max(top, pill.getBoundingClientRect().bottom + 14);
+  let bottom = vh - 16;
+  for (const el of [tourEl, zoombar, tools]) {
+    if (el.hidden || getComputedStyle(el).display === 'none') continue;
+    const r = el.getBoundingClientRect();
+    if (r.top > vh / 2) bottom = Math.min(bottom, r.top - 14);
+  }
+  let right = vw - 16;
+  if (!guide.hidden && vw > 900) right = guide.getBoundingClientRect().left - 16;
+  return { l: 16, t: top, r: right, b: bottom };
+}
+function bbox(list, useTarget = true) {
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const n of list) {
+    const x = useTarget ? n.tx : n.x, y = useTarget ? n.ty : n.y;
+    x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x + n.w); y1 = Math.max(y1, y + n.h);
+  }
+  return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+}
+function fitBox(b, maxS = 1, pad = 28, dur) {
+  const sr = safe();
+  const w = Math.max(80, sr.r - sr.l - 2 * pad), h = Math.max(80, sr.b - sr.t - 2 * pad);
+  let s = clamp(Math.min(w / b.w, h / b.h), MIN_S, maxS);
+  const x = (sr.l + sr.r) / 2 - (b.x + b.w / 2) * s;
+  let y = (sr.t + sr.b) / 2 - (b.y + b.h / 2) * s;
+  if (b.h * s > h) y = sr.t + pad - b.y * s;
+  flyTo({ x, y, s }, dur);
+}
+function fitAll(dur) { fitBox(bbox(all.filter(n => n.shown)), 1, 28, dur); }
+const subtree = n => { const out = [n]; for (const k of kidsShown(n)) out.push(...subtree(k)); return out; };
+
+function focusCard(n, part) {
+  const sr = safe(), pad = 20;
+  const vw = sr.r - sr.l - 2 * pad, vh = sr.b - sr.t - 2 * pad;
+  const r = part || { x: n.tx, y: n.ty, w: n.w, h: n.h };
+  let s = cam.s, x, y;
+  if (s < 0.72 || n.w * s > vw) s = clamp(Math.min(1.05, vw / n.w), 0.3, 1.05);
+  if (s !== cam.s) {
+    x = (sr.l + sr.r) / 2 - (n.tx + n.w / 2) * s;
+    y = r.h * s <= vh ? (sr.t + sr.b) / 2 - (r.y + r.h / 2) * s : sr.t + pad - r.y * s;
+  } else {
+    const L = n.tx * s + cam.x, R = L + n.w * s;
+    x = (L < sr.l + pad || R > sr.r - pad) ? (sr.l + sr.r) / 2 - (n.tx + n.w / 2) * s : cam.x;
+    const T = r.y * s + cam.y, B = T + r.h * s;
+    if (r.h * s > vh || T < sr.t + pad) y = cam.y + (sr.t + pad - T);
+    else if (B > sr.b - pad) y = cam.y + (sr.b - pad - B);
+    else y = cam.y;
+  }
+  if (Math.abs(x - cam.x) > 1 || Math.abs(y - cam.y) > 1 || s !== cam.s) flyTo({ x, y, s });
+}
+
+/* ---------- render loop ---------- */
+let raf = 0, lastT = 0;
+function kick() { if (!raf) raf = requestAnimationFrame(frame); }
+function frame(t) {
+  raf = 0;
+  const dt = lastT ? Math.min(64, t - lastT) : 16;
+  lastT = t;
+  let moving = stepFly(t);
+  const k = reduceMotion ? 1 : 1 - Math.exp(-dt / 85);
+  for (const n of all) {
+    if (!n.shown) continue;
+    const dx = n.tx - n.x, dy = n.ty - n.y;
+    if (Math.abs(dx) > .4 || Math.abs(dy) > .4) { n.x += dx * k; n.y += dy * k; moving = true; }
+    else if (dx || dy) { n.x = n.tx; n.y = n.ty; }
+    else continue;
+    placeEl(n);
+  }
+  applyCamera();
+  drawLinks();
+  drawMinimap();
+  if (moving) kick(); else lastT = 0;
+}
+
+const zl = $('#zl');
+let wasFar = null;
+function applyCamera() {
+  world.style.transform = `translate(${cam.x}px, ${cam.y}px) scale(${cam.s})`;
+  let g = 28 * cam.s;
+  while (g < 14) g *= 2;
+  while (g > 56) g /= 2;
+  vp.style.backgroundSize = `${g}px ${g}px`;
+  vp.style.backgroundPosition = `${cam.x}px ${cam.y}px`;
+  const far = cam.s < FAR_S;
+  if (far !== wasFar) { world.classList.toggle('is-far', far); wasFar = far; }
+  if (far) world.style.setProperty('--inv', (1 / cam.s).toFixed(3));
+  zl.textContent = Math.round(cam.s * 100) + '%';
+}
+
+function drawLinks() {
+  for (const n of all) {
+    if (n.edge && n.shown) {
+      const p = n.parent, dir = n.side;
+      const x1 = dir > 0 ? p.x + p.w : p.x;
+      const y1 = p.y + (p.depth === 0 ? p.h / 2 : Math.min(p.h / 2, 46));
+      const x2 = dir > 0 ? n.x : n.x + n.w;
+      const y2 = n.y + Math.min(n.h / 2, 46);
+      const mx = (x1 + x2) / 2;
+      n.edge.setAttribute('d', `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`);
+      n.edge.style.stroke = `var(--${n.theme})`;
+    }
+    if (n.zone) {
+      const b = bbox(subtree(n), false), pad = 34;
+      n.zone.setAttribute('x', b.x - pad); n.zone.setAttribute('y', b.y - pad);
+      n.zone.setAttribute('width', b.w + pad * 2); n.zone.setAttribute('height', b.h + pad * 2);
+      n.zone.style.fill = `color-mix(in srgb, var(--${n.theme}) 7%, transparent)`;
+      n.zone.style.display = n.shown ? '' : 'none';
+    }
+  }
+}
+
+/* ---------- minimap ---------- */
+const mmBox = $('#minimap'), mm = $('#mm'), mctx = mm.getContext('2d');
+let mmT = null, colors = {};
+function readColors() {
+  const cs = getComputedStyle(document.documentElement);
+  for (const k of ['epistemics', 'stack', 'automation', 'decisions', 'ink', 'card', 'muted']) {
+    colors[k] = cs.getPropertyValue('--' + k).trim();
+  }
+  kick();
+}
+function drawMinimap() {
+  if (getComputedStyle(mmBox).display === 'none') return;
+  const dpr = window.devicePixelRatio || 1, W = mmBox.clientWidth, H = mmBox.clientHeight;
+  if (mm.width !== W * dpr) { mm.width = W * dpr; mm.height = H * dpr; }
+  mctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  mctx.clearRect(0, 0, W, H);
+  const vis = all.filter(n => n.shown);
+  const b = bbox(vis, false);
+  const view = { x: -cam.x / cam.s, y: -cam.y / cam.s, w: innerWidth / cam.s, h: innerHeight / cam.s };
+  const x0 = Math.min(b.x, view.x), y0 = Math.min(b.y, view.y);
+  const x1 = Math.max(b.x + b.w, view.x + view.w), y1 = Math.max(b.y + b.h, view.y + view.h);
+  const k = Math.min((W - 16) / (x1 - x0), (H - 16) / (y1 - y0));
+  const ox = (W - (x1 - x0) * k) / 2 - x0 * k, oy = (H - (y1 - y0) * k) / 2 - y0 * k;
+  mmT = { k, ox, oy };
+  for (const n of vis) {
+    mctx.fillStyle = n.depth === 0 ? colors.ink : colors[n.theme];
+    mctx.globalAlpha = n.depth === 3 ? (n.el.classList.contains('dim') ? .15 : .55) : .9;
+    mctx.fillRect(ox + n.x * k, oy + n.y * k, Math.max(1.5, n.w * k), Math.max(1.5, n.h * k));
+  }
+  mctx.globalAlpha = 1;
+  mctx.strokeStyle = colors.ink; mctx.lineWidth = 1.5;
+  mctx.strokeRect(ox + view.x * k, oy + view.y * k, view.w * k, view.h * k);
+}
+function mmMove(e) {
+  if (!mmT) return;
+  const r = mm.getBoundingClientRect();
+  const wx = (e.clientX - r.left - mmT.ox) / mmT.k, wy = (e.clientY - r.top - mmT.oy) / mmT.k;
+  fly = null;
+  cam.x = innerWidth / 2 - wx * cam.s; cam.y = innerHeight / 2 - wy * cam.s;
+  kick();
+}
+mmBox.addEventListener('pointerdown', e => { mmBox.setPointerCapture(e.pointerId); mmMove(e); state.touched = true; });
+mmBox.addEventListener('pointermove', e => { if (mmBox.hasPointerCapture(e.pointerId)) mmMove(e); });
+
+/* ---------- actions ---------- */
+function anchorFor(n) { let a = n; while (a && !a.shown) a = a.parent; return a; }
+
+function toggle(n) {
+  if (n.depth === 0) return;
+  state.touched = true;
+  if (n.depth === 3) n.open = !n.open; else n.expanded = !n.expanded;
+  syncVisibility();
+  layout(n);
+  kick();
+  if (!state.follow) return;
+  if (n.depth === 3) { if (n.open) focusCard(n); }
+  else if (n.expanded) fitBox(bbox(subtree(n)), 1);
+  else focusCard(n);
+}
+
+function toggleDrawer(n, k) {
+  const d = n.el.querySelector(`.drawer[data-k="${k}"]`), c = n.el.querySelector(`.chip[data-k="${k}"]`);
+  const open = d.hidden;
+  d.hidden = !open;
+  c.setAttribute('aria-expanded', String(open));
+  if (open && k === 'try' && !d.dataset.ready) { initWidget(d, n.try, n); d.dataset.ready = '1'; }
+  layout(n);
+  kick();
+  if (open && state.follow) focusCard(n, { x: n.tx, y: n.ty + d.offsetTop - 40, w: n.w, h: d.offsetHeight + 60 });
+}
+
+function reveal(n) { for (let p = n.parent; p; p = p.parent) p.expanded = true; }
+
+function goTo(id, opts = {}) {
+  const n = nodes.get(id);
+  if (!n) return;
+  state.touched = true;
+  const a = anchorFor(n);
+  reveal(n);
+  if (n.depth === 3) n.open = true; else if (n.depth > 0) n.expanded = true;
+  syncVisibility();
+  layout(a);
+  kick();
+  if (n.depth === 3) focusCard(n);
+  else if (n.depth === 0) fitAll();
+  else fitBox(bbox(subtree(n)), 1);
+  spotlight(n, opts.keep);
+}
+
+let spotTimer = 0;
+function spotlight(n, keep) {
+  if (state.spot) state.spot.el.classList.remove('spot');
+  clearTimeout(spotTimer);
+  state.spot = n;
+  void n.el.offsetWidth;
+  n.el.classList.add('spot');
+  if (!keep) spotTimer = setTimeout(() => { n.el.classList.remove('spot'); if (state.spot === n) state.spot = null; }, 2600);
+}
+
+function overview() {
+  highlight(null);
+  for (const n of all) {
+    n.expanded = n.depth < 2; n.open = false;
+    n.el.querySelectorAll('.drawer').forEach(d => { d.hidden = true; });
+    n.el.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-expanded', 'false'));
+  }
+  syncVisibility();
+  layout(DATA);
+  kick();
+  fitAll();
+}
+function showAll() {
+  for (const n of all) if (n.depth < 3) n.expanded = true;
+  syncVisibility();
+  layout(DATA);
+  kick();
+  fitAll();
+}
+
+/* highlight every idea card that draws on one source */
+function highlight(key) {
+  state.src = key || null;
+  if (key) showAll();
+  for (const n of all) {
+    if (n.depth !== 3) continue;
+    const has = n.src.includes(key);
+    n.el.classList.toggle('dim', !!key && !has);
+    n.el.classList.toggle('hl', !!key && has);
+  }
+  pill.hidden = !key;
+  if (key) $('#filter-t').textContent = `${key} · ${SOURCES[key][0]}`;
+  kick();
+}
+
+/* =====================================================================
+   INTERACTIVE LABS
+   seu          : what you think vs. what the world holds (one-shot SEU decision)
+   escape       : error rate x escape probability, with base-rate-driven uptake
+   chain        : unchecked chain vs. per-step cross-checks, with a shared omitted factor
+   plausibility : self-consistency on known facts, arbitrary facts and misconceptions
+   ===================================================================== */
+const pct = (x, sig = 2) => (x <= 0 ? '0%' : Number((x * 100).toPrecision(sig)) + '%');
+const logPos = (v, lo, hi) => (Math.log10(v) - lo) / (hi - lo) * 100;
+const logVal = (pos, lo, hi) => Math.pow(10, lo + (+pos) / 100 * (hi - lo));
+function setVerdict(el, cls, msg) { el.className = 'lab-verdict' + (cls ? ' ' + cls : ''); el.textContent = msg; }
+
+function widgetHTML(kind) {
+  if (kind === 'seu') {
+    return `<div class="lab" data-lab="seu">
+      <div class="lab-presets" role="group" aria-label="Scenarios">
+        <button type="button" class="lab-pbtn" data-preset="y">Mr Y &middot; 0.1%</button>
+        <button type="button" class="lab-pbtn" data-preset="x">Mr X &middot; 5%</button>
+        <button type="button" class="lab-pbtn" data-preset="crack">Mr Y + unseen crack</button>
+        <button type="button" class="lab-pbtn" data-preset="buffer">&hellip; plus a buffer</button>
+        <button type="button" class="lab-pbtn" data-preset="roulette">Russian roulette</button>
+      </div>
+      <div class="lab-ctl">
+        <label><span>Stakes: loss if it fails &divide; gain if it holds (L/&Delta;U)</span><output data-o="r"></output>
+          <input id="seu-r" type="range" data-i="r" min="0" max="100" step="any"></label>
+        <label><span>What you think: failure probability p</span><output data-o="p"></output>
+          <input id="seu-p" type="range" data-i="p" min="0" max="100" step="any"></label>
+        <label><span>Humility buffer b, added on purpose</span><output data-o="b"></output>
+          <input id="seu-b" type="range" data-i="b" min="0" max="10" step="0.1"></label>
+      </div>
+      <div class="lab-world">
+        <span class="wl">The world &middot; hidden from the decider</span>
+        <label><span>An omitted factor z adds a failure chance of</span><output data-o="z"></output>
+          <input id="seu-z" type="range" data-i="z" min="0" max="20" step="0.1"></label>
+      </div>
+      <div class="lab-out">
+        <div class="lab-kv"><span>Threshold p&lowast; = 1 / (1 + L/&Delta;U)</span><b data-v="ps"></b></div>
+        <div class="lab-kv"><span>You decide on p + b</span><b data-v="pb"></b></div>
+        <div class="lab-kv"><span>Decision</span><b data-v="dec"></b></div>
+        <div class="lab-kv"><span>The world&rsquo;s odds, 1 &minus; (1&minus;p)(1&minus;z)</span><b data-v="pw"></b></div>
+        <div class="lab-verdict" data-v="verdict"></div>
+      </div>
+      <p class="lab-note">SEU: you choose on what you think, never on what will happen; the world answers with what is. The dashed box plays the world, which the decider cannot see. The buffer is the decider&rsquo;s only lever against it, and it is a judgment, not a measurement: an omitted factor leaves nothing to measure. Illustrative numbers; the reinforced boat is treated as a sure baseline.</p>
+    </div>`;
+  }
+  if (kind === 'escape') {
+    return `<div class="lab" data-lab="escape">
+      <div class="lab-presets" role="group" aria-label="Scenarios">
+        <button type="button" class="lab-pbtn" data-preset="peers">Peers check peers</button>
+        <button type="button" class="lab-pbtn" data-preset="shared">One model for all</button>
+        <button type="button" class="lab-pbtn" data-preset="precise">&hellip; precise checker</button>
+        <button type="button" class="lab-pbtn" data-preset="indep">Independent + precise</button>
+      </div>
+      <div class="lab-ctl">
+        <label><span>Producer error rate P(wrong)</span><output data-o="e"></output>
+          <input id="esc-e" type="range" data-i="e" min="0" max="100" step="any"></label>
+        <label><span>Common mode: error causes the checker shares</span><output data-o="c"></output>
+          <input id="esc-c" type="range" data-i="c" min="0" max="100" step="5"></label>
+        <label><span>Checker miss rate on the other errors</span><output data-o="m"></output>
+          <input id="esc-m" type="range" data-i="m" min="0" max="50" step="5"></label>
+        <label><span>Checker false-alarm rate P(flag | right)</span><output data-o="f"></output>
+          <input id="esc-f" type="range" data-i="f" min="0.1" max="30" step="0.1"></label>
+      </div>
+      <div class="lab-presets" role="group" aria-label="What happens to a flag">
+        <button type="button" class="lab-pbtn" data-policy="match" aria-pressed="true">Flags heeded at the PPV rate</button>
+        <button type="button" class="lab-pbtn" data-policy="all" aria-pressed="false">Every flag investigated</button>
+      </div>
+      <div class="lab-out">
+        <div class="lab-kv"><span>Checker sensitivity (1&minus;c)(1&minus;m)</span><b data-v="s"></b></div>
+        <div class="lab-kv"><span>Flags that are real errors (PPV)</span><b data-v="ppv"></b></div>
+        <div class="lab-kv"><span>Flags acted on (uptake)</span><b data-v="u"></b></div>
+        <div class="lab-kv"><span>Escape probability</span><b data-v="esc"></b></div>
+        <div class="lab-kv"><span>Risk P(wrong &amp; acted on), vs. no checker</span><b data-v="risk"></b></div>
+        <div class="lab-kv"><span>Flags per real error caught (1/PPV)</span><b data-v="cost"></b></div>
+        <div class="lab-verdict" data-v="verdict"></div>
+      </div>
+      <p class="lab-note">Bayes fixes the share of flags that are real (PPV). What people do with flags is behaviour: in experiments most people respond to alarms at a rate matching their reliability (probability matching; Bliss, Gilson &amp; Deaton, 1995). Investigating every flag keeps uptake, at 1/PPV investigations per real error. Two levers: independence (lower c) widens what the checker can see; precision (lower false-alarm rate) keeps its flags worth reading.</p>
+    </div>`;
+  }
+  if (kind === 'chain') {
+    return `<div class="lab" data-lab="chain">
+      <div class="lab-ctl">
+        <label><span>Steps in the chain N</span><output data-o="n"></output>
+          <input id="chain-n" type="range" data-i="n" min="1" max="12" step="1" value="4"></label>
+        <label><span>Per-step error rate p, independent causes</span><output data-o="p"></output>
+          <input id="chain-p" type="range" data-i="p" min="0.5" max="20" step="0.5" value="6"></label>
+        <label><span>Shared omitted factor q, one cause for all steps</span><output data-o="q"></output>
+          <input id="chain-q" type="range" data-i="q" min="0" max="10" step="0.1" value="0"></label>
+      </div>
+      <div class="lab-out">
+        <div class="lab-kv"><span>Unchecked chain (each link trusts the last)</span><b data-v="chain"></b></div>
+        <div class="lab-kv"><span>Every step cross-checked by an independent peer</span><b data-v="cc"></b></div>
+        <div class="lab-kv"><span>Remaining failures involving the shared factor</span><b data-v="share"></b></div>
+        <div class="lab-verdict" data-v="verdict"></div>
+      </div>
+      <p class="lab-note">Idealised: independent steps, a peer as competent as the producer (it misses with probability p), perfect comparison and uptake. Laundering is what makes the unchecked column a chain: once conditions are dropped at a handoff, the next link has nothing to compare with.</p>
+    </div>`;
+  }
+  return `<div class="lab" data-lab="plausibility">
+    <div class="lab-presets" role="group" aria-label="Kind of question">
+      <button type="button" class="lab-pbtn" data-mode="known">Well-known fact</button>
+      <button type="button" class="lab-pbtn" data-mode="arbitrary">Arbitrary rare fact</button>
+      <button type="button" class="lab-pbtn" data-mode="consistent">Popular misconception</button>
+    </div>
+    <p class="lab-q" data-v="q"></p>
+    <div class="nw-bars" data-v="bars"></div>
+    <div class="lab-out">
+      <div class="lab-kv"><span>Chance one answer is wrong</span><b data-v="pw"></b></div>
+      <div class="lab-kv"><span>If wrong, chance 5 answers disagree (severity)</span><b data-v="sev"></b></div>
+      <div class="lab-kv"><span>If right, chance it gets flagged anyway</span><b data-v="fa"></b></div>
+    </div>
+    <button type="button" class="nw-pick" data-act-lab="sample">Ask 5 times</button>
+    <div class="lab-out">
+      <div class="lab-samples" data-v="samples"></div>
+      <div class="lab-verdict" data-v="verdict"></div>
+    </div>
+    <p class="lab-note">Sampling-based checks such as semantic entropy (Farquhar et al., Nature 2024) catch confabulations, arbitrary and inconsistent errors, and are blind to consistent ones. The tell has not vanished: it moved from the surface of one answer into the spread of many, and it covers one class of errors only. Illustrative distributions.</p>
+  </div>`;
+}
+
+function initWidget(root, kind, node) {
+  const q = s => root.querySelector(s);
+  const V = k => q(`[data-v="${k}"]`);
+  const done = () => { layout(node); kick(); };
+  const pick = (attr, val) => root.querySelectorAll(`[${attr}]`).forEach(b => {
+    const on = b.getAttribute(attr) === val;
+    b.classList.toggle('active', on);
+    if (b.hasAttribute('aria-pressed')) b.setAttribute('aria-pressed', String(on));
+  });
+
+  if (kind === 'seu') {
+    const I = { r: q('[data-i="r"]'), p: q('[data-i="p"]'), b: q('[data-i="b"]'), z: q('[data-i="z"]') };
+    const O = { r: q('[data-o="r"]'), p: q('[data-o="p"]'), b: q('[data-o="b"]'), z: q('[data-o="z"]') };
+    const RL = [0, 5], PL = [-5, Math.log10(0.5)];
+    const PRE = { y: [25, 0.001, 0, 0], x: [25, 0.05, 0, 0], crack: [25, 0.001, 0, 8], buffer: [25, 0.001, 4, 8], roulette: [10000, 0.00001, 0, 16.7] };
+    const ratioTxt = r => (r < 10 ? r.toFixed(1) : Math.round(r).toLocaleString('en-US')) + '×';
+    const update = () => {
+      const r = logVal(I.r.value, ...RL), p = logVal(I.p.value, ...PL), b = +I.b.value / 100, z = +I.z.value / 100;
+      const ps = 1 / (1 + r), pb = p + b, go = pb < ps, pw = 1 - (1 - p) * (1 - z);
+      O.r.textContent = ratioTxt(r); O.p.textContent = pct(p); O.b.textContent = pct(b); O.z.textContent = pct(z);
+      V('ps').textContent = pct(ps, 3); V('pb').textContent = pct(pb); V('pw').textContent = pct(pw);
+      V('dec').textContent = go ? 'Go: light boat' : 'No-go: reinforced boat';
+      if (go && pw < ps) setVerdict(V('verdict'), 'good', 'Go. On your picture the risky option pays (p + b is below p∗), and in this scenario the world holds no more risk than your picture.');
+      else if (go) setVerdict(V('verdict'), 'bad', `Silent trap. Your choice follows from what you think: p + b = ${pct(pb)} is below p∗ = ${pct(ps, 3)}. But the world’s odds are ${pct(pw)}, and nothing in your numbers can show it: the omitted factor sends no signal.`);
+      else if (p >= ps) setVerdict(V('verdict'), 'good', `No-go on your own estimate: p = ${pct(p)} already exceeds p∗ = ${pct(ps, 3)}.`);
+      else if (pw >= ps) setVerdict(V('verdict'), 'good', `No-go, thanks to the buffer. Your estimate alone said go; the buffer kept you off a boat whose real odds (${pct(pw)}) exceed p∗.`);
+      else setVerdict(V('verdict'), 'warn', 'No-go, and over-cautious this time: the world held no extra risk, so the buffer cost you the expected gain. Humility has a price; when L/ΔU is large, it is small next to what it insures.');
+      done();
+    };
+    const preset = k => {
+      const [r, p, b, z] = PRE[k];
+      I.r.value = logPos(r, ...RL); I.p.value = logPos(p, ...PL); I.b.value = b; I.z.value = z;
+      pick('data-preset', k);
+      update();
+    };
+    root.querySelectorAll('[data-preset]').forEach(b => b.addEventListener('click', () => preset(b.dataset.preset)));
+    Object.values(I).forEach(el => el.addEventListener('input', () => { pick('data-preset', ''); update(); }));
+    preset('y');
+    return;
+  }
+
+  if (kind === 'escape') {
+    const I = { e: q('[data-i="e"]'), c: q('[data-i="c"]'), m: q('[data-i="m"]'), f: q('[data-i="f"]') };
+    const O = { e: q('[data-o="e"]'), c: q('[data-o="c"]'), m: q('[data-o="m"]'), f: q('[data-o="f"]') };
+    const EL = [-3, Math.log10(0.3)];
+    const PRE = { peers: [0.10, 10, 20, 5], shared: [0.02, 60, 20, 5], precise: [0.02, 60, 20, 0.5], indep: [0.02, 10, 10, 0.5] };
+    let policy = 'match';
+    const update = () => {
+      const pE = logVal(I.e.value, ...EL), c = +I.c.value / 100, m = +I.m.value / 100, f = +I.f.value / 100;
+      const s = (1 - c) * (1 - m), tp = pE * s, fp = (1 - pE) * f;
+      const ppv = tp + fp > 0 ? tp / (tp + fp) : 0;
+      const u = policy === 'all' ? 1 : ppv;
+      const esc = 1 - s * u, risk = pE * esc;
+      O.e.textContent = pct(pE); O.c.textContent = Math.round(c * 100) + '%'; O.m.textContent = Math.round(m * 100) + '%'; O.f.textContent = pct(f);
+      V('s').textContent = pct(s); V('ppv').textContent = pct(ppv); V('u').textContent = pct(u);
+      V('esc').textContent = pct(esc); V('risk').textContent = `${pct(risk)} vs. ${pct(pE)}`;
+      V('cost').textContent = ppv > 0 ? (1 / ppv).toFixed(1) : '—';
+      if (c >= 0.5) setVerdict(V('verdict'), 'bad', `Common mode: the checker shares ${Math.round(c * 100)}% of the producer’s error causes. Even if every flag were acted on, ${pct(1 - s)} of errors would escape. ` + (ppv >= 0.3 ? `Its flags are mostly real (PPV ${pct(ppv)}), so precision is not the problem: only a comparator that fails differently helps.` : `And only ${pct(ppv)} of its flags are real.`));
+      else if (ppv < 0.3 && policy === 'match') setVerdict(V('verdict'), 'bad', `Alarm fatigue: only ${pct(ppv)} of flags are real, and flags get heeded at about that rate. The checker is close to decorative: ${pct(esc)} of errors escape, against ${pct(1 - s)} if every flag were investigated.`);
+      else if (ppv < 0.3) setVerdict(V('verdict'), 'warn', `Uptake held, at a price: ${(1 / ppv).toFixed(1)} investigations per real error caught. The rarer the producer’s errors, the higher that price. Lowering the false-alarm rate is the lever.`);
+      else setVerdict(V('verdict'), 'good', `Working cross-check: ${pct(ppv)} of flags are real and the checker shares few error causes with the producer; ${pct(1 - esc)} of errors are caught before action.`);
+      done();
+    };
+    const preset = k => {
+      const [e, c, m, f] = PRE[k];
+      I.e.value = logPos(e, ...EL); I.c.value = c; I.m.value = m; I.f.value = f;
+      pick('data-preset', k);
+      update();
+    };
+    root.querySelectorAll('[data-preset]').forEach(b => b.addEventListener('click', () => preset(b.dataset.preset)));
+    root.querySelectorAll('[data-policy]').forEach(b => b.addEventListener('click', () => { policy = b.dataset.policy; pick('data-policy', policy); update(); }));
+    Object.values(I).forEach(el => el.addEventListener('input', () => { pick('data-preset', ''); update(); }));
+    pick('data-policy', policy);
+    preset('peers');
+    return;
+  }
+
+  if (kind === 'chain') {
+    const I = { n: q('[data-i="n"]'), p: q('[data-i="p"]'), q: q('[data-i="q"]') };
+    const O = { n: q('[data-o="n"]'), p: q('[data-o="p"]'), q: q('[data-o="q"]') };
+    const update = () => {
+      const N = +I.n.value, p = +I.p.value / 100, qz = +I.q.value / 100;
+      const A1 = Math.pow(1 - p, N), A2 = Math.pow(1 - p * p, N);
+      const chain = 1 - A1 * (1 - qz), cc = 1 - A2 * (1 - qz);
+      const share = cc > 0 ? qz / cc : 0;
+      O.n.textContent = N + (N === 1 ? ' step' : ' steps'); O.p.textContent = pct(p); O.q.textContent = pct(qz);
+      V('chain').textContent = pct(chain, 3); V('cc').textContent = pct(cc, 3); V('share').textContent = qz > 0 ? pct(share) : '—';
+      if (qz === 0) setVerdict(V('verdict'), 'good', `Independent errors only: cross-checking each of the ${N} steps cuts the chain’s risk from ${pct(chain, 3)} to ${pct(cc, 3)}.`);
+      else setVerdict(V('verdict'), share > 0.5 ? 'bad' : 'warn', `Cross-checking cut the independent part from ${pct(1 - A1, 3)} to ${pct(1 - A2, 3)}, but the shared factor’s ${pct(qz)} passes every check: it is now involved in ${pct(share)} of the failures that remain. More checks of the same kind cannot touch it; only a comparator from outside the shared frame can.`);
+      done();
+    };
+    Object.values(I).forEach(el => el.addEventListener('input', update));
+    update();
+    return;
+  }
+
+  /* plausibility: self-consistency check */
+  const MODES = {
+    known: { q: 'In which city is the Eiffel Tower?', hint: 'Ask five times. A model that knows the answer repeats it.',
+      items: [['Paris', 97, 1], ['Lyon', 2, 0], ['Marseille', 1, 0]] },
+    arbitrary: { q: 'When was an obscure person, mentioned once in the training text, born?', hint: 'Ask five times. A model guessing an arbitrary fact spreads its answers.',
+      items: [['14 May', 22, 0], ['3 Aug', 20, 0], ['22 Nov', 18, 1], ['9 Jan', 16, 0], ['17 Oct', 14, 0], ['another date', 10, 0]] },
+    consistent: { q: 'Which planet is, on average, closest to Earth?', hint: 'Ask five times. A model that absorbed a popular misconception repeats it.',
+      items: [['Venus', 88, 0], ['Mercury', 9, 1], ['Mars', 3, 0]] }
+  };
+  let cur = 'known';
+  const stats = items => {
+    const w = items.filter(i => !i[2]), r = items.filter(i => i[2]);
+    const sw = w.reduce((a, i) => a + i[1] / 100, 0), sw5 = w.reduce((a, i) => a + Math.pow(i[1] / 100, 5), 0);
+    const sr = r.reduce((a, i) => a + i[1] / 100, 0), sr5 = r.reduce((a, i) => a + Math.pow(i[1] / 100, 5), 0);
+    return { pw: sw, sev: sw > 0 ? 1 - sw5 / sw : 0, fa: sr > 0 ? 1 - sr5 / sr : 0 };
+  };
+  const render = () => {
+    const m = MODES[cur], st = stats(m.items);
+    V('q').textContent = m.q;
+    V('bars').innerHTML = m.items.map(([w, p, ok]) =>
+      `<div class="nw-row"><span>${w}${ok ? ' ✓' : ''}</span><span class="nw-bar"><i style="width:${p}%"></i></span><span class="nw-p">${p}%</span></div>`).join('');
+    V('pw').textContent = pct(st.pw); V('sev').textContent = pct(st.sev, 3); V('fa').textContent = pct(st.fa);
+    V('samples').textContent = 'No answers drawn yet.';
+    setVerdict(V('verdict'), '', m.hint);
+    pick('data-mode', cur);
+    done();
+  };
+  const sample = () => {
+    const items = MODES[cur].items;
+    const picks = Array.from({ length: 5 }, () => {
+      let r = Math.random() * 100, i = 0;
+      while (i < items.length - 1 && (r -= items[i][1]) > 0) i++;
+      return i;
+    });
+    const names = picks.map(i => items[i][0]);
+    const uniq = new Set(picks).size, first = items[picks[0]];
+    V('samples').textContent = `First answer: ${names[0]}. Then: ${names.slice(1).join(', ')}.`;
+    if (uniq > 1 && first[2]) setVerdict(V('verdict'), 'warn', `Flag on a right answer. The first answer was correct, but the five disagree (${uniq} distinct), so the check calls it unreliable: a false alarm, or a lucky guess rightly distrusted.`);
+    else if (uniq > 1) setVerdict(V('verdict'), 'good', `Flag: the five answers disagree (${uniq} distinct), so the first one should not be relied on, and indeed it is wrong. The check shows the model is unsure; it does not say which answer is right.`);
+    else if (first[2]) setVerdict(V('verdict'), 'good', 'Pass: five identical answers, and the answer is right.');
+    else setVerdict(V('verdict'), 'bad', `Pass on a wrong answer: five identical answers, all wrong. Agreement here had little chance to fail; for this question the check flags a wrong answer only ${pct(stats(items).sev)} of the time.`);
+    done();
+  };
+  root.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { cur = b.dataset.mode; render(); }));
+  q('[data-act-lab="sample"]').addEventListener('click', sample);
+  render();
+}
+
+/* ---------- pointer, wheel, keys ---------- */
+const pointers = new Map();
+let drag = null, pinch = null, suppressClick = false;
+
+vp.addEventListener('pointerdown', e => {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  if (e.target.closest('input, select, textarea, label, .lab-pbtn, .nw-pick')) return;
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  fly = null;
+  if (pointers.size === 1) {
+    drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, cx: cam.x, cy: cam.y, moved: false };
+  } else if (pointers.size === 2) {
+    const [a, b] = [...pointers.values()];
+    pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2 };
+    if (drag) drag.moved = true;
+  }
+});
+window.addEventListener('pointermove', e => {
+  if (!pointers.has(e.pointerId)) return;
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pinch && pointers.size >= 2) {
+    const [a, b] = [...pointers.values()];
+    const d = Math.hypot(a.x - b.x, a.y - b.y), mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+    cam.x += mx - pinch.mx; cam.y += my - pinch.my;
+    zoomAt(mx, my, cam.s * d / (pinch.d || d));
+    pinch = { d, mx, my };
+    state.touched = true;
+    kick();
+    return;
+  }
+  if (!drag || drag.id !== e.pointerId) return;
+  const dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
+  if (!drag.moved && Math.hypot(dx, dy) > 5) {
+    drag.moved = true;
+    vp.classList.add('panning');
+  }
+  if (drag.moved) {
+    cam.x = drag.cx + dx; cam.y = drag.cy + dy;
+    state.touched = true;
+    kick();
+  }
+});
+function endPointer(e) {
+  if (!pointers.has(e.pointerId)) return;
+  pointers.delete(e.pointerId);
+  if (pointers.size < 2) pinch = null;
+  if (pointers.size === 1) {
+    const [[id, p]] = [...pointers.entries()];
+    drag = { id, x0: p.x, y0: p.y, cx: cam.x, cy: cam.y, moved: true };
+  } else if (pointers.size === 0) {
+    if (drag && drag.moved) { suppressClick = true; setTimeout(() => { suppressClick = false; }, 0); }
+    drag = null;
+    vp.classList.remove('panning');
+  }
+}
+window.addEventListener('pointerup', endPointer);
+window.addEventListener('pointercancel', endPointer);
+vp.addEventListener('click', e => { if (suppressClick) { e.stopPropagation(); e.preventDefault(); suppressClick = false; } }, true);
+
+vp.addEventListener('wheel', e => {
+  e.preventDefault();
+  fly = null;
+  state.touched = true;
+  const lines = e.deltaMode === 1 ? 33 : 1;
+  const isMouse = e.deltaMode === 1 || (e.deltaX === 0 && Math.abs(e.deltaY) >= 50 && Number.isInteger(e.deltaY));
+  if (e.ctrlKey || isMouse) {
+    const f = Math.exp(-e.deltaY * lines * (e.ctrlKey ? 0.01 : 0.0016));
+    zoomAt(e.clientX, e.clientY, cam.s * f);
+  } else {
+    cam.x -= e.deltaX; cam.y -= e.deltaY;
+  }
+  kick();
+}, { passive: false });
+
+vp.addEventListener('dblclick', e => {
+  if (e.target.closest('.card')) return;
+  const ns = clamp(cam.s * 1.8, MIN_S, MAX_S), c = { ...cam };
+  zoomAt(e.clientX, e.clientY, ns);
+  const to = { ...cam };
+  Object.assign(cam, c);
+  flyTo(to, 380);
+});
+
+world.addEventListener('click', e => {
+  const act = e.target.closest('[data-act]');
+  if (!act) return;
+  const card = act.closest('.card');
+  const n = card && nodes.get(card.dataset.id);
+  switch (act.dataset.act) {
+    case 'toggle': if (n) toggle(n); break;
+    case 'chip': if (n) toggleDrawer(n, act.dataset.k); break;
+    case 'goto': e.stopPropagation(); goTo(act.dataset.id); break;
+    case 'guide': openGuide(true); break;
+  }
+});
+world.addEventListener('focusin', e => {
+  const card = e.target.closest('.card');
+  if (!card || !e.target.matches(':focus-visible')) return;
+  const n = nodes.get(card.dataset.id);
+  if (n) focusCard(n, { x: n.tx, y: n.ty + e.target.offsetTop - 30, w: n.w, h: Math.min(n.h, e.target.offsetHeight + 60) });
+});
+
+function zoomBy(f) {
+  const c = { ...cam };
+  zoomAt(innerWidth / 2, innerHeight / 2, cam.s * f);
+  const to = { ...cam };
+  Object.assign(cam, c);
+  flyTo(to, 260);
+}
+$('#b-in').addEventListener('click', () => zoomBy(1.35));
+$('#b-out').addEventListener('click', () => zoomBy(1 / 1.35));
+$('#b-fit').addEventListener('click', () => fitAll());
+$('#b-overview').addEventListener('click', () => { endTour(); overview(); });
+$('#b-all').addEventListener('click', showAll);
+$('#filter-x').addEventListener('click', () => highlight(null));
+
+window.addEventListener('keydown', e => {
+  if (e.target.closest('input, textarea, select')) return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key;
+  if (k === 'Escape') { if (!guide.hidden) openGuide(false); else if (state.tour) endTour(); else if (state.src) highlight(null); return; }
+  if (state.tour && (k === 'ArrowRight' || k === 'ArrowLeft')) { e.preventDefault(); tourStep(k === 'ArrowRight' ? 1 : -1); return; }
+  if (k === '+' || k === '=') { zoomBy(1.35); return; }
+  if (k === '-' || k === '_') { zoomBy(1 / 1.35); return; }
+  if (k === 'f' || k === 'F' || k === '0') { fitAll(); return; }
+  const pan = { ArrowLeft: [90, 0], ArrowRight: [-90, 0], ArrowUp: [0, 90], ArrowDown: [0, -90] }[k];
+  if (pan) { e.preventDefault(); fly = null; cam.x += pan[0]; cam.y += pan[1]; kick(); }
+});
+
+/* ---------- guide panel ---------- */
+const bGuide = $('#b-guide');
+function openGuide(open) {
+  guide.hidden = !open;
+  bGuide.setAttribute('aria-expanded', String(open));
+  if (open) $('#b-gclose').focus({ preventScroll: true });
+}
+bGuide.addEventListener('click', () => openGuide(guide.hidden));
+$('#b-gclose').addEventListener('click', () => openGuide(false));
+$('#opt-follow').addEventListener('change', e => { state.follow = e.target.checked; });
+
+function jump(id) {
+  endTour();
+  if (innerWidth <= 900) openGuide(false);
+  goTo(id);
+}
+
+$('#paths').innerHTML = PATHS.map(p =>
+  `<button type="button" class="path" data-path="${p.id}"><b>${p.label}</b><span>${p.who}</span><i>${p.steps.length} stops</i></button>`).join('');
+$('#paths').addEventListener('click', e => {
+  const b = e.target.closest('[data-path]');
+  if (b) startTour(b.dataset.path);
+});
+/* shortcut list: every card that carries an interactive lab */
+const LAB_INFO = {
+  seu: ['What you think vs. what the world holds', 'Stakes, believed failure odds, a hidden factor and a humility buffer.'],
+  escape: ['Error rate × escape probability', 'Why the more accurate producer can be the riskier system, and how rare errors get flags ignored.'],
+  chain: ['Chains vs. cross-checks', 'Add steps and checks; watch blind spots add up or shrink.'],
+  plausibility: ['Ask again: which errors a re-run catches', 'Guessing errors scatter across samples; consistent ones repeat.']
+};
+$('#labs').innerHTML = all.filter(n => n.try).map(n => {
+  const [t, d] = LAB_INFO[n.try] || [n.title, ''];
+  return `<button type="button" class="lablink t-${n.theme}" data-lab="${n.id}"><b>${t}</b>${d ? `<span>${d}</span>` : ''}<i>in “${n.title}”</i></button>`;
+}).join('');
+function openLab(id) {
+  const n = nodes.get(id);
+  if (!n) return;
+  endTour();
+  if (innerWidth <= 900) openGuide(false);
+  goTo(id);
+  const d = n.el.querySelector('.drawer[data-k="try"]');
+  if (d.hidden) toggleDrawer(n, 'try');
+  layout(n);
+  focusCard(n, { x: n.tx, y: n.ty + d.offsetTop - 40, w: n.w, h: d.offsetHeight + 60 });
+}
+$('#labs').addEventListener('click', e => { const b = e.target.closest('[data-lab]'); if (b) openLab(b.dataset.lab); });
+
+$('#toc').innerHTML = DATA.children.map(t =>
+  `<div class="t-${t.theme}"><button type="button" class="toc-t" data-goto="${t.id}">${t.title}</button><ul>` +
+  t.children.map(a => `<li><button type="button" data-goto="${a.id}">${a.title}</button></li>`).join('') + `</ul></div>`).join('');
+$('#srcs').innerHTML = Object.entries(SOURCES).map(([k, [t, d]]) =>
+  `<div class="srow"><button type="button" class="k${PROPOSED.has(k) ? ' prop' : ''}" data-src="${k}" title="Highlight the cards that draw on ${k}">${k}</button><div><i>${t}</i><br><span>${d}</span></div></div>`).join('');
+$('#props').innerHTML = PROPS.map(([n, t, d, id]) =>
+  `<div class="prow"><span class="pn">${n}</span><div><button type="button" class="pt" data-goto="${id}">${t}</button><span class="pd">${d}</span></div></div>`).join('');
+$('#gloss').innerHTML = GLOSSARY.map(([t, d, id]) =>
+  `<dt><button type="button" data-goto="${id}">${t}</button></dt><dd>${d}</dd>`).join('');
+for (const sel of ['#toc', '#props', '#gloss']) {
+  $(sel).addEventListener('click', e => { const b = e.target.closest('[data-goto]'); if (b) jump(b.dataset.goto); });
+}
+$('#srcs').addEventListener('click', e => {
+  const b = e.target.closest('[data-src]');
+  if (!b) return;
+  endTour();
+  if (innerWidth <= 900) openGuide(false);
+  highlight(b.dataset.src);
+});
+
+/* ---------- guided paths ---------- */
+function startTour(id) {
+  const path = PATHS.find(p => p.id === id);
+  if (!path) return;
+  openGuide(false);
+  highlight(null);
+  state.tour = { path, i: 0 };
+  tourEl.hidden = false;
+  document.body.classList.add('touring');
+  showStep();
+}
+function showStep() {
+  const { path, i } = state.tour;
+  const [id, note] = path.steps[i];
+  $('#tour-name').textContent = path.label;
+  $('#tour-count').textContent = `Stop ${i + 1} of ${path.steps.length}`;
+  $('#tour-note').textContent = note;
+  $('#t-prev').disabled = i === 0;
+  $('#t-next').innerHTML = i === path.steps.length - 1 ? 'Finish' : 'Next &rarr;';
+  goTo(id, { keep: true });
+}
+function tourStep(d) {
+  if (!state.tour) return;
+  const i = state.tour.i + d;
+  if (i < 0) return;
+  if (i >= state.tour.path.steps.length) { endTour(); fitAll(); return; }
+  state.tour.i = i;
+  showStep();
+}
+function endTour() {
+  if (!state.tour) return;
+  state.tour = null;
+  tourEl.hidden = true;
+  document.body.classList.remove('touring');
+  if (state.spot) { state.spot.el.classList.remove('spot'); state.spot = null; }
+}
+$('#t-prev').addEventListener('click', () => tourStep(-1));
+$('#t-next').addEventListener('click', () => tourStep(1));
+$('#t-end').addEventListener('click', endTour);
+
+/* ---------- boot ---------- */
+function boot() {
+  syncVisibility();
+  layout(null);
+  snap();
+  readColors();
+  fitAll(0);
+  booted = true;
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (h && nodes.has(h)) goTo(h);
+}
+boot();
+
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(() => {
+    layout(DATA);
+    if (!state.touched) { snap(); fitAll(0); } else kick();
+  });
+}
+window.addEventListener('resize', () => kick());
+window.addEventListener('hashchange', () => { const h = decodeURIComponent(location.hash.slice(1)); if (nodes.has(h)) goTo(h); });
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readColors);
+new MutationObserver(readColors).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class'] });
+})();
+</script>

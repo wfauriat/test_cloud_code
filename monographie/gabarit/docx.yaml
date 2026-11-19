@@ -1,0 +1,5 @@
+# docx.yaml — Word output, for reviewers who comment in Word.
+to: docx
+standalone: true
+toc: true
+number-sections: false   # numbering is added by the filter (same scheme as the PDF)

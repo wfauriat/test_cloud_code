@@ -1,0 +1,16 @@
+# commun.yaml — settings shared by every output (pandoc defaults file).
+# Owned by the maintainer. Chapter order lives in livre.yaml.
+from: markdown+fenced_divs+bracketed_spans+tex_math_dollars+citations+implicit_figures+smart
+metadata:
+  lang: fr-FR
+  link-citations: true
+filters:
+  - filtres/monographie.lua   # must stay before citeproc
+  - citeproc
+bibliography:
+  - commun/biblio.bib              # verified references
+  - commun/biblio_a_verifier.bib   # candidates, cited with an orange "?" until verified
+# csl: commun/style.csl       # citation style still open (D23); pandoc default until then
+resource-path: [".", "figures"]
+number-sections: true
+top-level-division: chapter
