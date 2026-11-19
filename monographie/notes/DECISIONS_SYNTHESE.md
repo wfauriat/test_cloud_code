@@ -51,3 +51,14 @@ Aucune décision n'est encore appliquée au texte.
   - Fichiers concernés : ch. 6, 8 à 10, 13, 14, 17, 18 et la conclusion. La métaphore des « barrages » est traitée à part (S2).
 - **V21. Comparabilité, lisibilité, comparaison fidèle.** *Ouvert*, réservé à la discussion. Non bloquant.
 - **V1. Exact, précis, fiable.** *Ouvert*, réservé à la discussion. Non bloquant.
+- **V2. Statut.** *Adopté*, après discussion. Les deux sens reçoivent deux expressions distinctes.
+  - Pour les propositions du livre : « statut épistémique » (le mot de l'avant-propos), ou « statut » seul au voisinage des propositions. Glose à la première occurrence : « (définition, résultat sous hypothèses, hypothèse de travail ou constat empirique) ».
+  - Pour un résultat dans un processus réel de décision ou de prévision : « état de vérification », glosé une fois : « exploratoire ou établi, ce qui a été contrôlé de façon indépendante et par qui, sous quelles hypothèses principales ».
+  - Fichiers concernés : ch. 0, pages des parties 2 et 5, ch. 18 (y compris un titre de section), conclusion.
+  - Écartés : « niveau de confiance », en collision avec le niveau de confiance statistique ; « force de l'affirmation », qui évoque l'assurance plutôt que le contrôle.
+- **V3. Signature.** *Adopté.* Le motif est gardé. Il est glosé une fois, à la première occurrence du ch. 6 : « une signature au bas du dossier, qui engage sans rien prouver ».
+- **V4. Couche.** *Adopté.*
+  - « couche » est réservé à la pile logicielle.
+  - Pour la compétence du relecteur : « comprendre le niveau situé sous l'interface que l'on contrôle », avec les exemples de la source à la première occurrence (ch. 0, ch. 18) : « le code sous le programme généré, la physique sous le nombre calculé ».
+  - Au ch. 17 : « la couche de la pile qui offre le moins de garanties (le modèle de langage) ».
+- **V5. Devinette.** *Adopté*, après discussion. On écrit « erreurs hasardées », par opposition aux « erreurs constantes ». Pour l'acte : « le modèle hasarde une réponse ». Pour un tirage : « une réponse hasardée ». Fichiers concernés : ch. 12 à 15 et la conclusion.
