@@ -19,7 +19,7 @@ David Hume a mis le doigt, au XVIII^e^ siècle, sur la difficulté de fond [@hum
 
 Dans un cas comme dans l’autre, la rigueur du raisonnement ne garantit pas, à elle seule, que la clause « pourvu que » est remplie.
 
-## Règles conditionnelles et conditions tues {#sec:ch01-regles-conditionnelles}
+## Règles conditionnelles et arrière-plan tacite {#sec:ch01-regles-conditionnelles}
 
 Comment écrire une règle utile lorsque la liste des conditions qui la font tenir ne peut pas être close ? En logique, une règle conditionnelle s’énonce « si $A$, alors $B$ », ce que l’on note $A \rightarrow B$, ou $A_1 \cap A_2 \rightarrow B$ lorsque plusieurs conditions doivent être réunies. Dans un domaine fermé, comme l’arithmétique, le jeu d’échecs ou un circuit logique idéal, on peut faire figurer dans $A$ toutes les conditions nécessaires sans rien laisser dans l’ombre.
 
@@ -29,9 +29,9 @@ Pour rendre visible ce caractère ouvert des règles empiriques, techniques ou p
 
 $$A \cap (\dots) \rightarrow B$$ {#eq:ch01-regle}
 
-$A$ rassemble les conditions énoncées, le symbole $\cap$ note la conjonction (« et ») et $B$ la conséquence attendue. La parenthèse $(\dots)$ désigne l’arrière-plan non énoncé, c’est-à-dire l’ensemble indéfini des circonstances ordinaires que l’on tient tacitement pour acquises en appliquant la règle.
+$A$ rassemble les conditions énoncées, le symbole $\cap$ note la conjonction (« et ») et $B$ la conséquence attendue. La parenthèse $(\dots)$ désigne l’**arrière-plan tacite** de la règle, que nous noterons aussi $\mathcal{T}$ dans le texte : l’ensemble ouvert des circonstances ordinaires que l’on tient pour acquises en l’appliquant, et dont dépend sa vérité.
 
-Cette parenthèse ne trahit pas une négligence que des auteurs plus scrupuleux sauraient réparer. Une règle qui voudrait tout énoncer dans $A$ deviendrait interminable, donc inutilisable ; le @sec:ch02 examinera ce partage entre ce que l’on énonce et ce que l’on tait. Un besoin se fait sentir dès maintenant. Lorsqu’on ignore si toutes les circonstances cachées dans $(\dots)$ sont réunies, la logique, qui ne connaît que le vrai et le faux, ne dit plus à quoi s’attendre. Il faut un instrument qui pèse les issues possibles, et c’est le calcul des probabilités.
+Cette parenthèse ne trahit pas une négligence que des auteurs plus scrupuleux sauraient réparer. Une règle qui voudrait tout énoncer dans $A$ deviendrait interminable, donc inutilisable ; le @sec:ch02 examinera ce partage entre ce que l’on énonce et ce que l’on tait. Un besoin se fait sentir dès maintenant. Lorsqu’on ignore si toutes les circonstances cachées dans $\mathcal{T}$ sont réunies, la logique, qui ne connaît que le vrai et le faux, ne dit plus à quoi s’attendre. Il faut un instrument qui pèse les issues possibles, et c’est le calcul des probabilités.
 
 ## Probabilité : règles et lectures {#sec:ch01-probabilite}
 
@@ -66,7 +66,7 @@ $$\Pr(B \mid A) = \frac{\Pr(A \cap B)}{\Pr(A)}$$ {#eq:ch01-cond}
 
 Cette formule se lit de façon très concrète, et cette lecture servira tout au long du livre. Représentons-nous $\Omega$ comme l’ensemble des situations, ou des mondes, compatibles avec ce que l’on envisage, chacun muni de son poids. Conditionner par $A$, c’est ne garder que les mondes où $A$ est vrai, puis mesurer, parmi eux, la part de ceux où $B$ l’est aussi. Diviser par $\Pr(A)$ ne fait que renormaliser : les mondes retenus forment un nouvel univers, de poids total $1$.
 
-Cette lecture rejoint les règles à conditions tues de l’@eq:ch01-regle. Si une règle s’écrit $A \cap (\dots) \rightarrow B$, $\Pr(B \mid A)$ mesure, parmi les situations où les conditions énoncées $A$ sont remplies, la part de celles où l’arrière-plan tu $(\dots)$ laisse effectivement $B$ se produire. Le @sec:ch03 fera de cette image des mondes le fondement du jugement probabiliste.
+Cette lecture rejoint les règles à arrière-plan tacite de l’@eq:ch01-regle. Si une règle s’écrit $A \cap (\dots) \rightarrow B$, $\Pr(B \mid A)$ mesure, parmi les situations où les conditions énoncées $A$ sont remplies, la part de celles où les circonstances de l’arrière-plan tacite $\mathcal{T}$ sont telles que $B$ se produit. Le @sec:ch03 fera de cette image des mondes le fondement du jugement probabiliste.
 
 De l’@eq:ch01-cond découle la règle du produit, $\Pr(A \cap B) = \Pr(A)\,\Pr(B \mid A)$. Elle donne aussi une définition précise de l’indépendance au sens du calcul des probabilités. Deux événements $A$ et $B$ sont indépendants lorsque savoir $A$ ne change pas la part des mondes où $B$ est vrai, soit $\Pr(B \mid A) = \Pr(B)$, ou de façon équivalente $\Pr(A \cap B) = \Pr(A)\,\Pr(B)$. Dans tous les autres cas, apprendre $A$ déplace la probabilité de $B$.
 
@@ -149,7 +149,7 @@ C’est ce que mesure le **score logarithmique**. La surprise d’une issue, sou
 
 $$S(p) = -\ln p$$ {#eq:ch01-score-log}
 
-Plus la probabilité accordée à l’issue survenue était faible, plus la surprise est grande. Une issue annoncée comme certaine ($p = 1$) ne surprend pas du tout. Une issue jugée très improbable qui se produit malgré tout coûte cher, et une issue à laquelle on avait accordé une probabilité nulle coûte une surprise infinie. D’où une règle de prudence élémentaire : ne donner une probabilité nulle qu’à ce qui est réellement impossible. Sur une série de prévisions indépendantes, enfin, les surprises s’additionnent, ce qui permet de noter un prévisionniste sur la durée plutôt que sur un seul cas.
+Plus la probabilité accordée à l’issue survenue était faible, plus la surprise est grande. Une issue annoncée comme certaine ($p = 1$) ne surprend pas du tout. Une issue jugée très improbable qui se produit malgré tout coûte cher, et une issue à laquelle on avait accordé une probabilité nulle coûte une surprise infinie. D’où une règle de prudence élémentaire : ne donner une probabilité nulle qu’à ce qui est logiquement impossible. Sur une série d’issues jugées indépendantes, enfin, les surprises s’additionnent, ce qui permet de noter un prévisionniste sur la durée plutôt que sur un seul cas.
 
 Deux prévisionnistes évaluent le risque de gel sur un verger : le premier l’estime à 20 %, le second à 2 %. Si le gel survient, la surprise du premier vaut $-\ln 0{,}20 \approx 1{,}61$, celle du second $-\ln 0{,}02 \approx 3{,}91$. L’écart entre les deux vaut $\ln(0{,}20 / 0{,}02) = \ln 10 \approx 2{,}30$ : il correspond, si l’on traite chaque prévision comme une hypothèse, à un rapport de vraisemblance de 10 en faveur du premier. Si la nuit reste douce, le premier avait accordé 80 % à cette issue (surprise $-\ln 0{,}80 \approx 0{,}223$) et le second 98 % (surprise $-\ln 0{,}98 \approx 0{,}020$). L’écart est faible, et le rapport de vraisemblance, $0{,}80 / 0{,}98 \approx 0{,}816$, ne les départage guère.
 
@@ -171,7 +171,7 @@ Pour toute issue ayant reçu une probabilité $p \in \left]0, 1\right]$, le scor
 ## Points clés {.points-cles}
 
 - La déduction transporte la vérité de ses prémisses et l’induction généralise des régularités observées ; l’une et l’autre ne livrent leurs conclusions que « pourvu que » leurs conditions soient remplies, et la rigueur du raisonnement ne garantit pas, à elle seule, qu’elles le sont.
-- Toute règle portant sur le monde cache un arrière-plan ouvert de conditions sous-entendues, que l’on note $A \cap (\dots) \rightarrow B$.
+- Toute règle portant sur le monde cache un arrière-plan tacite de conditions qu’elle n’énonce pas, ce que l’on note $A \cap (\dots) \rightarrow B$.
 - Une probabilité peut se lire comme une fréquence ou comme un jugement ; ce livre raisonne avec le jugement et le met à l’épreuve des fréquences.
 - La probabilité conditionnelle $\Pr(B \mid A)$ est une part de mondes : parmi ceux où $A$ est vrai, la part de ceux où $B$ l’est aussi.
 - Réviser un jugement, c’est multiplier sa cote par le rapport de vraisemblance de l’observation, si bien qu’une observation déplace un jugement sans jamais le fixer à elle seule.

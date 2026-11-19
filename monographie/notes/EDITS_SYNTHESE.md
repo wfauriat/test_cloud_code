@@ -205,3 +205,123 @@ On la mesure par $\Pr(\bar{A} \mid E)$, la probabilité que le contrôle donne l
   - Avant : « Erreur que contredit au moins un comparateur ; erreur que rien ne contredit. »
   - Après : « Erreur que contredit au moins un comparateur avant l’action ; erreur que rien ne contredit avant l’action. »
 - **N1 ®** (`commun/registre_termes.md`) : nouveau terme « arrière-plan tacite » (ch. 1) ; ligne de notation $A \cap (\dots) \rightarrow B$ mise à jour ; notation $\mathcal{T}$ ajoutée.
+- **N1 ®** (`chapitres/01-outils-logique-probabilite.md`) : Introduction du terme « arrière-plan tacite » et de la lettre 𝒯.
+  - Avant : « La parenthèse $(\dots)$ désigne l’arrière-plan non énoncé, c’est-à-dire l’ensemble indéfini des circonstances ordinaires que l’on tient tacitement pour acquises en appliquant la règle. »
+  - Après : « La parenthèse $(\dots)$ désigne l’**arrière-plan tacite** de la règle, que nous noterons aussi $\mathcal{T}$ dans le texte : l’ensemble ouvert des circonstances ordinaires que l’on tient pour acquises en l’appliquant, et dont dépend sa vérité. »
+- **N1** (`chapitres/01-outils-logique-probabilite.md`) : Lettre là où la phrase manipule l'arrière-plan.
+  - Avant : « toutes les circonstances cachées dans $(\dots)$ sont réunies »
+  - Après : « toutes les circonstances cachées dans $\mathcal{T}$ sont réunies »
+- **N1 + V19 + ch1 T6** (`chapitres/01-outils-logique-probabilite.md`) : Terme fixé ; image de l'arrière-plan qui « laisse » B se produire précisée.
+  - Avant : « Cette lecture rejoint les règles à conditions tues de l’@eq:ch01-regle. Si une règle s’écrit $A \cap (\dots) \rightarrow B$, $\Pr(B \mid A)$ mesure, parmi les situations où les conditions énoncées $A$ sont remplies, la part de celles où l’arrière-plan tu $(\dots)$ laisse effectivement $B$ se produir »
+  - Après : « Cette lecture rejoint les règles à arrière-plan tacite de l’@eq:ch01-regle. Si une règle s’écrit $A \cap (\dots) \rightarrow B$, $\Pr(B \mid A)$ mesure, parmi les situations où les conditions énoncées $A$ sont remplies, la part de celles où les circonstances de l’arrière-plan tacite $\mathcal{T}$ so »
+- **V19** (`chapitres/01-outils-logique-probabilite.md`) : Titre de section harmonisé (étiquette inchangée).
+  - Avant : « ## Règles conditionnelles et conditions tues {#sec:ch01-regles-conditionnelles} »
+  - Après : « ## Règles conditionnelles et arrière-plan tacite {#sec:ch01-regles-conditionnelles} »
+- **V19 (PC)** (`chapitres/01-outils-logique-probabilite.md`) : Terme fixé.
+  - Avant : « cache un arrière-plan ouvert de conditions sous-entendues, que l’on note $A \cap (\dots) \rightarrow B$. »
+  - Après : « cache un arrière-plan tacite de conditions qu’elle n’énonce pas, ce que l’on note $A \cap (\dots) \rightarrow B$. »
+- **S14** (`chapitres/01-outils-logique-probabilite.md`) : Critère unique de la probabilité nulle (règle de Cromwell), aligné sur l'encadré.
+  - Avant : « ne donner une probabilité nulle qu’à ce qui est réellement impossible. »
+  - Après : « ne donner une probabilité nulle qu’à ce qui est logiquement impossible. »
+- **ch1 T5** (`chapitres/01-outils-logique-probabilite.md`) : Condition de l'additivité alignée sur l'encadré.
+  - Avant : « Sur une série de prévisions indépendantes, enfin, »
+  - Après : « Sur une série d’issues jugées indépendantes, enfin, »
+- **R1 + N1** (`chapitres/02-cadre.md`) : « ne garantissent leur conclusion » ; arrière-plan tacite nommé.
+  - Avant : « ne valent que « pourvu que » leurs conditions soient remplies, et que toute règle portant sur le monde s’écrit $A \cap (\dots) \rightarrow B$ (@eq:ch01-regle), la parenthèse désignant un arrière-plan non énoncé. »
+  - Après : « ne garantissent leur conclusion que « pourvu que » leurs conditions soient remplies, et que toute règle portant sur le monde s’écrit $A \cap (\dots) \rightarrow B$ (@eq:ch01-regle), la parenthèse désignant l’arrière-plan tacite $\mathcal{T}$ de la règle. »
+- **ch2 T4** (`chapitres/02-cadre.md`) : 5 % est le risque du voilier léger (ch. 4, EXP).
+  - Avant : « il estime à 5 % le risque de démâter s’il part sur un voilier léger plutôt que sur un voilier renforcé. »
+  - Après : « il hésite entre un voilier léger et un voilier renforcé, et estime à 5 % le risque de démâter s’il part sur le voilier léger. »
+- **N1 + V19** (`chapitres/02-cadre.md`) : En-tête du tableau.
+  - Avant : « | Conditions encore tues dans $(\dots)$ | »
+  - Après : « | Conditions encore tacites | »
+- **N1 + V19** (`chapitres/02-cadre.md`) : Légende du tableau.
+  - Avant : « fait passer une condition de l’arrière-plan $(\dots)$ dans la règle énoncée, sans que la liste des conditions tues se ferme jamais. »
+  - Après : « fait passer une condition de l’arrière-plan tacite dans la règle énoncée, sans que la liste des conditions tacites se ferme jamais. »
+- **V19** (`chapitres/02-cadre.md`) : Terme fixé.
+  - Avant : « réveille l’une des conditions tues, »
+  - Après : « réveille l’une des conditions tacites, »
+- **N1** (`chapitres/02-cadre.md`) : Pas de (…) nu en prose.
+  - Avant : « Le partage entre ce qui entre dans $A$ et ce qui reste dans $(\dots)$ ne concerne »
+  - Après : « Le partage entre ce qui entre dans $A$ et ce qui reste dans l’arrière-plan tacite $\mathcal{T}$ ne concerne »
+- **R2** (`chapitres/02-cadre.md`) : « finie » glosé : bornée, donc incomplète.
+  - Avant : « Un **cadre** est la spécification finie à l’intérieur de laquelle opère un raisonnement »
+  - Après : « Un **cadre** est la spécification finie, c’est-à-dire bornée et donc incomplète, à l’intérieur de laquelle opère un raisonnement »
+- **ch2 T6** (`chapitres/02-cadre.md`) : Les deux registres de l'article (lois conditionnelles, poids).
+  - Avant : « L’@eq:ch02-cond-cadre se lit à deux niveaux [@fauriat2026frame]. »
+  - Après : « L’@eq:ch02-cond-cadre se lit dans deux registres [@fauriat2026frame]. »
+- **ch2 T5** (`chapitres/02-cadre.md`) : C'est la justification du choix qui est circulaire (ART).
+  - Avant : « Ce choix précède toute inférence, et il est circulaire [@fauriat2026frame]. »
+  - Après : « Ce choix précède toute inférence, et sa justification ne peut éviter le cercle [@fauriat2026frame]. »
+- **ch2 T2** (`chapitres/02-cadre.md`) : Chez Dennett, la bombe est sur le chariot ; trois versions successives du robot (« modèle » évité).
+  - Avant : « posée sur un chariot à côté d’une bombe à retardement. Le premier modèle a tiré le chariot dehors : il savait la bombe posée dessus, mais n’avait pas compris qu’elle suivrait la batterie. Le deuxième, conçu pour déduire les conséquences de ses actes, était encore occupé à établir que tirer le chario »
+  - Après : « posée sur un chariot qui portait aussi une bombe à retardement. Dennett imagine trois versions successives de ce robot. La première a tiré le chariot dehors : elle savait la bombe posée dessus, mais n’avait pas compris qu’elle suivrait la batterie. La deuxième, conçue pour déduire les conséquences d »
+- **ch2 T3 (PC)** (`chapitres/02-cadre.md`) : Sens étroit, cohérent avec le § 5.
+  - Avant : « - Le problème du cadre, né en intelligence artificielle, est un cas particulier »
+  - Après : « - Le problème du cadre, au sens étroit où l’intelligence artificielle l’a posé, est un cas particulier »
+- **V19 (PC)** (`chapitres/02-cadre.md`) : Terme fixé.
+  - Avant : « cache un arrière-plan ouvert de conditions tues, $A \cap (\dots) \rightarrow B$, »
+  - Après : « cache un arrière-plan tacite de conditions, $A \cap (\dots) \rightarrow B$, »
+- **N1 + V19** (`chapitres/03-mondes-possibles.md`) : Arrière-plan tacite nommé à la première mention.
+  - Avant : « laisse ouvert un arrière-plan de conditions sous-entendues, noté $(\dots)$. »
+  - Après : « laisse ouvert un arrière-plan tacite $\mathcal{T}$, noté $(\dots)$ dans les formules. »
+- **N1** (`chapitres/03-mondes-possibles.md`) : Pas de (…) nu en prose.
+  - Avant : « c’est la part des situations cachées dans $(\dots)$ où la règle fonctionne. »
+  - Après : « c’est la part des situations cachées dans $\mathcal{T}$ où la règle fonctionne. »
+- **N1** (`chapitres/03-mondes-possibles.md`) : Idem.
+  - Avant : « tout ce que le cadre laisse dans $(\dots)$. »
+  - Après : « tout ce que le cadre laisse dans l’arrière-plan tacite. »
+- **N1** (`chapitres/03-mondes-possibles.md`) : Idem.
+  - Avant : « ceux où l’arrière-plan $(\dots)$ reste conforme »
+  - Après : « ceux où l’arrière-plan tacite reste conforme »
+- **N1** (`chapitres/03-mondes-possibles.md`) : Idem.
+  - Avant : « et l’on remonte vers $(\dots)$. »
+  - Après : « et l’on remonte vers l’arrière-plan tacite $\mathcal{T}$. »
+- **N1** (`chapitres/03-mondes-possibles.md`) : Idem.
+  - Avant : « Ils pèsent différemment le même arrière-plan $(\dots)$, »
+  - Après : « Ils pèsent différemment le même arrière-plan tacite, »
+- **N1** (`chapitres/03-mondes-possibles.md`) : Idem.
+  - Avant : « et reste cachée dans $(\dots)$. »
+  - Après : « et reste cachée dans l’arrière-plan tacite. »
+- **N1 (PC)** (`chapitres/03-mondes-possibles.md`) : Idem.
+  - Avant : « sur les états de l’arrière-plan $(\dots)$. »
+  - Après : « sur les états de l’arrière-plan tacite $\mathcal{T}$. »
+- **ch3 T1** (`chapitres/03-mondes-possibles.md`) : « juste » réintroduisait une valeur vraie que le chapitre écarte.
+  - Avant : « lorsque l’estimation est juste, »
+  - Après : « lorsque l’estimation est bien calibrée, »
+- **ch3 T2 (PC)** (`chapitres/03-mondes-possibles.md`) : PC aligné sur le corps et sur le garde-fou.
+  - Avant : « quelle variation plausible, ou impossible à écarter, de cet arrière-plan »
+  - Après : « quelle variation plausible, ou que l’on ne peut raisonnablement écarter, de cet arrière-plan »
+- **ch3 T3** (`chapitres/03-mondes-possibles.md`) : Le choix porte sur le voilier léger ou renforcé (ch. 4, EXP).
+  - Avant : « quel bateau il fallait choisir : »
+  - Après : « quel bateau il fallait choisir, du voilier léger ou du voilier renforcé (@sec:ch04) : »
+- **ch3 T7** (`chapitres/03-mondes-possibles.md`) : « Ni l'un ni l'autre » se lisait « tous deux ont tort » (EXP : « ni raison, ni tort »).
+  - Avant : « Ni l’un ni l’autre, et ce n’est pas faute de rigueur »
+  - Après : « Aucun des deux n’a raison, ni tort, et ce n’est pas faute de rigueur »
+- **ch3 T12** (`chapitres/03-mondes-possibles.md`) : Ordinal qui supposait de se rappeler le tableau du ch. 2.
+  - Avant : « chauffer une quatrième fois de l’eau pure »
+  - Après : « chauffer une fois de plus de l’eau pure »
+- **S14** (`chapitres/03-mondes-possibles.md`) : Ne pas examiner un monde n'est pas lui donner zéro (garde-fou concilié).
+  - Avant : « puisqu’aucune observation ne pourrait plus la relever (@sec:ch01-score-logarithmique). »
+  - Après : « puisqu’aucune observation ne pourrait plus la relever (@sec:ch01-score-logarithmique), et cela même lorsqu’on décide de ne pas examiner certains mondes : ne pas s’y attarder n’est pas leur donner zéro. »
+- **G1-2** (`chapitres/04-decider.md`) : Erreur logique : tout risque inférieur à quatre points ne suffirait pas ; il en faut à peine quatre. Aucun nombre nouveau.
+  - Avant : « un risque ignoré de moins de quatre points de pourcentage suffirait, s’il était connu, à changer sa décision ; pour le joueur de roulette russe, avec un rapport de 10 000, moins d’un centième de point suffirait. »
+  - Après : « il suffirait d’un risque ignoré d’à peine quatre points de pourcentage, s’il était connu, pour changer sa décision ; pour le joueur de roulette russe, avec un rapport de 10 000, d’un peu moins d’un centième de point. »
+- **R3 ®** (`chapitres/04-decider.md`) : Critère discriminant de la décision unique.
+  - Avant : « c’est-à-dire d’une décision prise une seule fois, sans série d’essais comparables, et dont la réponse du monde n’arrive qu’après l’acte. »
+  - Après : « c’est-à-dire d’une décision prise sans série d’essais comparables, si bien qu’une issue malheureuse ne peut être compensée par d’autres cas : la réponse du monde n’arrive qu’après l’acte, trop tard pour le corriger. »
+- **ch4 T6** (`chapitres/04-decider.md`) : « justes » → « bien calibrées » (cohérent avec le ch. 3).
+  - Avant : « et si ses estimations sont justes, »
+  - Après : « et si ses estimations sont bien calibrées, »
+- **N1** (`chapitres/04-decider.md`) : Arrière-plan tacite nommé.
+  - Avant : « pèsent différemment l’arrière-plan $(\dots)$ : »
+  - Après : « pèsent différemment l’arrière-plan tacite $\mathcal{T}$ : »
+- **N1** (`chapitres/04-decider.md`) : Idem.
+  - Avant : « a laissé tout le reste dans l’arrière-plan $(\dots)$. »
+  - Après : « a laissé tout le reste dans l’arrière-plan tacite. »
+- **N1** (`chapitres/04-decider.md`) : Idem.
+  - Avant : « avec tout ce que le cadre avait laissé dans $(\dots)$. »
+  - Après : « avec tout ce que le cadre avait laissé dans l’arrière-plan tacite. »
+- **R1** (`parties/partie-1.md`) : « ne vaut que si ses prémisses sont vraies » se lisait comme une condition de validité (p1 T1).
+  - Avant : « Une déduction ne vaut que si ses prémisses sont vraies, »
+  - Après : « Une déduction ne garantit sa conclusion que si ses prémisses sont vraies, »
