@@ -46,7 +46,8 @@ Les sources sont du matériau interne : elles servent ici à établir ce que le 
    - la notation $(\dots)$ se lit comme un trou en texte courant (une douzaine d'occurrences ; au ch. 15, les deux lecteurs y voient un reste de rédaction) ;
    - les éditeurs ont refusé par principe tout rappel d'un terme hors de son chapitre (environ 25 cas).
 5. **Du vocabulaire flottant.** Environ 25 familles, souvent des calques : « devinette », « chiffre assuré », « code de règles », « trancher une décision »… (§ 3.2).
-6. **Quatre questions de fond et trois écarts avec les sources méritent une discussion** (§ 2).
+6. **Cinq questions de fond et trois écarts avec les sources méritent une discussion** (§ 2). La cinquième (D5) vient de la lecture de la conclusion.
+7. **La conclusion n'a pas d'erreur de fond qui lui soit propre**, hormis D5. Elle reprend en revanche, souvent en les condensant, des formulations que cette synthèse propose de changer ailleurs ; ses deux relectures signalent surtout la densité de son tableau des statuts (§ 6).
 
 ### Les priorités
 
@@ -66,6 +67,7 @@ Les sources sont du matériau interne : elles servent ici à établir ce que le 
 | 12 | Cadre et représentation : leurs définitions se recouvrent | ch. 2 T1 ® | D2 |
 | 13 | Kalai : une borne inférieure présentée comme une égalité ; une citation sans source ; « indiscernable de l'intérieur » en tension avec la dispersion des tirages comme signal | ch. 12 T1 à T3, T8 | G1-9 à G1-11 |
 | 14 | Points clés plus forts que le corps (une trentaine de cas) | partout | § 4.2 |
+| 15 | Ce que « coûte » l'indépendance : le ch. 8 et la conclusion confondent les deux parties de P4 | ch. 8 T3, conclusion | D5 |
 
 ---
 
@@ -74,7 +76,7 @@ Les sources sont du matériau interne : elles servent ici à établir ce que le 
 ### 3A. Questions de fond
 
 **D1. Indépendance, plancher d'échappement, et les paramètres $c$, $m$, $s$** ⚙
-*Où : ch. 8 T3, T8 ; ch. 9 T1, T2, T6 ; ch. 16 T1 à T3 ; p4 ; listes transversales p2 n° 1-2, p4 n° 1.*
+*Où : ch. 8 T8 ; ch. 9 T1, T2, T6 ; ch. 16 T1 à T3 ; p4 ; listes transversales p2 n° 1-2, p4 n° 1. La formulation de P4 elle-même (ch. 8 T3) relève de D5.*
 
 - **Le problème.**
   - Dans M1, $s = (1-c)(1-m)$. Quand chaque alerte est examinée, l'échappement vaut $1 - s = c + (1-c)\,m$.
@@ -169,6 +171,28 @@ Les sources sont du matériau interne : elles servent ici à établir ce que le 
   - Garder la puce « différence », avec une phrase de pont (Sonnet) : le comparateur est l'historique des vols, et c'est sa mise en forme, dans le cadrage même de l'affirmation, qui l'a privé de la possibilité de se tromper autrement.
   - Pour l'« existence », retenir que le comparateur était *disponible* (les relevés existaient), et traiter sous « comparabilité » le fait qu'il n'ait pas été montré.
   - Scinder la prise en compte en deux défaillances.
+
+**D5. Ce que « coûte » l'indépendance (seconde partie de P4)**
+*Où : ch. 8 T3 ; conclusion : ligne P4 du tableau, § « La tension entre coût et indépendance », PC 2 (Opus A1, Sonnet B2).*
+
+- **Le problème.**
+  - Au ch. 8, la @prop:independance dit que l'indépendance « tend à se payer en comparabilité — donc en coût de mise en correspondance ».
+  - La conclusion parle d'une « tension entre coût et indépendance ». Elle donne pour exceptions des comparateurs bon marché dont « le prix se reporte sur la comparabilité ».
+  - Opus objecte que ces exceptions confirment alors la proposition au lieu de la contredire. Le lecteur ne sait plus si l'indépendance s'oppose au coût (effort, délai) ou à la comparabilité.
+  - Au ch. 8 s'ajoutent deux défauts :
+    - « aider contre » est un calque ;
+    - « une tension apparaît avec une autre des cinq conditions » : l'indépendance n'est pas l'une des cinq ; c'est « se tromper autrement ».
+- **Spec et sources : elles séparent deux choses.**
+  - SPEC P4 distingue :
+    - la proposition : « what claim and comparator share, neither can check in the other; yet they must share something to be compared. Independence is therefore relative, and paid for in comparability » ;
+    - l'hypothèse de travail : « the trade-off (cost tends to rise with independence) ». Sa note de robustesse précise : « Cheap and different comparators exist […]. Their cost lies in comparability: making the objection land. »
+  - FD sépare de même la tension structurelle (« independence and comparability pull against each other ») et sa première conséquence (« the cost of a check rises with its independence »).
+- **Proposition.** Distinguer partout, au ch. 8 et dans la conclusion :
+  - (i) la partie structurelle : ce que l'affirmation et le comparateur partagent, aucun des deux ne peut le contrôler chez l'autre ; or il leur faut partager quelque chose pour être comparés. L'indépendance se paie donc en comparabilité ;
+  - (ii) la tendance, qui est l'hypothèse de travail : le coût d'un contrôle (effort, délai, compétence) tend à croître avec son indépendance. Ses exceptions, bon marché à produire, reportent leur prix sur la mise en correspondance et sur la prise en compte, ce qui confirme (i) au lieu de le contredire.
+
+  Dans le tableau de la conclusion, la ligne « suite » de P4 deviendrait : « le coût d'un contrôle tend à croître avec son indépendance » (hypothèse de travail). Point faible : « des comparateurs bon marché et décalés existent, mais leur prix se reporte sur la comparabilité et la prise en compte ». Au ch. 8 : « une tension apparaît entre cette condition, se tromper autrement, et une autre des cinq conditions, la comparabilité ».
+- **À discuter :** c'est l'énoncé d'une proposition numérotée et la répartition de ses statuts.
 
 ### 3B. Écarts notables avec les sources
 
@@ -710,9 +734,115 @@ Dans tous ces cas, le corps du texte fait foi :
 
 ---
 
-## 6. La conclusion
+## 6. La conclusion, relue à la lumière de cette synthèse
 
-*(À compléter après la lecture de la conclusion et de ses deux relectures « à froid ».)*
+**Sources.** La conclusion (`chapitres/99-conclusion.md`) et ses deux relectures « à froid » (`LECTURE_FRAICHE_Sonnet_ch99.md`, `LECTURE_FRAICHE_Opus_ch99.md`). Ces relectures n'avaient pas été triées : il n'existe ni fichier EDITS ni fichier A_TRANCHER pour la conclusion.
+
+**Repères.** « Opus A1 », « Sonnet B2 » renvoient à ces relectures ; « l. 25 » renvoie à une ligne du fichier.
+
+**Bilan.** La conclusion tient le programme de la spec (`content_spec/part9_back.md`) : statuts, tensions, réfutation, comparateurs, posture. Elle n'a pas d'erreur de fond qui lui soit propre, en dehors de D5. Ses défauts sont de deux sortes :
+- elle reprend, en les condensant, des formulations que cette synthèse propose de changer ailleurs (§ 6.1) ;
+- son tableau des statuts est très dense, et emploie sans rappel des notations et des termes que les deux lecteurs ne retrouvent pas (§ 6.2).
+
+### 6.1 À répercuter dans la conclusion, selon les décisions prises ailleurs
+
+- **E1, le monde comme seule source.** À la l. 123, le monde est « le seul qui puisse contredire un cadre tout entier (@sec:ch13-le-monde) ». Il faut aligner cette phrase sur la formule retenue au ch. 13. La conclusion est d'ailleurs partagée elle-même : la l. 121 présente le domaine du lecteur comme une voie d'entrée d'une pertinence nouvelle, conformément au ch. 7.
+- **D5, ce que coûte l'indépendance.** Concerne la ligne P4 du tableau (l. 22), le § « La tension entre coût et indépendance » (l. 53 à 57) et le PC 2.
+- **D3, le blanchiment.** L. 24 : « Le blanchiment détruit la comparabilité aux interfaces (@def:blanchiment) ».
+- **R4, la sévérité.** L. 25 : « Un contrôle réussi n'est probant que s'il aurait pu échouer ».
+- **V20 et S3, les cinq conditions.** La @prop:comparateur est résumée en trois éléments (l. 18) ; le point faible invoque cinq conditions ; la dernière section les énumère avec d'autres mots (l. 142). Les deux lecteurs l'ont relevé (Opus B2, Sonnet B1). Proposition : nommer une fois les cinq conditions dans le tableau, avec leurs noms fixés.
+- **G1-12, colonne et ligne.** L. 29 et l. 134 : aucun des deux lecteurs ne sait quel axe est la ligne (Opus B4, Sonnet B5). Il faut nommer les axes une fois : « la formalité change le caractère signalé ou silencieux d'une erreur (la colonne), non la place de sa cause dans ou hors du cadre (la ligne) ».
+- **N3, les modèles M1 à M3.** Les trois modèles se croisent dans la conclusion (l. 49, 61, 67, 132 et la dernière ligne du tableau). Un lecteur y voit « le modèle M1 » servir à deux usages : la distance du contrôleur et les politiques d'alerte (Opus B5, C7 ; Sonnet C7).
+- **V4, couche.** L. 51 : « comprenant au moins une couche au-dessous » ; l. 97 : « qu'il ne sait pas lire une couche au-dessous » (Sonnet B9).
+- **V5, devinette.** L. 99.
+- **V14, chiffre assuré.** L. 127 (Opus C16, Sonnet B17).
+- **G1-9 et p3 T3, faits rares.** L. 28 : « la calibration générative impose d'inventer des faits rares » (Sonnet B4).
+- **N1, la notation $(\dots)$.** L. 13 (Opus B1, Sonnet C1).
+- **N2, les rappels.** Le tableau emploie sans rappel :
+  - VPP, $p^\ast$, $B_1$, $B_2$, $B_{\text{cmp}}$, $c$, $m$, $f$ et $u$ ;
+  - l'appariement des probabilités, l'adresse, orienter, la pile, l'omission structurelle.
+
+  Voir Opus B15, C2 et Sonnet B3, B6, B11, B17. La conclusion s'adresse à qui a lu le livre, mais quelques rappels courts coûtent peu (VPP développée à sa première occurrence ; les quatre lettres glosées à la l. 132).
+- **D2 et R2, cadre et représentation.** L. 13 : « une représentation construite dans un cadre fini ». La phrase convient aux deux lectures de D2 ; elle est à revoir si l'option (b) est retenue.
+- **V16, les effets de l'automatisation.** L. 30 : « met les contrôles en chaîne, en retire certains et corrèle ceux qui restent ». Cette formule explicite pourrait servir de modèle pour la page de la partie 5 et le chapeau du ch. 18.
+
+Trois points de la conclusion confirment déjà les propositions de cette synthèse :
+- l. 69 : « il faut qu'un autre paramètre bouge, au premier chef la part des causes partagées $c$ ». C'est la lecture de l'indépendance proposée en D1 ;
+- l. 79 : la transposition des erreurs injectées figure parmi les propositions, ce qui appuie la correction proposée pour le ch. 18 (S1) ;
+- l. 45 : la lecture de *Challenger* comme pur défaut de cadre est déjà rangée parmi les lectures corrigées (§ 3C).
+
+### 6.2 Points propres à la conclusion
+
+**Arbitrages rapides (groupe 2)**
+- **C-1. Le statut de « le monde répond à l'action ».** (l. 13, Opus B1) La seconde moitié de l'énoncé de la première ligne ne reçoit aucun statut, alors que le paragraphe précédent annonce que chaque partie reçoit le sien.
+  - *Proposition :* « définition », puisque l'asymétrie découle de ce qu'est une représentation. ART parle d'« a structural observation about where the agent stands ».
+- **C-2. Le rôle des constats empiriques.** (Opus A2, Sonnet B8) Trois passages ne disent pas la même chose :
+  - le corps dit que l'argument « a été construit pour ne dépendre d'aucun » constat ;
+  - le PC 1 dit que son poids pratique « repose » en partie sur eux ;
+  - le tableau donne le statut de constat empirique à deux affirmations : le gain de portée et la frontière en dents de scie.
+
+  *Proposition :*
+  - corps : « le noyau de l'argument ne dépend d'aucun d'eux ; certaines affirmations subsidiaires en dépendent, et le tableau le signale » ;
+  - PC 1 : « son poids pratique repose sur des hypothèses de travail, qu'illustrent des constats empiriques peu nombreux et datés ».
+- **C-3. « Hypothèse de travail » au sens large.** (l. 138, Opus B17 ; l. 79 à 81, Opus B9)
+  - *Problèmes :*
+    - appliquée à tout l'échafaudage, l'expression entre en collision avec le statut défini en tête du chapitre ;
+    - le tableau donne aux pratiques proposées le statut d'hypothèse de travail, alors que le § 2.6 dit qu'elles ne sont pas écrites comme des hypothèses.
+  - *Proposition :*
+    - « la meilleure démarche de travail », qui est le titre de la section ;
+    - préciser que le statut qualifie l'appui, et le registre la forme (« Énoncés comme de simples conjectures… »).
+
+    L'avant-propos (l. 15) dit aussi « la meilleure hypothèse de travail disponible » : à harmoniser des deux côtés.
+- **C-4. « jugé sur ce qu'il énonce, et sur rien d'autre ».** (l. 134, Opus B16, Sonnet A2)
+  - *Problème :* le connecteur « C'est pourquoi » enchaîne mal, et l'on ne sait pas ce que « rien d'autre » exclut.
+  - *Ce que dit l'avant-propos :* il fixe le sens (l. 35) : jugé sur « la justesse de ses distinctions, la solidité de ses enchaînements et l'utilité pratique des grilles de lecture », non sur la manière dont il a été construit.
+  - *Proposition :* « C'est pourquoi l'ouvrage demande, comme l'annonçait l'avant-propos, à être jugé sur ce qu'il énonce, confronté à ces comparateurs, et non sur la manière dont il a été construit. » L'avant-propos fixant l'intention, le point peut passer au groupe 1.
+- **C-5. Le point faible de la ligne du ch. 11.** (Opus C5) Que des « architectures mixtes rebâtissent un contrôle mécanique autour de la tâche », est-ce une faiblesse (l'opposition entre spécifié et appris se brouille) ou une simple précision ? Choix d'auteur.
+- **C-6. « dériver », « dérivation ».** (Opus C1) Calque possible de *derive* : « n'est pas dérivée », « une erreur de dérivation ». L'usage est admis en mathématiques. Si l'on change, harmoniser avec le ch. 8.
+- **C-7. La liste des constats empiriques.** (l. 39) Elle omet *Challenger*, *Mata*, Knight Capital, la complaisance et l'appariement des alarmes. Ajouter « notamment », ou compléter la liste.
+
+**À appliquer après accord (groupe 1)**
+- **Tableau.**
+  - Opus C2 : « valeur prédictive positive (VPP) » à la première occurrence.
+  - Opus C3 : formuler le point faible de P1 comme une faiblesse.
+  - Opus C4 : « Suppose une issue binaire… ».
+  - Opus C7 : « pour la marge d'humilité (modèle M2) ».
+  - Sonnet B4 : nommer les trois propriétés du changement de régime.
+  - Opus B3, l. 19 : « la même formulation de la consigne », comme au § 2.3.
+- **L. 37 et l. 99.** (Opus B6, Sonnet B7) « ne peut être prise en défaut que si la grille des cinq conditions qu'elle déplie se révèle inutile à l'usage ». Dans la liste des observations : « (ce qui ôterait à la grille son utilité sans réfuter la définition) ». Conforme à SPEC P2.
+- **L. 55.** (Opus B7, Sonnet B10) Rattacher l'exemple de la corrosion à la ferrure (@sec:ch08), et supprimer la tautologie « traduire… coûte en traduction ».
+- **L. 69.**
+  - Opus B8 : nommer le raccourci : conclure que la seule usure des alertes suffit à rendre dangereux un producteur amélioré.
+  - Sonnet B11 : remplacer « donc » par « ainsi ».
+- **L. 71 et PC 2.** (Sonnet B12) « Le sens de variation du produit… », au lieu de « Le signe du produit… ». Le titre change ; l'étiquette reste la même.
+- **L. 73.** (Sonnet A1, Opus C12) « Dans l'exemple illustratif du @sec:ch16, le risque […] est au contraire plus bas avec le modèle partagé… ».
+- **L. 85.** (Sonnet C3) « résout » → « atténue ».
+- **L. 93.** (Opus B10, Sonnet B13) « Une traversée sans incident (@sec:ch03) ne juge guère un prévisionniste ».
+- **L. 97.** (Sonnet B15) « ne permettait pas de prédire la part des erreurs… ».
+- **L. 99.** (Opus B11, Sonnet B14)
+  - Mettre en puces les six observations.
+  - Préciser l'étude de 2025 : les développeurs s'y estimaient plus rapides qu'ils ne l'étaient.
+- **L. 101.** (Opus B12) « Pour que ces mesures mettent le livre à l'épreuve au lieu de reproduire son cadre ».
+- **L. 107.** (Opus C15, Sonnet B19) « on la rappelle ici sans rien y ajouter ».
+- **L. 111.** (Opus B13, Sonnet B19) « il ne prouve pas que la thèse soit juste, puisqu'il en partage le cadre ».
+- **Titre de la l. 115.** (Sonnet B16) « D'où peuvent venir des comparateurs qui se trompent autrement ». L'étiquette reste la même.
+- **L. 130.** (Opus B14) « Les observations recensées plus haut (@sec:conclusion-refutation) ».
+- **L. 132.** (Opus B15, Sonnet B17) Gloser $c$, $m$, $f$ et $u$.
+- **L. 140.** (Sonnet B18) « là où l'argument engage une décision unique ».
+- **Dernier point clé.** (Opus A3) Couper après « ses risques nommés », car les deux-points font lire la suite comme une liste de risques.
+- **Retouches de style.** Opus C8 à C11, C13, C14, C17 ; Sonnet C2, C4 à C6, C10, C11. Aucun enjeu de fond.
+- **Constat écarté.** Sonnet C9 : le PC 4 (« n'en tire aucune autorité ») reprend l'avant-propos (« aucune autorité particulière ») ; le « gage réel » du corps porte sur l'article, non sur le mode d'élaboration.
+
+### 6.3 Questions pour notre échange
+
+1. **D5.** Acceptez-vous de distinguer la partie structurelle de P4 (l'indépendance se paie en comparabilité) et sa tendance (le coût croît avec l'indépendance), au ch. 8 comme dans la conclusion ?
+2. **Le livre corrige son propre article.** Sur deux points au moins, l'ouvrage corrige l'article qu'il prolonge :
+   - *Challenger* : l'article en fait un défaut de cadre ; le livre parle d'une mise en forme des données et d'une prise en compte étouffée ;
+   - les défaillances lourdes : l'article les situe dans l'incertitude ontologique ; la matrice du ch. 13 les place dans la colonne silencieuse.
+
+   La conclusion ne le dit nulle part. Ce serait pourtant l'exemple le plus concret de « la méthode appliquée à elle-même », puisque l'article est un comparateur qui partage le cadre du livre. Faut-il l'ajouter, par exemple dans « Une provenance déclarée » ? Seul l'article peut être cité ; l'origine de ces corrections ne peut pas être évoquée.
+3. **Le motif des Points clés.** Dans les termes du livre, le décalage entre les PC et le corps (une trentaine de cas) est un blanchiment : les conditions tombent au passage du corps aux résumés. Une fois les corrections faites, faut-il le dire ? Le § « la tenue du texte ne prouve rien sur son fond » s'y prêterait. Ou bien est-ce une remarque à garder pour vous ?
+4. **C-1 et C-3.** Quel statut donner à « le monde répond à l'action » ? Et faut-il réserver « hypothèse de travail » au statut défini en tête du chapitre, en parlant ailleurs de « démarche de travail » ?
 
 ---
 
@@ -720,7 +850,7 @@ Dans tous ces cas, le corps du texte fait foi :
 
 Repères :
 - G1-n, § 4.2, § 4.3 : groupe 1 ;
-- D1 à D4, E1 à E3 : groupe 3 ;
+- D1 à D5, E1 à E3 : groupe 3 ;
 - R, V, N, S : groupe 2 (§ 3.1 à 3.4) ;
 - L : § 3.5 ;
 - F : § 5.
@@ -735,7 +865,7 @@ Repères :
 - **ch. 5 :** T1 G1-5 · T2 § 4.3 · T3 S5 · T4 § 4.3 · T5, T6 § 4.2 · T7 § 4.3 · T8 à T11 L · T12 F · T13, T14 D4 · T15 L · T16, T17 S5 · T18 à T20 L · T21 N1 · T22 L
 - **ch. 6 :** T1 G1-4 · T2 S2 · T3 S3 · T4 à T6 D4 (T5, T6 aussi R11) · T7 L · T8 § 4.2 · T9 R10 · T10 L · T11 N4 · T12, T13 L · T14 § 4.3 · T15 L · T16 F · T17 V3 · T18 L · T19 V10
 - **ch. 7 :** T1 § 4.2 · T2, T3 S4 · T4 S10 · T5 L · T6, T7 § 4.3 · T8 à T15 L · T16 N1 · T17 N3 · T18, T19 L · T20 V24
-- **ch. 8 :** T1 G1-1 · T2 D3 · T3 D1 · T4 S12 · T5 D3 · T6 § 4.3 · T7 § 4.2 · T8 D1 · T9 S12 · T10 L · T11 à T14 S12 · T15 § 4.3 · T16 F · T17 D3 · T18 R7 · T19 § 4.3 · T20 V3
+- **ch. 8 :** T1 G1-1 · T2 D3 · T3 D5 · T4 S12 · T5 D3 · T6 § 4.3 · T7 § 4.2 · T8 D1 · T9 S12 · T10 L · T11 à T14 S12 · T15 § 4.3 · T16 F · T17 D3 · T18 R7 · T19 § 4.3 · T20 V3
 - **ch. 9 :** T1, T2 D1 · T3 § 4.2 · T4 L · T5 R4 · T6 G1-14 · T7 L · T8 G1-13 · T9 R4 · T10 N2 · T11 N4 · T12 à T15 L · T16 V9 · T17 L · T18 V1 · T19, T20 L
 - **p3 :** T1 à T3 § 4.3 · T4 § 4.2 · T5 à T8 § 4.3 · T9 L · T10 V9 · T11 L · T12 N2 · T13 L
 - **ch. 10 :** T1 G1-6 · T2, T3 R6 · T4 § 4.2 · T5, T6 F · T7, T8 L · T9 F · T10, T11 L · T12 § 4.2 · T13 à T20 L
